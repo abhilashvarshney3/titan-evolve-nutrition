@@ -1,8 +1,34 @@
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ProductCarousel from './ProductCarousel';
 
 const ProductShowcase = () => {
+  const [featuredVisible, setFeaturedVisible] = useState(false);
+  const [newArrivalsVisible, setNewArrivalsVisible] = useState(false);
+  const featuredRef = useRef<HTMLDivElement>(null);
+  const newArrivalsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.target === featuredRef.current && entry.isIntersecting) {
+            setFeaturedVisible(true);
+          }
+          if (entry.target === newArrivalsRef.current && entry.isIntersecting) {
+            setNewArrivalsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (featuredRef.current) observer.observe(featuredRef.current);
+    if (newArrivalsRef.current) observer.observe(newArrivalsRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
   const featuredProducts = [
     {
       id: '1',
@@ -88,8 +114,23 @@ const ProductShowcase = () => {
 
   return (
     <div className="bg-black">
-      <ProductCarousel title="FEATURED" products={featuredProducts} />
-      <ProductCarousel title="NEW ARRIVALS" products={newProducts} />
+      <div 
+        ref={featuredRef}
+        className={`transform transition-all duration-1000 ${
+          featuredVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
+        }`}
+      >
+        <ProductCarousel title="FEATURED" products={featuredProducts} />
+      </div>
+      
+      <div 
+        ref={newArrivalsRef}
+        className={`transform transition-all duration-1000 delay-300 ${
+          newArrivalsVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
+        }`}
+      >
+        <ProductCarousel title="NEW ARRIVALS" products={newProducts} />
+      </div>
     </div>
   );
 };

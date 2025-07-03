@@ -3,12 +3,16 @@ import React, { useState } from 'react';
 import { ShoppingCart, Search, Menu, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Link, useLocation } from 'react-router-dom';
+import { Input } from '@/components/ui/input';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [cartCount] = useState(3);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { name: 'HOME', href: '/' },
@@ -19,6 +23,15 @@ const Header = () => {
   ];
 
   const isActive = (href: string) => location.pathname === href;
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
 
   return (
     <header className="fixed top-0 z-50 w-full bg-black/95 backdrop-blur-sm border-b border-gray-800">
@@ -53,22 +66,56 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="hidden sm:flex text-white hover:bg-white/10">
-              <Search className="h-6 w-6" />
-            </Button>
-            
-            <Button variant="ghost" size="icon" className="hidden sm:flex text-white hover:bg-white/10">
-              <User className="h-6 w-6" />
-            </Button>
-
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10">
-              <ShoppingCart className="h-6 w-6" />
-              {cartCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-red-600 text-white text-xs">
-                  {cartCount}
-                </Badge>
+            {/* Search */}
+            <div className="relative">
+              {isSearchOpen ? (
+                <form onSubmit={handleSearch} className="flex items-center">
+                  <Input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-64 bg-gray-900 border-gray-700 text-white rounded-lg"
+                    autoFocus
+                  />
+                  <Button 
+                    type="button"
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setIsSearchOpen(false)}
+                    className="ml-2 text-white hover:bg-white/10"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </form>
+              ) : (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setIsSearchOpen(true)}
+                  className="hidden sm:flex text-white hover:bg-white/10"
+                >
+                  <Search className="h-6 w-6" />
+                </Button>
               )}
-            </Button>
+            </div>
+            
+            <Link to="/profile">
+              <Button variant="ghost" size="icon" className="hidden sm:flex text-white hover:bg-white/10">
+                <User className="h-6 w-6" />
+              </Button>
+            </Link>
+
+            <Link to="/cart">
+              <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10">
+                <ShoppingCart className="h-6 w-6" />
+                {cartCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-red-600 text-white text-xs">
+                    {cartCount}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
 
             {/* Mobile menu button */}
             <Button
@@ -100,6 +147,47 @@ const Header = () => {
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Mobile Search */}
+              <form onSubmit={handleSearch} className="pt-4 border-t border-gray-800">
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 bg-gray-900 border-gray-700 text-white rounded-lg"
+                  />
+                  <Button type="submit" className="bg-red-600 hover:bg-red-700">
+                    <Search className="h-4 w-4" />
+                  </Button>
+                </div>
+              </form>
+              
+              {/* Mobile User Links */}
+              <div className="pt-4 border-t border-gray-800 space-y-2">
+                <Link 
+                  to="/profile" 
+                  className="block text-white hover:text-red-400 py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Profile
+                </Link>
+                <Link 
+                  to="/login" 
+                  className="block text-white hover:text-red-400 py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link 
+                  to="/signup" 
+                  className="block text-white hover:text-red-400 py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign Up
+                </Link>
+              </div>
             </nav>
           </div>
         )}

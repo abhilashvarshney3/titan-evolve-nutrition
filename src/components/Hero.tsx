@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Play } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
@@ -36,16 +37,13 @@ const Hero = () => {
           Unleash your true potential.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-          <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white px-12 py-6 text-lg font-bold rounded-none transition-all duration-300 hover:scale-105 border-2 border-red-600 hover:border-red-500">
-            SHOP NOW
-            <ArrowRight className="ml-3 h-6 w-6" />
-          </Button>
-          
-          <Button variant="outline" size="lg" className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-none backdrop-blur-sm">
-            <Play className="mr-3 h-5 w-5" />
-            WATCH STORY
-          </Button>
+        <div className="flex justify-center">
+          <Link to="/shop">
+            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white px-16 py-6 text-lg font-bold rounded-none transition-all duration-300 hover:scale-105 border-2 border-red-600 hover:border-red-500">
+              SHOP NOW
+              <ArrowRight className="ml-3 h-6 w-6" />
+            </Button>
+          </Link>
         </div>
       </div>
 
