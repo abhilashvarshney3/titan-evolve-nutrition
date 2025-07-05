@@ -459,7 +459,7 @@ const ProductDetail = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </section>
         )}
       </div>
     </Layout>
