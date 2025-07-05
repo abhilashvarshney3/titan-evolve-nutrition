@@ -1,10 +1,31 @@
 
 import React, { useEffect, useRef, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import ProductCarousel from './ProductCarousel';
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image_url: string;
+  category_id: string;
+  stock_quantity: number;
+  sku: string;
+  is_featured: boolean;
+  is_new: boolean;
+  categories?: {
+    name: string;
+  };
+}
 
 const ProductShowcase = () => {
   const [featuredVisible, setFeaturedVisible] = useState(false);
   const [newArrivalsVisible, setNewArrivalsVisible] = useState(false);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [newProducts, setNewProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const featuredRef = useRef<HTMLDivElement>(null);
   const newArrivalsRef = useRef<HTMLDivElement>(null);
 
@@ -29,96 +50,114 @@ const ProductShowcase = () => {
     return () => observer.disconnect();
   }, []);
 
-  const featuredProducts = [
-    {
-      id: '1',
-      name: 'MURDERER Pre-Workout',
-      category: 'Pre-Workout',
-      price: 49.99,
-      originalPrice: 59.99,
-      image: '/lovable-uploads/07c966c6-c74a-41cd-bdf1-b37a79c15e05.png',
-      rating: 4.9,
-      reviewCount: 342,
-      badge: 'BESTSELLER',
-      description: 'Hard hitting pre-workout with hardcore pump and laser focus'
-    },
-    {
-      id: '2',
-      name: 'LEAN WHEY Protein',
-      category: 'Protein',
-      price: 39.99,
-      originalPrice: 44.99,
-      image: '/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png',
-      rating: 4.8,
-      reviewCount: 456,
-      description: 'Ultra micro filtered whey with 24g protein and fast absorption'
-    },
-    {
-      id: '3',
-      name: 'LEAN WHEY Premium',
-      category: 'Protein',
-      price: 44.99,
-      image: '/lovable-uploads/746318e4-45e9-471f-a51f-473b614f8266.png',
-      rating: 4.7,
-      reviewCount: 289,
-      badge: 'NEW',
-      description: 'Premium whey protein for lean muscle development'
-    },
-    {
-      id: '4',
-      name: 'LEAN WHEY Elite',
-      category: 'Protein',
-      price: 49.99,
-      image: '/lovable-uploads/729e363e-5733-4ed4-a128-36142849c19e.png',
-      rating: 4.6,
-      reviewCount: 198,
-      description: 'Elite formula for maximum muscle recovery'
-    }
-  ];
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-  const newProducts = [
-    {
-      id: '5',
-      name: 'MURDERER Intense',
-      category: 'Pre-Workout',
-      price: 54.99,
-      image: '/lovable-uploads/07c966c6-c74a-41cd-bdf1-b37a79c15e05.png',
-      rating: 4.8,
-      reviewCount: 89,
-      badge: 'NEW',
-      description: 'Intense pre-workout formula for hardcore training'
-    },
-    {
-      id: '6',
-      name: 'LEAN WHEY Advanced',
-      category: 'Protein',
-      price: 42.99,
-      image: '/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png',
-      rating: 4.6,
-      reviewCount: 234,
-      description: 'Advanced whey formula with enhanced absorption'
+  const fetchProducts = async () => {
+    try {
+      setError(null);
+      const { data: products, error } = await supabase
+        .from('products')
+        .select(`
+          id,
+          name,
+          description,
+          price,
+          image_url,
+          category_id,
+          stock_quantity,
+          sku,
+          is_featured,
+          is_new,
+          categories (
+            name
+          )
+        `);
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Fetched products:', products);
+
+      if (products) {
+        const featured = products.filter(product => product.is_featured);
+        const newArrivals = products.filter(product => product.is_new);
+        
+        setFeaturedProducts(featured);
+        setNewProducts(newArrivals);
+        
+        console.log('Featured products:', featured);
+        console.log('New products:', newArrivals);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError('Failed to load products. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-black py-20">
+        <div className="container mx-auto px-6 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-400">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-black py-20">
+        <div className="container mx-auto px-6 text-center">
+          <p className="text-red-400 mb-4">{error}</p>
+          <button 
+            onClick={fetchProducts}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-black">
-      <div 
-        ref={featuredRef}
-        className={`transform transition-all duration-1000 ${
-          featuredVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
-        }`}
-      >
-        <ProductCarousel title="FEATURED" products={featuredProducts} />
-      </div>
+      {featuredProducts.length > 0 && (
+        <div 
+          ref={featuredRef}
+          className={`transform transition-all duration-1000 ${
+            featuredVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
+          }`}
+        >
+          <ProductCarousel title="FEATURED" products={featuredProducts} />
+        </div>
+      )}
       
-      <div 
-        ref={newArrivalsRef}
-        className={`transform transition-all duration-1000 delay-300 ${
-          newArrivalsVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
-        }`}
-      >
-        <ProductCarousel title="NEW ARRIVALS" products={newProducts} />
-      </div>
+      {newProducts.length > 0 && (
+        <div 
+          ref={newArrivalsRef}
+          className={`transform transition-all duration-1000 delay-300 ${
+            newArrivalsVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
+          }`}
+        >
+          <ProductCarousel title="NEW ARRIVALS" products={newProducts} />
+        </div>
+      )}
+
+      {featuredProducts.length === 0 && newProducts.length === 0 && (
+        <div className="bg-black py-20">
+          <div className="container mx-auto px-6 text-center">
+            <p className="text-gray-400">No products available at the moment.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
