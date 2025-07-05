@@ -1,229 +1,257 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, Grid, List, SlidersHorizontal } from 'lucide-react';
-import ProductCard from '../components/ProductCard';
-import Header from '../components/Header';
+import { Badge } from '@/components/ui/badge';
+import { Search, Filter, Star, ShoppingCart, Heart } from 'lucide-react';
+import Layout from '@/components/Layout';
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image_url: string;
+  category_id: string;
+  stock_quantity: number;
+  sku: string;
+  is_featured: boolean;
+  is_new: boolean;
+  categories?: {
+    name: string;
+  };
+}
 
 const Shop = () => {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchParams] = useSearchParams();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
-    { id: 'all', name: 'All Products', count: 48 },
-    { id: 'pre-workout', name: 'Pre-Workout', count: 12 },
-    { id: 'protein', name: 'Protein', count: 15 },
-    { id: 'mass-gainer', name: 'Mass Gainer', count: 8 },
-    { id: 'creatine', name: 'Creatine', count: 6 },
-    { id: 'fat-loss', name: 'Fat Loss', count: 7 }
+    { id: 'all', name: 'All Products' },
+    { id: 'pre-workout', name: 'Pre-Workout' },
+    { id: 'protein', name: 'Protein' },
+    { id: 'mass-gainer', name: 'Mass Gainer' },
+    { id: 'fat-loss', name: 'Fat Loss' }
   ];
 
-  const products = [
-    {
-      id: '1',
-      name: 'MURDERER Pre-Workout Extreme',
-      category: 'Pre-Workout',
-      price: 49.99,
-      originalPrice: 59.99,
-      image: '/lovable-uploads/d012ea81-fb2d-44ba-806d-f1fd364e61d1.png',
-      rating: 4.9,
-      reviewCount: 342,
-      badge: 'BESTSELLER',
-      description: 'Hard-hitting pre-workout formula with 200mg caffeine and 3200mg beta-alanine for explosive energy.'
-    },
-    {
-      id: '2',
-      name: 'MUSCLE GAINER Premium Blend',
-      category: 'Mass Gainer',
-      price: 64.99,
-      image: '/lovable-uploads/534d4161-7ade-4f7c-bfe9-debf0e569cc5.png',
-      rating: 4.7,
-      reviewCount: 198,
-      badge: 'NEW',
-      description: 'High-quality mass gainer with 50g protein and 250g carbs for serious muscle building.'
-    },
-    {
-      id: '3',
-      name: 'LEAN WHEY Protein Isolate',
-      category: 'Protein',
-      price: 39.99,
-      originalPrice: 44.99,
-      image: '/lovable-uploads/e04aff8e-bea5-4f62-916d-a8a50dbd8955.png',
-      rating: 4.8,
-      reviewCount: 456,
-      description: 'Ultra-pure whey protein isolate with 25g protein per serving and minimal carbs.'
-    },
-    {
-      id: '4',
-      name: 'CREATINE Monohydrate Pure',
-      category: 'Creatine',
-      price: 29.99,
-      image: '/lovable-uploads/379dfbc4-577f-4c70-8379-887938232ec0.png',
-      rating: 4.6,
-      reviewCount: 289,
-      description: 'Pharmaceutical grade creatine monohydrate for strength and power enhancement.'
-    },
-    {
-      id: '5',
-      name: 'FAT BURNER Thermogenic',
-      category: 'Fat Loss',
-      price: 54.99,
-      originalPrice: 64.99,
-      image: '/lovable-uploads/d012ea81-fb2d-44ba-806d-f1fd364e61d1.png',
-      rating: 4.5,
-      reviewCount: 156,
-      badge: 'HOT',
-      description: 'Advanced thermogenic formula to accelerate fat loss and boost metabolism.'
-    },
-    {
-      id: '6',
-      name: 'PUMP Enhancer Nitric Oxide',
-      category: 'Pre-Workout',
-      price: 44.99,
-      image: '/lovable-uploads/534d4161-7ade-4f7c-bfe9-debf0e569cc5.png',
-      rating: 4.8,
-      reviewCount: 89,
-      description: 'Nitric oxide booster for incredible pumps and vascularity during workouts.'
-    },
-    {
-      id: '7',
-      name: 'CASEIN Protein Night Formula',
-      category: 'Protein',
-      price: 42.99,
-      image: '/lovable-uploads/e04aff8e-bea5-4f62-916d-a8a50dbd8955.png',
-      rating: 4.7,
-      reviewCount: 234,
-      description: 'Slow-release casein protein perfect for overnight muscle recovery and growth.'
-    },
-    {
-      id: '8',
-      name: 'BCAA Recovery Matrix',
-      category: 'Recovery',
-      price: 34.99,
-      image: '/lovable-uploads/379dfbc4-577f-4c70-8379-887938232ec0.png',
-      rating: 4.6,
-      reviewCount: 178,
-      description: 'Essential amino acids to reduce muscle fatigue and accelerate recovery.'
+  useEffect(() => {
+    fetchProducts();
+  }, [searchQuery, selectedCategory]);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    let query = supabase
+      .from('products')
+      .select(`
+        *,
+        categories (
+          name
+        )
+      `);
+
+    if (searchQuery) {
+      query = query.ilike('name', `%${searchQuery}%`);
     }
-  ];
 
-  const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === 'all' || product.category.toLowerCase().includes(selectedCategory);
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+    if (selectedCategory !== 'all') {
+      query = query.eq('categories.name', selectedCategory.replace('-', ' '));
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching products:', error);
+    } else {
+      setProducts(data || []);
+    }
+    setLoading(false);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchProducts();
+  };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Header />
-      
-      {/* Hero Section */}
-      <section className="relative h-80 bg-gradient-to-r from-red-900 via-black to-gray-900 flex items-center mt-20">
-        <div className="container mx-auto px-6">
-          <h1 className="text-6xl font-black tracking-tight mb-4">SHOP</h1>
-          <p className="text-xl text-gray-300">Premium supplements for elite performance</p>
-        </div>
-      </section>
+    <Layout>
+      <div className="min-h-screen bg-black text-white">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-r from-purple-900 to-black py-20">
+          <div className="container mx-auto px-6 text-center">
+            <h1 className="text-6xl font-black mb-6">SHOP</h1>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              Discover our complete range of premium supplements
+            </p>
+          </div>
+        </section>
 
-      <div className="container mx-auto px-6 py-12">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="lg:w-72 flex-shrink-0">
-            <div className="bg-gray-900 rounded-xl p-6 mb-8">
-              <h3 className="text-xl font-bold mb-6 text-red-400">CATEGORIES</h3>
-              <div className="space-y-3">
+        {/* Filters & Search */}
+        <section className="py-8 border-b border-purple-800/30">
+          <div className="container mx-auto px-6">
+            <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+              {/* Search */}
+              <form onSubmit={handleSearch} className="flex-1 max-w-md">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 bg-gray-900 border-purple-700 text-white"
+                  />
+                </div>
+              </form>
+
+              {/* Category Filter */}
+              <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
-                  <button
+                  <Button
                     key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`flex items-center justify-between w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${
+                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    className={`${
                       selectedCategory === category.id
-                        ? 'bg-red-600 text-white'
-                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                        ? 'bg-purple-600 hover:bg-purple-700'
+                        : 'border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white'
                     }`}
+                    onClick={() => setSelectedCategory(category.id)}
                   >
-                    <span className="font-medium">{category.name}</span>
-                    <span className="text-sm opacity-70">({category.count})</span>
-                  </button>
+                    {category.name}
+                  </Button>
                 ))}
               </div>
             </div>
+          </div>
+        </section>
 
-            <div className="bg-gray-900 rounded-xl p-6">
-              <h3 className="text-xl font-bold mb-6 text-red-400">PRICE FILTER</h3>
-              <div className="space-y-4">
-                <div className="flex gap-3">
-                  <Input 
-                    placeholder="Min" 
-                    className="bg-black border-gray-700 text-white rounded-lg" 
-                  />
-                  <Input 
-                    placeholder="Max" 
-                    className="bg-black border-gray-700 text-white rounded-lg" 
-                  />
-                </div>
-                <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg">
-                  APPLY FILTER
-                </Button>
+        {/* Products Grid */}
+        <section className="py-12">
+          <div className="container mx-auto px-6">
+            {loading ? (
+              <div className="text-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+                <p className="mt-4 text-gray-400">Loading products...</p>
               </div>
-            </div>
-          </aside>
-
-          {/* Main Content */}
-          <main className="flex-1">
-            {/* Search and Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-8">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 bg-gray-900 border-gray-700 text-white rounded-lg h-12"
-                />
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <span className="text-gray-400 text-sm">
-                  {filteredProducts.length} products found
-                </span>
-                <div className="flex gap-2">
-                  <Button
-                    variant={viewMode === 'grid' ? 'default' : 'outline'}
-                    size="icon"
-                    onClick={() => setViewMode('grid')}
-                    className="bg-red-600 hover:bg-red-700 border-red-600"
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {products.map((product) => (
+                  <div
+                    key={product.id}
+                    className="group bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl border border-purple-800/20"
                   >
-                    <Grid className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === 'list' ? 'default' : 'outline'}
-                    size="icon"
-                    onClick={() => setViewMode('list')}
-                    className="bg-red-600 hover:bg-red-700 border-red-600"
-                  >
-                    <List className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+                    {/* Image Container */}
+                    <div className="relative aspect-square overflow-hidden">
+                      <img
+                        src={product.image_url || '/placeholder.svg'}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      
+                      {/* Badges */}
+                      <div className="absolute top-3 left-3 flex flex-col gap-2">
+                        {product.is_new && (
+                          <Badge className="bg-purple-600 text-white px-2 py-1 text-xs font-bold">
+                            NEW
+                          </Badge>
+                        )}
+                        {product.is_featured && (
+                          <Badge className="bg-yellow-600 text-black px-2 py-1 text-xs font-bold">
+                            FEATURED
+                          </Badge>
+                        )}
+                      </div>
 
-            {/* Products Grid */}
-            <div className={`grid gap-6 ${
-              viewMode === 'grid' 
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-                : 'grid-cols-1'
-            }`}>
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} {...product} />
-              ))}
-            </div>
-          </main>
-        </div>
+                      {/* Wishlist Button */}
+                      <button className="absolute top-3 right-3 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/70">
+                        <Heart className="h-4 w-4 text-white" />
+                      </button>
+                      
+                      {/* Quick Add Overlay */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <Button className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2">
+                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          QUICK ADD
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 space-y-4">
+                      {/* Category */}
+                      <span className="text-purple-400 text-xs font-bold tracking-wider uppercase">
+                        {product.categories?.name || 'Supplement'}
+                      </span>
+                      
+                      {/* Title */}
+                      <h3 className="text-white text-lg font-bold line-clamp-2 group-hover:text-purple-400 transition-colors">
+                        {product.name}
+                      </h3>
+
+                      {/* Rating */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-3 w-3 ${
+                                i < 4
+                                  ? 'text-yellow-400 fill-current'
+                                  : 'text-gray-600'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-gray-400 text-xs">(247)</span>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-gray-400 text-sm line-clamp-2">
+                        {product.description}
+                      </p>
+
+                      {/* Price and Add to Cart */}
+                      <div className="flex items-center justify-between pt-2">
+                        <span className="text-white text-xl font-bold">
+                          ${product.price}
+                        </span>
+                        
+                        <Button
+                          size="sm"
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 text-sm font-bold"
+                        >
+                          ADD
+                        </Button>
+                      </div>
+
+                      {/* Stock Status */}
+                      <div className="text-xs">
+                        {product.stock_quantity > 0 ? (
+                          <span className="text-green-400">✓ In Stock ({product.stock_quantity})</span>
+                        ) : (
+                          <span className="text-red-400">✗ Out of Stock</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!loading && products.length === 0 && (
+              <div className="text-center py-20">
+                <h3 className="text-2xl font-bold text-gray-400 mb-4">No products found</h3>
+                <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+              </div>
+            )}
+          </div>
+        </section>
       </div>
-    </div>
+    </Layout>
   );
 };
 

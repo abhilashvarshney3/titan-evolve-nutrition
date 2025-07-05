@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye, EyeOff } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,11 +13,40 @@ const Login = () => {
     email: '',
     password: ''
   });
+  const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login form submitted:', formData);
-    // Handle login
+    setLoading(true);
+
+    try {
+      const { error } = await signIn(formData.email, formData.password);
+      
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You've been successfully logged in."
+        });
+        navigate('/');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,13 +56,13 @@ const Login = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-block">
             <div className="text-4xl font-black text-white tracking-tight">
-              <span className="text-red-600">TITAN</span> EVOLVE
+              <span className="text-purple-600">TITAN</span> EVOLVE
             </div>
           </Link>
         </div>
 
         {/* Login Form */}
-        <div className="bg-gray-900 p-8 rounded-xl">
+        <div className="bg-gray-900 p-8 rounded-xl border border-purple-800/30">
           <h1 className="text-3xl font-black text-center mb-2 text-white">WELCOME BACK</h1>
           <p className="text-gray-400 text-center mb-8">Sign in to your account</p>
 
@@ -42,7 +73,7 @@ const Login = () => {
                 placeholder="Email Address"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="bg-black border-gray-700 text-white rounded-lg h-12"
+                className="bg-black border-purple-700 text-white rounded-lg h-12"
                 required
               />
             </div>
@@ -53,7 +84,7 @@ const Login = () => {
                 placeholder="Password"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="bg-black border-gray-700 text-white rounded-lg h-12 pr-12"
+                className="bg-black border-purple-700 text-white rounded-lg h-12 pr-12"
                 required
               />
               <button
@@ -70,23 +101,24 @@ const Login = () => {
                 <input type="checkbox" className="mr-2" />
                 <span className="text-gray-400 text-sm">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="text-red-400 text-sm hover:text-red-300">
+              <Link to="/forgot-password" className="text-purple-400 text-sm hover:text-purple-300">
                 Forgot Password?
               </Link>
             </div>
 
             <Button 
               type="submit"
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg"
+              disabled={loading}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg"
             >
-              SIGN IN
+              {loading ? 'SIGNING IN...' : 'SIGN IN'}
             </Button>
           </form>
 
           <div className="mt-8 text-center">
             <p className="text-gray-400">
               Don't have an account?{' '}
-              <Link to="/signup" className="text-red-400 hover:text-red-300 font-bold">
+              <Link to="/signup" className="text-purple-400 hover:text-purple-300 font-bold">
                 Sign Up
               </Link>
             </p>

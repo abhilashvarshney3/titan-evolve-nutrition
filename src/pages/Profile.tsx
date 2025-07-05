@@ -1,204 +1,314 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Package, Heart, Settings, LogOut } from 'lucide-react';
-import Header from '../components/Header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { User, Mail, Phone, MapPin, Package, Settings } from 'lucide-react';
+import Layout from '@/components/Layout';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
+
+interface Profile {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+}
 
 const Profile = () => {
-  const [userInfo, setUserInfo] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@email.com',
-    phone: '+1 (555) 123-4567'
+  const [profile, setProfile] = useState<Profile>({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: ''
   });
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const orders = [
-    {
-      id: 'ORD-001',
-      date: '2024-01-15',
-      status: 'Delivered',
-      total: 89.98,
-      items: ['MURDERER Pre-Workout', 'LEAN WHEY Protein']
-    },
-    {
-      id: 'ORD-002',
-      date: '2024-01-10',
-      status: 'Processing',
-      total: 64.99,
-      items: ['MUSCLE GAINER Premium']
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    } else {
+      setLoading(false);
     }
-  ];
+  }, [user]);
 
-  const wishlistItems = [
-    {
-      id: '1',
-      name: 'FAT BURNER Elite',
-      price: 54.99,
-      image: '/lovable-uploads/d012ea81-fb2d-44ba-806d-f1fd364e61d1.png'
-    },
-    {
-      id: '2',
-      name: 'BCAA Recovery',
-      price: 34.99,
-      image: '/lovable-uploads/e04aff8e-bea5-4f62-916d-a8a50dbd8955.png'
+  const fetchProfile = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
+        setProfile(data);
+      } else {
+        // Create profile if it doesn't exist
+        setProfile({
+          first_name: '',
+          last_name: '',
+          email: user.email || '',
+          phone: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load profile.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const updateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    setUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          ...profile,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated."
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile.",
+        variant: "destructive"
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  if (!user) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-black text-white flex items-center justify-center">
+          <div className="text-center">
+            <User className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-4">Please Sign In</h2>
+            <p className="text-gray-400 mb-6">You need to be logged in to view your profile.</p>
+            <Link to="/login">
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                Sign In
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-black text-white flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Header />
-      
-      <div className="pt-20">
+    <Layout>
+      <div className="min-h-screen bg-black text-white">
         {/* Hero Section */}
-        <section className="relative h-80 bg-gradient-to-r from-red-900 via-black to-gray-900 flex items-center">
+        <section className="bg-gradient-to-r from-purple-900 to-black py-20">
           <div className="container mx-auto px-6">
-            <h1 className="text-6xl font-black tracking-tight mb-4">PROFILE</h1>
-            <p className="text-xl text-gray-300">Manage your account and orders</p>
+            <h1 className="text-6xl font-black mb-4">MY PROFILE</h1>
+            <p className="text-xl text-gray-300">
+              Manage your account settings and preferences
+            </p>
           </div>
         </section>
 
-        <div className="container mx-auto px-6 py-16">
-          <Tabs defaultValue="profile" className="space-y-8">
-            <TabsList className="bg-gray-900 p-1 rounded-xl">
-              <TabsTrigger value="profile" className="flex items-center gap-2 data-[state=active]:bg-red-600">
-                <User className="h-4 w-4" />
-                Profile
-              </TabsTrigger>
-              <TabsTrigger value="orders" className="flex items-center gap-2 data-[state=active]:bg-red-600">
-                <Package className="h-4 w-4" />
-                Orders
-              </TabsTrigger>
-              <TabsTrigger value="wishlist" className="flex items-center gap-2 data-[state=active]:bg-red-600">
-                <Heart className="h-4 w-4" />
-                Wishlist
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-red-600">
-                <Settings className="h-4 w-4" />
-                Settings
-              </TabsTrigger>
-            </TabsList>
+        <section className="py-12">
+          <div className="container mx-auto px-6 max-w-4xl">
+            <Tabs defaultValue="profile" className="space-y-6">
+              <TabsList className="bg-gray-900 p-1 rounded-xl">
+                <TabsTrigger value="profile" className="data-[state=active]:bg-purple-600">
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </TabsTrigger>
+                <TabsTrigger value="orders" className="data-[state=active]:bg-purple-600">
+                  <Package className="h-4 w-4 mr-2" />
+                  Orders
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="data-[state=active]:bg-purple-600">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="profile" className="space-y-8">
-              <div className="bg-gray-900 rounded-xl p-8">
-                <h2 className="text-2xl font-bold text-red-400 mb-6">PERSONAL INFORMATION</h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-300 mb-2">First Name</label>
-                    <Input
-                      value={userInfo.firstName}
-                      onChange={(e) => setUserInfo({...userInfo, firstName: e.target.value})}
-                      className="bg-black border-gray-700 text-white rounded-lg"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-300 mb-2">Last Name</label>
-                    <Input
-                      value={userInfo.lastName}
-                      onChange={(e) => setUserInfo({...userInfo, lastName: e.target.value})}
-                      className="bg-black border-gray-700 text-white rounded-lg"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-300 mb-2">Email</label>
-                    <Input
-                      type="email"
-                      value={userInfo.email}
-                      onChange={(e) => setUserInfo({...userInfo, email: e.target.value})}
-                      className="bg-black border-gray-700 text-white rounded-lg"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-300 mb-2">Phone</label>
-                    <Input
-                      value={userInfo.phone}
-                      onChange={(e) => setUserInfo({...userInfo, phone: e.target.value})}
-                      className="bg-black border-gray-700 text-white rounded-lg"
-                    />
-                  </div>
-                </div>
-                
-                <Button className="mt-6 bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-2">
-                  UPDATE PROFILE
-                </Button>
-              </div>
-            </TabsContent>
+              <TabsContent value="profile" className="space-y-6">
+                <Card className="bg-gray-900 border-purple-800/30">
+                  <CardHeader>
+                    <CardTitle className="text-purple-400">Personal Information</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={updateProfile} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">
+                            First Name
+                          </label>
+                          <Input
+                            type="text"
+                            value={profile.first_name}
+                            onChange={(e) => setProfile({...profile, first_name: e.target.value})}
+                            className="bg-black border-purple-700 text-white"
+                            placeholder="Enter your first name"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">
+                            Last Name
+                          </label>
+                          <Input
+                            type="text"
+                            value={profile.last_name}
+                            onChange={(e) => setProfile({...profile, last_name: e.target.value})}
+                            className="bg-black border-purple-700 text-white"
+                            placeholder="Enter your last name"
+                          />
+                        </div>
+                      </div>
 
-            <TabsContent value="orders" className="space-y-6">
-              <h2 className="text-2xl font-bold text-red-400">ORDER HISTORY</h2>
-              
-              {orders.map((order) => (
-                <div key={order.id} className="bg-gray-900 rounded-xl p-6">
-                  <div className="flex justify-between items-center mb-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          <Mail className="h-4 w-4 inline mr-2" />
+                          Email Address
+                        </label>
+                        <Input
+                          type="email"
+                          value={profile.email}
+                          onChange={(e) => setProfile({...profile, email: e.target.value})}
+                          className="bg-black border-purple-700 text-white"
+                          placeholder="Enter your email"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          <Phone className="h-4 w-4 inline mr-2" />
+                          Phone Number
+                        </label>
+                        <Input
+                          type="tel"
+                          value={profile.phone}
+                          onChange={(e) => setProfile({...profile, phone: e.target.value})}
+                          className="bg-black border-purple-700 text-white"
+                          placeholder="Enter your phone number"
+                        />
+                      </div>
+
+                      <Button
+                        type="submit"
+                        disabled={updating}
+                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold"
+                      >
+                        {updating ? 'UPDATING...' : 'UPDATE PROFILE'}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="orders" className="space-y-6">
+                <Card className="bg-gray-900 border-purple-800/30">
+                  <CardHeader>
+                    <CardTitle className="text-purple-400">Order History</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-12">
+                      <Package className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold mb-2">No Orders Yet</h3>
+                      <p className="text-gray-400 mb-4">You haven't placed any orders yet.</p>
+                      <Link to="/shop">
+                        <Button className="bg-purple-600 hover:bg-purple-700">
+                          Start Shopping
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="settings" className="space-y-6">
+                <Card className="bg-gray-900 border-purple-800/30">
+                  <CardHeader>
+                    <CardTitle className="text-purple-400">Account Settings</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="border-b border-purple-800/30 pb-4">
+                      <h3 className="text-lg font-semibold mb-2">Password</h3>
+                      <p className="text-gray-400 mb-4">Update your password to keep your account secure.</p>
+                      <Button variant="outline" className="border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white">
+                        Change Password
+                      </Button>
+                    </div>
+
+                    <div className="border-b border-purple-800/30 pb-4">
+                      <h3 className="text-lg font-semibold mb-2">Email Notifications</h3>
+                      <p className="text-gray-400 mb-4">Manage your email notification preferences.</p>
+                      <div className="space-y-2">
+                        <label className="flex items-center">
+                          <input type="checkbox" className="mr-2" defaultChecked />
+                          <span className="text-gray-300">Order updates</span>
+                        </label>
+                        <label className="flex items-center">
+                          <input type="checkbox" className="mr-2" defaultChecked />
+                          <span className="text-gray-300">Product announcements</span>
+                        </label>
+                        <label className="flex items-center">
+                          <input type="checkbox" className="mr-2" />
+                          <span className="text-gray-300">Marketing emails</span>
+                        </label>
+                      </div>
+                    </div>
+
                     <div>
-                      <h3 className="text-lg font-bold text-white">Order {order.id}</h3>
-                      <p className="text-gray-400">{order.date}</p>
+                      <h3 className="text-lg font-semibold mb-2 text-red-400">Danger Zone</h3>
+                      <p className="text-gray-400 mb-4">Permanently delete your account and all associated data.</p>
+                      <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white">
+                        Delete Account
+                      </Button>
                     </div>
-                    <div className="text-right">
-                      <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                        order.status === 'Delivered' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-black'
-                      }`}>
-                        {order.status}
-                      </span>
-                      <p className="text-white font-bold mt-2">${order.total.toFixed(2)}</p>
-                    </div>
-                  </div>
-                  <div className="text-gray-300">
-                    <p className="font-medium">Items:</p>
-                    <p>{order.items.join(', ')}</p>
-                  </div>
-                </div>
-              ))}
-            </TabsContent>
-
-            <TabsContent value="wishlist" className="space-y-6">
-              <h2 className="text-2xl font-bold text-red-400">WISHLIST</h2>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {wishlistItems.map((item) => (
-                  <div key={item.id} className="bg-gray-900 rounded-xl p-4">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-32 object-cover rounded-lg mb-4"
-                    />
-                    <h3 className="text-white font-bold mb-2">{item.name}</h3>
-                    <p className="text-red-400 font-bold text-lg mb-4">${item.price.toFixed(2)}</p>
-                    <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold">
-                      ADD TO CART
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="settings" className="space-y-8">
-              <div className="bg-gray-900 rounded-xl p-8">
-                <h2 className="text-2xl font-bold text-red-400 mb-6">ACCOUNT SETTINGS</h2>
-                
-                <div className="space-y-6">
-                  <Button className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 justify-start">
-                    Change Password
-                  </Button>
-                  <Button className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 justify-start">
-                    Notification Preferences
-                  </Button>
-                  <Button className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 justify-start">
-                    Privacy Settings
-                  </Button>
-                  <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 justify-start">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </section>
       </div>
-    </div>
+    </Layout>
   );
 };
 

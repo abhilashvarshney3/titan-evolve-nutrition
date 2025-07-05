@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import Layout from '@/components/Layout';
 
 const Products = () => {
   const categories = [
@@ -36,53 +37,55 @@ const Products = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-gray-900 to-black flex items-center">
-        <div className="container mx-auto px-6">
-          <h1 className="text-7xl font-black tracking-tight mb-4">PRODUCTS</h1>
-          <p className="text-2xl text-gray-300 max-w-2xl">
-            Scientifically formulated supplements engineered for elite performance
-          </p>
-        </div>
-      </section>
+    <Layout>
+      <div className="min-h-screen bg-black text-white">
+        {/* Hero Section */}
+        <section className="relative h-96 bg-gradient-to-r from-purple-900 to-black flex items-center">
+          <div className="container mx-auto px-6">
+            <h1 className="text-7xl font-black tracking-tight mb-4">PRODUCTS</h1>
+            <p className="text-2xl text-gray-300 max-w-2xl">
+              Scientifically formulated supplements engineered for elite performance
+            </p>
+          </div>
+        </section>
 
-      {/* Categories Grid */}
-      <section className="py-20">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="group relative h-96 overflow-hidden cursor-pointer"
-              >
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors duration-300"></div>
-                
-                <div className="absolute inset-0 flex flex-col justify-end p-8">
-                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                    <span className="text-red-400 text-sm font-bold tracking-wider">
-                      {category.productCount} PRODUCTS
-                    </span>
-                    <h3 className="text-4xl font-black mb-2">{category.name}</h3>
-                    <p className="text-gray-300 mb-6">{category.description}</p>
-                    
-                    <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-none font-bold">
-                      EXPLORE
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
+        {/* Categories Grid */}
+        <section className="py-20">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {categories.map((category) => (
+                <div
+                  key={category.id}
+                  className="group relative h-96 overflow-hidden cursor-pointer rounded-xl border border-purple-800/20"
+                >
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors duration-300"></div>
+                  
+                  <div className="absolute inset-0 flex flex-col justify-end p-8">
+                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                      <span className="text-purple-400 text-sm font-bold tracking-wider">
+                        {category.productCount} PRODUCTS
+                      </span>
+                      <h3 className="text-4xl font-black mb-2">{category.name}</h3>
+                      <p className="text-gray-300 mb-6">{category.description}</p>
+                      
+                      <Button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-none font-bold">
+                        EXPLORE
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </Layout>
   );
 };
 

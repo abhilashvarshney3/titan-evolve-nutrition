@@ -27,7 +27,7 @@ const Hero = () => {
         
         <h1 className="text-6xl md:text-8xl font-black leading-none mb-8 tracking-tight">
           MURDER YOUR
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">
+          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-purple-300">
             LIMITS
           </span>
         </h1>
@@ -39,7 +39,7 @@ const Hero = () => {
 
         <div className="flex justify-center">
           <Link to="/shop">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white px-16 py-6 text-lg font-bold rounded-none transition-all duration-300 hover:scale-105 border-2 border-red-600 hover:border-red-500">
+            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-16 py-6 text-lg font-bold rounded-none transition-all duration-300 hover:scale-105 border-2 border-purple-600 hover:border-purple-500">
               SHOP NOW
               <ArrowRight className="ml-3 h-6 w-6" />
             </Button>
