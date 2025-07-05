@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Star, ShoppingCart, Heart } from 'lucide-react';
+import { Search, Filter, Star, ShoppingCart, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,30 +27,87 @@ interface Product {
   };
 }
 
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-}
-
 const Shop = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
   const [sortBy, setSortBy] = useState('name');
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // Mock products with real images
+  const mockProducts = [
+    {
+      id: '1',
+      name: 'MURDERER Pre-Workout',
+      description: 'Hard hitting pre-workout with hardcore pump and laser focus',
+      price: 49.99,
+      image_url: '/lovable-uploads/07c966c6-c74a-41cd-bdf1-b37a79c15e05.png',
+      category_id: '1',
+      stock_quantity: 100,
+      sku: 'MW-001',
+      is_featured: true,
+      is_new: false,
+      categories: { name: 'Pre-Workout' }
+    },
+    {
+      id: '2',
+      name: 'LEAN WHEY Protein',
+      description: 'Ultra micro filtered whey with 24g protein and fast absorption',
+      price: 39.99,
+      image_url: '/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png',
+      category_id: '2',
+      stock_quantity: 150,
+      sku: 'LW-001',
+      is_featured: true,
+      is_new: true,
+      categories: { name: 'Protein' }
+    },
+    {
+      id: '3',
+      name: 'LEAN WHEY Premium',
+      description: 'Premium whey protein for lean muscle development',
+      price: 44.99,
+      image_url: '/lovable-uploads/746318e4-45e9-471f-a51f-473b614f8266.png',
+      category_id: '2',
+      stock_quantity: 120,
+      sku: 'LWP-001',
+      is_featured: false,
+      is_new: true,
+      categories: { name: 'Protein' }
+    },
+    {
+      id: '4',
+      name: 'LEAN WHEY Elite',
+      description: 'Elite formula for maximum muscle recovery',
+      price: 49.99,
+      image_url: '/lovable-uploads/729e363e-5733-4ed4-a128-36142849c19e.png',
+      category_id: '2',
+      stock_quantity: 80,
+      sku: 'LWE-001',
+      is_featured: true,
+      is_new: false,
+      categories: { name: 'Protein' }
+    }
+  ];
+
+  const categories = [
+    { id: 'all', name: 'All Products' },
+    { id: 'pre-workout', name: 'Pre-Workout' },
+    { id: 'protein', name: 'Protein' },
+    { id: 'mass-gainer', name: 'Mass Gainer' },
+    { id: 'fat-loss', name: 'Fat Loss' }
+  ];
+
   const priceRanges = [
     { id: 'all', name: 'All Prices' },
-    { id: '0-3000', name: '₹0 - ₹3,000' },
-    { id: '3000-4500', name: '₹3,000 - ₹4,500' },
-    { id: '4500-6000', name: '₹4,500 - ₹6,000' },
-    { id: '6000+', name: '₹6,000+' }
+    { id: '0-30', name: '$0 - $30' },
+    { id: '30-50', name: '$30 - $50' },
+    { id: '50-100', name: '$50 - $100' },
+    { id: '100+', name: '$100+' }
   ];
 
   const sortOptions = [
@@ -61,77 +118,33 @@ const Shop = () => {
   ];
 
   useEffect(() => {
-    fetchCategories();
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
     filterProducts();
   }, [searchQuery, selectedCategory, priceRange, sortBy]);
 
-  const fetchCategories = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      setCategories(data || []);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          categories (
-            name
-          )
-        `)
-        .order('name');
-
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load products.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const filterProducts = () => {
-    let filtered = [...products];
+    setLoading(true);
+    let filtered = [...mockProducts];
 
     // Search filter
     if (searchQuery) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        product.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Category filter
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(product =>
-        product.categories?.name.toLowerCase() === selectedCategory.toLowerCase()
+        product.categories?.name.toLowerCase() === selectedCategory.replace('-', ' ')
       );
     }
 
     // Price filter
     if (priceRange !== 'all') {
-      const [min, max] = priceRange.split('-').map(p => p === '+' ? Infinity : parseInt(p.replace('+', '')));
+      const [min, max] = priceRange.split('-').map(p => p === '+' ? Infinity : parseInt(p));
       filtered = filtered.filter(product => {
-        if (max === undefined || max === Infinity) return product.price >= min;
+        if (max === undefined) return product.price >= min;
         return product.price >= min && product.price <= max;
       });
     }
@@ -150,15 +163,13 @@ const Shop = () => {
       }
     });
 
-    return filtered;
+    setProducts(filtered);
+    setLoading(false);
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchQuery) params.set('search', searchQuery);
-    if (selectedCategory !== 'all') params.set('category', selectedCategory);
-    setSearchParams(params);
+    filterProducts();
   };
 
   const handleQuickAdd = async (product: Product) => {
@@ -220,8 +231,6 @@ const Shop = () => {
     }
   };
 
-  const filteredProducts = filterProducts();
-
   return (
     <Layout>
       <div className="min-h-screen bg-black text-white">
@@ -261,9 +270,8 @@ const Shop = () => {
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="bg-gray-900 border border-purple-700 text-white rounded-lg px-3 py-2"
                 >
-                  <option value="all">All Categories</option>
                   {categories.map((category) => (
-                    <option key={category.id} value={category.name.toLowerCase()}>
+                    <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
                   ))}
@@ -309,10 +317,10 @@ const Shop = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <div
                     key={product.id}
-                    className="group bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 border border-purple-800/20 animate-fade-in relative"
+                    className="group bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 border border-purple-800/20 animate-fade-in"
                   >
                     {/* Image Container */}
                     <Link to={`/product/${product.id}`}>
@@ -394,7 +402,7 @@ const Shop = () => {
                       {/* Price and Add to Cart */}
                       <div className="flex items-center justify-between pt-2">
                         <span className="text-white text-xl font-bold">
-                          ₹{product.price.toFixed(0)}
+                          ${product.price}
                         </span>
                         
                         <Button
@@ -420,7 +428,7 @@ const Shop = () => {
               </div>
             )}
 
-            {!loading && filteredProducts.length === 0 && (
+            {!loading && products.length === 0 && (
               <div className="text-center py-20">
                 <h3 className="text-2xl font-bold text-gray-400 mb-4">No products found</h3>
                 <p className="text-gray-500">Try adjusting your search or filter criteria</p>

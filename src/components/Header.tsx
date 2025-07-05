@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
+import { ShoppingCart, Search, Menu, X, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search, ShoppingCart, User, LogOut, Menu, X } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -12,29 +13,26 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [cartCount, setCartCount] = useState(0);
-  const { user, signOut } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      fetchCartCount();
-    } else {
-      setCartCount(0);
-    }
+  const navItems = [
+    { name: 'HOME', href: '/' },
+    { name: 'SHOP', href: '/shop' },
+    { name: 'PRODUCTS', href: '/products' },
+    { name: 'ABOUT', href: '/about' },
+    { name: 'CONTACT', href: '/contact' },
+  ];
 
-    // Listen for cart updates
-    const handleCartUpdate = () => {
-      if (user) {
-        fetchCartCount();
-      }
-    };
+  const isActive = (href: string) => location.pathname === href;
 
-    window.addEventListener('cartUpdated', handleCartUpdate);
-    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
-  }, [user]);
-
+  // Fetch cart count
   const fetchCartCount = async () => {
-    if (!user) return;
+    if (!user) {
+      setCartCount(0);
+      return;
+    }
 
     try {
       const { data, error } = await supabase
@@ -51,244 +49,230 @@ const Header = () => {
     }
   };
 
+  useEffect(() => {
+    fetchCartCount();
+
+    // Listen for cart updates
+    const handleCartUpdate = () => {
+      fetchCartCount();
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+  }, [user]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
       setIsSearchOpen(false);
       setSearchQuery('');
+      setIsMenuOpen(false);
     }
   };
 
   const handleSignOut = async () => {
     await signOut();
-    setIsMenuOpen(false);
+    navigate('/');
   };
 
   return (
-    <header className="bg-black/95 backdrop-blur-md border-b border-purple-800/20 sticky top-0 z-50">
+    <header className="fixed top-0 z-50 w-full bg-black/95 backdrop-blur-sm border-b border-purple-800/30">
       <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="text-2xl font-black text-white tracking-wider">
-            <span className="text-purple-400">MUSCLE</span>FUEL
+          <Link to="/" className="flex-shrink-0">
+            <div className="text-3xl font-black text-white tracking-tight">
+              <span className="text-purple-600">TITAN</span> EVOLVE
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-white hover:text-purple-400 transition-colors font-medium">
-              Home
-            </Link>
-            <Link to="/shop" className="text-white hover:text-purple-400 transition-colors font-medium">
-              Shop
-            </Link>
-            <Link to="/about" className="text-white hover:text-purple-400 transition-colors font-medium">
-              About
-            </Link>
-            <Link to="/contact" className="text-white hover:text-purple-400 transition-colors font-medium">
-              Contact
-            </Link>
+          <nav className="hidden lg:flex items-center space-x-12">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`font-bold tracking-wider transition-colors duration-200 relative ${
+                  isActive(item.href) 
+                    ? 'text-purple-500' 
+                    : 'text-white hover:text-purple-400'
+                }`}
+              >
+                {item.name}
+                {isActive(item.href) && (
+                  <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-purple-500"></div>
+                )}
+              </Link>
+            ))}
           </nav>
 
-          {/* Desktop Search & Actions */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Actions */}
+          <div className="flex items-center space-x-4">
             {/* Search */}
-            {isSearchOpen ? (
-              <form onSubmit={handleSearch} className="flex items-center animate-fade-in">
-                <Input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 bg-gray-900 border-purple-700 text-white"
-                  autoFocus
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsSearchOpen(false)}
-                  className="ml-2 text-white hover:bg-purple-600"
+            <div className="relative">
+              {isSearchOpen ? (
+                <div className="flex items-center bg-gray-900/90 backdrop-blur-sm rounded-lg border border-purple-700/50 p-2">
+                  <form onSubmit={handleSearch} className="flex items-center">
+                    <Input
+                      type="text"
+                      placeholder="Search products..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-48 sm:w-64 bg-transparent border-none text-white placeholder-gray-400 focus:ring-0 focus:outline-none"
+                      autoFocus
+                    />
+                    <Button 
+                      type="submit"
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-purple-400 hover:text-purple-300 hover:bg-purple-600/20 ml-2"
+                    >
+                      <Search className="h-4 w-4" />
+                    </Button>
+                  </form>
+                  <Button 
+                    type="button"
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setIsSearchOpen(false)}
+                    className="text-white hover:text-purple-400 hover:bg-purple-600/20 ml-1"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setIsSearchOpen(true)}
+                  className="hidden sm:flex text-white hover:text-purple-400 hover:bg-purple-600/20 transition-all duration-300"
                 >
-                  <X className="h-5 w-5" />
+                  <Search className="h-6 w-6" />
                 </Button>
-              </form>
+              )}
+            </div>
+            
+            {user ? (
+              <>
+                <Link to="/profile">
+                  <Button variant="ghost" size="icon" className="hidden sm:flex text-white hover:text-purple-400 hover:bg-purple-600/20 transition-all duration-300">
+                    <User className="h-6 w-6" />
+                  </Button>
+                </Link>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={handleSignOut}
+                  className="hidden sm:flex text-white hover:text-purple-400 hover:bg-purple-600/20 transition-all duration-300"
+                >
+                  <LogOut className="h-6 w-6" />
+                </Button>
+              </>
             ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSearchOpen(true)}
-                className="text-white hover:bg-purple-600 hover:text-white transition-colors"
-              >
-                <Search className="h-5 w-5" />
-              </Button>
+              <Link to="/login">
+                <Button variant="ghost" size="icon" className="hidden sm:flex text-white hover:text-purple-400 hover:bg-purple-600/20 transition-all duration-300">
+                  <User className="h-6 w-6" />
+                </Button>
+              </Link>
             )}
 
-            {/* Cart */}
             <Link to="/cart">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-purple-600 hover:text-white transition-colors relative"
-              >
-                <ShoppingCart className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="relative text-white hover:text-purple-400 hover:bg-purple-600/20 transition-all duration-300">
+                <ShoppingCart className="h-6 w-6" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-purple-600 text-white text-xs animate-pulse">
                     {cartCount}
-                  </span>
+                  </Badge>
                 )}
               </Button>
             </Link>
 
-            {/* User Actions */}
-            {user ? (
-              <div className="flex items-center space-x-2">
-                <Link to="/profile">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-purple-600 hover:text-white transition-colors"
-                  >
-                    <User className="h-5 w-5" />
-                  </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleSignOut}
-                  className="text-white hover:bg-purple-600 hover:text-white transition-colors"
-                >
-                  <LogOut className="h-5 w-5" />
-                </Button>
-              </div>
-            ) : (
-              <Link to="/login">
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                  Sign In
-                </Button>
-              </Link>
-            )}
+            {/* Mobile menu button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden text-white hover:text-purple-400 hover:bg-purple-600/20"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
           </div>
-
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-white hover:bg-purple-600"
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
         </div>
 
-        {/* Mobile Search Bar */}
-        {isSearchOpen && (
-          <div className="md:hidden pb-4 animate-fade-in">
-            <form onSubmit={handleSearch} className="flex items-center gap-2">
-              <Input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-gray-900 border-purple-700 text-white"
-                autoFocus
-              />
-              <Button type="submit" size="sm" className="bg-purple-600 hover:bg-purple-700">
-                Search
-              </Button>
-            </form>
-          </div>
-        )}
-
-        {/* Mobile Menu */}
+        {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-purple-800/20 py-4 space-y-4 animate-fade-in">
-            <div className="flex flex-col space-y-4">
-              <Link
-                to="/"
-                className="text-white hover:text-purple-400 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Home
-              </Link>
-              <Link
-                to="/shop"
-                className="text-white hover:text-purple-400 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Shop
-              </Link>
-              <Link
-                to="/about"
-                className="text-white hover:text-purple-400 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
-              </Link>
-              <Link
-                to="/contact"
-                className="text-white hover:text-purple-400 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Contact
-              </Link>
-
-              <div className="flex items-center justify-between pt-4 border-t border-purple-800/20">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setIsSearchOpen(!isSearchOpen);
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-white hover:bg-purple-600"
+          <div className="lg:hidden border-t border-purple-800/30 py-6 animate-fade-in">
+            <nav className="flex flex-col space-y-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`font-bold tracking-wider transition-colors duration-200 py-2 ${
+                    isActive(item.href) 
+                      ? 'text-purple-500' 
+                      : 'text-white hover:text-purple-400'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
                 >
-                  <Search className="h-4 w-4 mr-2" />
-                  Search
-                </Button>
-
-                <Link to="/cart" onClick={() => setIsMenuOpen(false)}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-purple-600 relative"
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    Cart
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Button>
+                  {item.name}
                 </Link>
-
+              ))}
+              
+              {/* Mobile Search */}
+              <form onSubmit={handleSearch} className="pt-4 border-t border-purple-800/30">
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 bg-gray-900 border-purple-700 text-white rounded-lg"
+                  />
+                  <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
+                    <Search className="h-4 w-4" />
+                  </Button>
+                </div>
+              </form>
+              
+              {/* Mobile User Links */}
+              <div className="pt-4 border-t border-purple-800/30 space-y-2">
                 {user ? (
-                  <div className="flex items-center space-x-2">
-                    <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" size="sm" className="text-white hover:bg-purple-600">
-                        <User className="h-4 w-4 mr-2" />
-                        Profile
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleSignOut}
-                      className="text-white hover:bg-purple-600"
+                  <>
+                    <Link 
+                      to="/profile" 
+                      className="block text-white hover:text-purple-400 py-2"
+                      onClick={() => setIsMenuOpen(false)}
                     >
-                      <LogOut className="h-4 w-4" />
-                    </Button>
-                  </div>
+                      Profile
+                    </Link>
+                    <button 
+                      onClick={handleSignOut}
+                      className="block text-white hover:text-purple-400 py-2 text-left w-full"
+                    >
+                      Sign Out
+                    </button>
+                  </>
                 ) : (
-                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                      Sign In
-                    </Button>
-                  </Link>
+                  <>
+                    <Link 
+                      to="/login" 
+                      className="block text-white hover:text-purple-400 py-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link 
+                      to="/signup" 
+                      className="block text-white hover:text-purple-400 py-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </>
                 )}
               </div>
-            </div>
+            </nav>
           </div>
         )}
       </div>

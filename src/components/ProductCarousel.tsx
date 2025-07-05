@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ShoppingCart, Star } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -10,19 +10,14 @@ import { useToast } from '@/hooks/use-toast';
 interface Product {
   id: string;
   name: string;
-  category_id?: string;
+  category: string;
   price: number;
   originalPrice?: number;
-  image_url: string;
-  rating?: number;
-  reviewCount?: number;
+  image: string;
+  rating: number;
+  reviewCount: number;
   badge?: string;
   description?: string;
-  is_featured?: boolean;
-  is_new?: boolean;
-  categories?: {
-    name: string;
-  };
 }
 
 interface ProductCarouselProps {
@@ -34,7 +29,6 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -105,10 +99,6 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
     }
   };
 
-  const handleExploreClick = (categoryName: string) => {
-    navigate(`/shop?category=${encodeURIComponent(categoryName.toLowerCase())}`);
-  };
-
   return (
     <section className="py-20 bg-black">
       <div className="container mx-auto px-6">
@@ -149,16 +139,16 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
             >
               <Link to={`/product/${product.id}`} className="block">
                 <div className="relative overflow-hidden bg-gray-900 mb-6 transform transition-all duration-500 hover:scale-105">
-                  {(product.is_new || product.is_featured) && (
+                  {product.badge && (
                     <div className="absolute top-4 left-4 z-10">
                       <span className="bg-purple-600 text-white px-3 py-1 text-xs font-bold tracking-wider">
-                        {product.is_new ? 'NEW' : 'FEATURED'}
+                        {product.badge}
                       </span>
                     </div>
                   )}
                   
                   <img
-                    src={product.image_url}
+                    src={product.image}
                     alt={product.name}
                     className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700"
                   />
@@ -175,22 +165,6 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
                       QUICK ADD
                     </Button>
                   </div>
-
-                  {/* Explore Button */}
-                  {product.categories && (
-                    <div className="absolute bottom-4 left-4 z-10">
-                      <Button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleExploreClick(product.categories!.name);
-                        }}
-                        size="sm"
-                        className="bg-purple-600/80 hover:bg-purple-700 text-white px-4 py-2 text-xs font-bold"
-                      >
-                        EXPLORE {product.categories.name.toUpperCase()}
-                      </Button>
-                    </div>
-                  )}
                 </div>
               </Link>
 
@@ -201,14 +175,14 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
                       <Star
                         key={i}
                         className={`h-4 w-4 ${
-                          i < 4
+                          i < Math.floor(product.rating)
                             ? 'text-yellow-400 fill-current'
                             : 'text-gray-600'
                         }`}
                       />
                     ))}
                   </div>
-                  <span className="text-gray-400 text-sm">(247)</span>
+                  <span className="text-gray-400 text-sm">({product.reviewCount})</span>
                 </div>
                 
                 <Link to={`/product/${product.id}`}>
@@ -218,16 +192,16 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
                 </Link>
                 
                 <p className="text-gray-400 text-sm uppercase tracking-wider">
-                  {product.categories?.name || 'Supplement'}
+                  {product.category}
                 </p>
                 
                 <div className="flex items-center gap-3">
                   <span className="text-white text-2xl font-bold">
-                    ₹{product.price.toFixed(0)}
+                    ${product.price.toFixed(2)}
                   </span>
                   {product.originalPrice && (
                     <span className="text-gray-500 text-lg line-through">
-                      ₹{product.originalPrice.toFixed(0)}
+                      ${product.originalPrice.toFixed(2)}
                     </span>
                   )}
                 </div>
