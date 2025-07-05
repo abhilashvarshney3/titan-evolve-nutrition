@@ -2,33 +2,34 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const quickLinks = [
-    { name: 'About Us', href: '#' },
-    { name: 'Contact', href: '#' },
-    { name: 'FAQ', href: '#' },
-    { name: 'Shipping Info', href: '#' },
-    { name: 'Returns', href: '#' },
-    { name: 'Size Guide', href: '#' }
+    { name: 'About Us', href: '/about' },
+    { name: 'Contact', href: '/contact' },
+    { name: 'FAQ', href: '/faq' },
+    { name: 'Shipping Info', href: '/shipping' },
+    { name: 'Returns', href: '/returns' },
+    { name: 'Size Guide', href: '/size-guide' }
   ];
 
   const categories = [
-    { name: 'Pre-Workout', href: '#' },
-    { name: 'Protein', href: '#' },
-    { name: 'Mass Gainers', href: '#' },
-    { name: 'Creatine', href: '#' },
-    { name: 'Recovery', href: '#' },
-    { name: 'Vitamins', href: '#' }
+    { name: 'Pre-Workout', href: '/shop?category=pre-workout' },
+    { name: 'Protein', href: '/shop?category=protein' },
+    { name: 'Mass Gainers', href: '/shop?category=mass-gainer' },
+    { name: 'Creatine', href: '/shop?category=creatine' },
+    { name: 'Recovery', href: '/shop?category=recovery' },
+    { name: 'Vitamins', href: '/shop?category=vitamins' }
   ];
 
   const support = [
-    { name: 'Help Center', href: '#' },
-    { name: 'Track Order', href: '#' },
-    { name: 'Bulk Orders', href: '#' },
-    { name: 'Affiliate Program', href: '#' },
-    { name: 'Wholesale', href: '#' },
-    { name: 'Reviews', href: '#' }
+    { name: 'Help Center', href: '/help' },
+    { name: 'Track Order', href: '/track-order' },
+    { name: 'Bulk Orders', href: '/bulk-orders' },
+    { name: 'Affiliate Program', href: '/affiliate' },
+    { name: 'Wholesale', href: '/wholesale' },
+    { name: 'Reviews', href: '/reviews' }
   ];
 
   return (
@@ -107,12 +108,12 @@ const Footer = () => {
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     className="text-gray-400 hover:text-purple-400 transition-colors"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -124,12 +125,12 @@ const Footer = () => {
             <ul className="space-y-3">
               {categories.map((category) => (
                 <li key={category.name}>
-                  <a
-                    href={category.href}
+                  <Link
+                    to={category.href}
                     className="text-gray-400 hover:text-purple-400 transition-colors"
                   >
                     {category.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -141,12 +142,12 @@ const Footer = () => {
             <ul className="space-y-3">
               {support.map((item) => (
                 <li key={item.name}>
-                  <a
-                    href={item.href}
+                  <Link
+                    to={item.href}
                     className="text-gray-400 hover:text-purple-400 transition-colors"
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -163,15 +164,15 @@ const Footer = () => {
             </div>
             
             <div className="flex space-x-6 text-sm">
-              <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors">
+              <Link to="/privacy" className="text-gray-400 hover:text-purple-400 transition-colors">
                 Privacy Policy
-              </a>
-              <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors">
+              </Link>
+              <Link to="/terms" className="text-gray-400 hover:text-purple-400 transition-colors">
                 Terms of Service
-              </a>
-              <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors">
+              </Link>
+              <Link to="/cookies" className="text-gray-400 hover:text-purple-400 transition-colors">
                 Cookie Policy
-              </a>
+              </Link>
             </div>
           </div>
         </div>

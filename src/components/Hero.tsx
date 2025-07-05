@@ -10,36 +10,36 @@ const Hero = () => {
       {/* Full-bleed background image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1583863788434-e58a36330cf0?q=80&w=2074&auto=format&fit=crop"
-          alt="Fitness athlete"
+          src="/lovable-uploads/729e363e-5733-4ed4-a128-36142849c19e.png"
+          alt="Titan Evolve Products"
           className="w-full h-full object-cover opacity-40"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/80"></div>
       </div>
 
       {/* Centered content */}
-      <div className="relative z-10 text-center max-w-4xl px-6">
+      <div className="relative z-10 text-center max-w-4xl px-6 animate-fade-in">
         <div className="mb-8">
-          <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-sm font-semibold tracking-wider">
+          <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-sm font-semibold tracking-wider animate-pulse">
             PREMIUM NUTRITION
           </span>
         </div>
         
-        <h1 className="text-6xl md:text-8xl font-black leading-none mb-8 tracking-tight">
+        <h1 className="text-6xl md:text-8xl font-black leading-none mb-8 tracking-tight animate-fade-in">
           MURDER YOUR
           <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-purple-300">
             LIMITS
           </span>
         </h1>
         
-        <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in">
           Scientifically engineered supplements for elite performance. 
           Unleash your true potential.
         </p>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center animate-fade-in">
           <Link to="/shop">
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-16 py-6 text-lg font-bold rounded-none transition-all duration-300 hover:scale-105 border-2 border-purple-600 hover:border-purple-500">
+            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-16 py-6 text-lg font-bold rounded-none transition-all duration-300 hover:scale-105 border-2 border-purple-600 hover:border-purple-500 transform hover:shadow-2xl hover:shadow-purple-500/50">
               SHOP NOW
               <ArrowRight className="ml-3 h-6 w-6" />
             </Button>

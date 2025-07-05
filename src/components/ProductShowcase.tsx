@@ -36,79 +36,67 @@ const ProductShowcase = () => {
       category: 'Pre-Workout',
       price: 49.99,
       originalPrice: 59.99,
-      image: '/lovable-uploads/d012ea81-fb2d-44ba-806d-f1fd364e61d1.png',
+      image: '/lovable-uploads/07c966c6-c74a-41cd-bdf1-b37a79c15e05.png',
       rating: 4.9,
       reviewCount: 342,
-      badge: 'BESTSELLER'
+      badge: 'BESTSELLER',
+      description: 'Hard hitting pre-workout with hardcore pump and laser focus'
     },
     {
       id: '2',
-      name: 'MUSCLE GAINER Premium',
-      category: 'Mass Gainer',
-      price: 64.99,
-      image: '/lovable-uploads/534d4161-7ade-4f7c-bfe9-debf0e569cc5.png',
-      rating: 4.7,
-      reviewCount: 198,
-      badge: 'NEW'
-    },
-    {
-      id: '3',
       name: 'LEAN WHEY Protein',
       category: 'Protein',
       price: 39.99,
       originalPrice: 44.99,
-      image: '/lovable-uploads/e04aff8e-bea5-4f62-916d-a8a50dbd8955.png',
+      image: '/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png',
       rating: 4.8,
-      reviewCount: 456
+      reviewCount: 456,
+      description: 'Ultra micro filtered whey with 24g protein and fast absorption'
+    },
+    {
+      id: '3',
+      name: 'LEAN WHEY Premium',
+      category: 'Protein',
+      price: 44.99,
+      image: '/lovable-uploads/746318e4-45e9-471f-a51f-473b614f8266.png',
+      rating: 4.7,
+      reviewCount: 289,
+      badge: 'NEW',
+      description: 'Premium whey protein for lean muscle development'
     },
     {
       id: '4',
-      name: 'CREATINE Monohydrate',
-      category: 'Creatine',
-      price: 29.99,
-      image: '/lovable-uploads/379dfbc4-577f-4c70-8379-887938232ec0.png',
+      name: 'LEAN WHEY Elite',
+      category: 'Protein',
+      price: 49.99,
+      image: '/lovable-uploads/729e363e-5733-4ed4-a128-36142849c19e.png',
       rating: 4.6,
-      reviewCount: 289
-    },
-    {
-      id: '5',
-      name: 'BCAA Recovery',
-      category: 'Recovery',
-      price: 34.99,
-      image: '/lovable-uploads/d012ea81-fb2d-44ba-806d-f1fd364e61d1.png',
-      rating: 4.5,
-      reviewCount: 156
+      reviewCount: 198,
+      description: 'Elite formula for maximum muscle recovery'
     }
   ];
 
   const newProducts = [
     {
-      id: '6',
-      name: 'PUMP Enhancer',
+      id: '5',
+      name: 'MURDERER Intense',
       category: 'Pre-Workout',
-      price: 44.99,
-      image: '/lovable-uploads/534d4161-7ade-4f7c-bfe9-debf0e569cc5.png',
+      price: 54.99,
+      image: '/lovable-uploads/07c966c6-c74a-41cd-bdf1-b37a79c15e05.png',
       rating: 4.8,
       reviewCount: 89,
-      badge: 'NEW'
+      badge: 'NEW',
+      description: 'Intense pre-workout formula for hardcore training'
     },
     {
-      id: '7',
-      name: 'FAT BURNER Elite',
-      category: 'Fat Loss',
-      price: 54.99,
-      image: '/lovable-uploads/e04aff8e-bea5-4f62-916d-a8a50dbd8955.png',
+      id: '6',
+      name: 'LEAN WHEY Advanced',
+      category: 'Protein',
+      price: 42.99,
+      image: '/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png',
       rating: 4.6,
-      reviewCount: 234
-    },
-    {
-      id: '8',
-      name: 'SLEEP Formula',
-      category: 'Recovery',
-      price: 39.99,
-      image: '/lovable-uploads/379dfbc4-577f-4c70-8379-887938232ec0.png',
-      rating: 4.7,
-      reviewCount: 112
+      reviewCount: 234,
+      description: 'Advanced whey formula with enhanced absorption'
     }
   ];
 

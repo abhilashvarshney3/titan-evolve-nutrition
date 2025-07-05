@@ -3,42 +3,28 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-
     --primary: 263 70% 50%;
     --primary-foreground: 210 40% 98%;
-
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 263 70% 50%;
-
     --radius: 0.5rem;
-
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -52,28 +38,20 @@ All colors MUST be HSL.
   .dark {
     --background: 0 0% 0%;
     --foreground: 210 40% 98%;
-
     --card: 0 0% 7%;
     --card-foreground: 210 40% 98%;
-
     --popover: 0 0% 7%;
     --popover-foreground: 210 40% 98%;
-
     --primary: 263 70% 50%;
     --primary-foreground: 210 40% 98%;
-
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 263 70% 50%;
     --input: 217.2 32.6% 17.5%;
     --ring: 263 70% 50%;
@@ -93,6 +71,10 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-black text-white;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -100,7 +82,7 @@ All colors MUST be HSL.
     overflow-x: hidden;
   }
 
-  /* Custom scrollbar for dark theme */
+  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -129,67 +111,43 @@ All colors MUST be HSL.
     display: none;
   }
 
-  /* Mobile-first responsive typography */
-  h1 {
-    @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl;
+  /* Smooth scroll */
+  .scroll-smooth {
+    scroll-behavior: smooth;
   }
 
-  h2 {
-    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl;
+  /* Enhanced animations */
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
   }
 
-  h3 {
-    @apply text-xl sm:text-2xl md:text-3xl;
-  }
-
-  /* Responsive containers */
-  .container {
-    @apply w-full px-4 sm:px-6 lg:px-8 xl:px-12;
-  }
-
-  /* Mobile optimizations */
-  @media (max-width: 640px) {
-    .hero-text {
-      @apply text-4xl;
-    }
-    
-    .mobile-padding {
-      @apply px-4;
-    }
-    
-    .mobile-gap {
-      @apply gap-4;
-    }
-  }
-
-  /* Tablet optimizations */
-  @media (min-width: 641px) and (max-width: 1024px) {
-    .tablet-grid {
-      @apply grid-cols-2;
-    }
-  }
-
-  /* Desktop optimizations */
-  @media (min-width: 1025px) {
-    .desktop-grid {
-      @apply grid-cols-3 lg:grid-cols-4;
-    }
-  }
-
-  /* Touch-friendly buttons for mobile */
-  @media (max-width: 640px) {
-    button {
-      @apply min-h-12 px-6;
-    }
-    
-    input {
-      @apply min-h-12;
-    }
-  }
-
-  /* Animations for scroll reveals */
   .animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.8s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.8s ease-out forwards;
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 1s ease-out forwards;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes fadeInUp {
@@ -200,6 +158,54 @@ All colors MUST be HSL.
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes bounceIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    70% {
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 5px #7c3aed, 0 0 10px #7c3aed, 0 0 15px #7c3aed;
+    }
+    50% {
+      box-shadow: 0 0 10px #7c3aed, 0 0 20px #7c3aed, 0 0 30px #7c3aed;
     }
   }
 
@@ -224,6 +230,56 @@ All colors MUST be HSL.
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
+
+  /* Responsive typography */
+  h1 {
+    @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl;
+  }
+
+  h2 {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl;
+  }
+
+  h3 {
+    @apply text-xl sm:text-2xl md:text-3xl;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 640px) {
+    .hero-text {
+      @apply text-4xl;
+    }
+    
+    .mobile-padding {
+      @apply px-4;
+    }
+    
+    .mobile-gap {
+      @apply gap-4;
+    }
+
+    button {
+      @apply min-h-12 px-6;
+    }
+    
+    input {
+      @apply min-h-12;
+    }
+  }
+
+  /* Tablet optimizations */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .tablet-grid {
+      @apply grid-cols-2;
+    }
+  }
+
+  /* Desktop optimizations */
+  @media (min-width: 1025px) {
+    .desktop-grid {
+      @apply grid-cols-3 lg:grid-cols-4;
+    }
+  }
 }
 
 @layer utilities {
@@ -231,7 +287,7 @@ All colors MUST be HSL.
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   }
 
-  /* Mobile-first grid utilities */
+  /* Grid utilities */
   .grid-responsive {
     @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
   }
@@ -240,7 +296,7 @@ All colors MUST be HSL.
     @apply flex flex-col sm:flex-row;
   }
 
-  /* Safe area handling for mobile devices */
+  /* Safe area handling */
   .safe-top {
     padding-top: env(safe-area-inset-top);
   }
@@ -265,6 +321,37 @@ All colors MUST be HSL.
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  /* Hover effects */
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(124, 58, 237, 0.3);
+  }
+
+  .hover-glow {
+    transition: box-shadow 0.3s ease;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+  }
+
+  /* Backdrop blur utilities */
+  .backdrop-blur-xs {
+    backdrop-filter: blur(2px);
+  }
+
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+
+  .backdrop-blur-md {
+    backdrop-filter: blur(8px);
+  }
 }
 
 /* High contrast mode support */
@@ -282,4 +369,20 @@ All colors MUST be HSL.
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Intersection Observer animations */
+.fade-in-on-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
 }

@@ -1,17 +1,18 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Search, Menu, X, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [cartCount] = useState(3);
+  const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -26,12 +27,47 @@ const Header = () => {
 
   const isActive = (href: string) => location.pathname === href;
 
+  // Fetch cart count
+  const fetchCartCount = async () => {
+    if (!user) {
+      setCartCount(0);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('cart')
+        .select('quantity')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      const total = data?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+      setCartCount(total);
+    } catch (error) {
+      console.error('Error fetching cart count:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCartCount();
+
+    // Listen for cart updates
+    const handleCartUpdate = () => {
+      fetchCartCount();
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+  }, [user]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
       setIsSearchOpen(false);
       setSearchQuery('');
+      setIsMenuOpen(false);
     }
   };
 
@@ -76,31 +112,41 @@ const Header = () => {
             {/* Search */}
             <div className="relative">
               {isSearchOpen ? (
-                <form onSubmit={handleSearch} className="flex items-center">
-                  <Input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-64 bg-gray-900 border-purple-700 text-white rounded-lg"
-                    autoFocus
-                  />
+                <div className="flex items-center bg-gray-900/90 backdrop-blur-sm rounded-lg border border-purple-700/50 p-2">
+                  <form onSubmit={handleSearch} className="flex items-center">
+                    <Input
+                      type="text"
+                      placeholder="Search products..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-48 sm:w-64 bg-transparent border-none text-white placeholder-gray-400 focus:ring-0 focus:outline-none"
+                      autoFocus
+                    />
+                    <Button 
+                      type="submit"
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-purple-400 hover:text-purple-300 hover:bg-purple-600/20 ml-2"
+                    >
+                      <Search className="h-4 w-4" />
+                    </Button>
+                  </form>
                   <Button 
                     type="button"
                     variant="ghost" 
                     size="icon" 
                     onClick={() => setIsSearchOpen(false)}
-                    className="ml-2 text-white hover:bg-white/10"
+                    className="text-white hover:text-purple-400 hover:bg-purple-600/20 ml-1"
                   >
                     <X className="h-4 w-4" />
                   </Button>
-                </form>
+                </div>
               ) : (
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   onClick={() => setIsSearchOpen(true)}
-                  className="hidden sm:flex text-white hover:bg-white/10"
+                  className="hidden sm:flex text-white hover:text-purple-400 hover:bg-purple-600/20 transition-all duration-300"
                 >
                   <Search className="h-6 w-6" />
                 </Button>
@@ -110,7 +156,7 @@ const Header = () => {
             {user ? (
               <>
                 <Link to="/profile">
-                  <Button variant="ghost" size="icon" className="hidden sm:flex text-white hover:bg-white/10">
+                  <Button variant="ghost" size="icon" className="hidden sm:flex text-white hover:text-purple-400 hover:bg-purple-600/20 transition-all duration-300">
                     <User className="h-6 w-6" />
                   </Button>
                 </Link>
@@ -118,24 +164,24 @@ const Header = () => {
                   variant="ghost" 
                   size="icon" 
                   onClick={handleSignOut}
-                  className="hidden sm:flex text-white hover:bg-white/10"
+                  className="hidden sm:flex text-white hover:text-purple-400 hover:bg-purple-600/20 transition-all duration-300"
                 >
                   <LogOut className="h-6 w-6" />
                 </Button>
               </>
             ) : (
               <Link to="/login">
-                <Button variant="ghost" size="icon" className="hidden sm:flex text-white hover:bg-white/10">
+                <Button variant="ghost" size="icon" className="hidden sm:flex text-white hover:text-purple-400 hover:bg-purple-600/20 transition-all duration-300">
                   <User className="h-6 w-6" />
                 </Button>
               </Link>
             )}
 
             <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10">
+              <Button variant="ghost" size="icon" className="relative text-white hover:text-purple-400 hover:bg-purple-600/20 transition-all duration-300">
                 <ShoppingCart className="h-6 w-6" />
                 {cartCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-purple-600 text-white text-xs">
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-purple-600 text-white text-xs animate-pulse">
                     {cartCount}
                   </Badge>
                 )}
@@ -146,7 +192,7 @@ const Header = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden text-white"
+              className="lg:hidden text-white hover:text-purple-400 hover:bg-purple-600/20"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -156,7 +202,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t border-purple-800/30 py-6">
+          <div className="lg:hidden border-t border-purple-800/30 py-6 animate-fade-in">
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
                 <Link
