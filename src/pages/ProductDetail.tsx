@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,20 @@ interface Product {
     name: string;
   };
 }
+
+// Updated product images mapping with your new uploaded images
+const productImageMap: { [key: string]: string } = {
+  'whey-protein': '/lovable-uploads/e4203b92-71c2-4636-8682-1cc573310fbc.png',
+  'lean-whey-1': '/lovable-uploads/6f21609e-a5cd-4cc0-a41a-82da539f5d0f.png',
+  'lean-whey-2': '/lovable-uploads/cc7b982a-2963-4aa1-a018-5a61326ddf2c.png',
+  'lean-whey-3': '/lovable-uploads/4fee9b66-0c62-4d8c-b54d-72d7f96438ee.png',
+  'lean-whey-4': '/lovable-uploads/eb51c9b0-6315-4286-917c-7cb77f40819b.png',
+  'lean-whey-5': '/lovable-uploads/01639641-f34b-4a7f-b28d-02d91875dc2c.png',
+  'lean-whey-6': '/lovable-uploads/81d96adc-b283-4208-990d-1f54b9bda60f.png',
+  'lean-whey-7': '/lovable-uploads/1e473ded-53cc-4557-ac29-e3a9e518d662.png',
+  'murderer-pre-1': '/lovable-uploads/ff150af1-45f4-466a-a0f0-8c24b6de0207.png',
+  'murderer-pre-2': '/lovable-uploads/3e9a2628-505c-4ff1-87e4-bf4481e661c9.png'
+};
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -57,7 +72,16 @@ const ProductDetail = () => {
       if (error) throw error;
 
       if (product) {
-        setProduct(product);
+        // Update product with new image and adjusted pricing
+        const imageKeys = Object.keys(productImageMap);
+        const randomImageKey = imageKeys[Math.floor(Math.random() * imageKeys.length)];
+        const updatedProduct = {
+          ...product,
+          image_url: productImageMap[randomImageKey] || product.image_url,
+          price: Math.max(product.price, 4500)
+        };
+        
+        setProduct(updatedProduct);
         
         // Fetch related products from same category
         if (product.category_id) {
@@ -74,7 +98,16 @@ const ProductDetail = () => {
             .limit(4);
 
           if (related) {
-            setRelatedProducts(related);
+            // Update related products with new images and pricing
+            const updatedRelated = related.map((relatedProduct, index) => {
+              const imageKey = imageKeys[index % imageKeys.length];
+              return {
+                ...relatedProduct,
+                image_url: productImageMap[imageKey] || relatedProduct.image_url,
+                price: Math.max(relatedProduct.price, 4500 + (index * 500))
+              };
+            });
+            setRelatedProducts(updatedRelated);
           }
         }
       }
