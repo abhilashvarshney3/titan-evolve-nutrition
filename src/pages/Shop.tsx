@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Star, ShoppingCart, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface Product {

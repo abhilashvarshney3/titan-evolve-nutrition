@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import Layout from '@/components/Layout';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
@@ -25,6 +25,7 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -125,8 +126,90 @@ const Cart = () => {
     }
   };
 
-  const calculateTotal = () => {
+  const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => total + (item.products.price * item.quantity), 0);
+  };
+
+  const calculateTax = () => {
+    return calculateSubtotal() * 0.18; // 18% GST for India
+  };
+
+  const calculateTotal = () => {
+    return calculateSubtotal() + calculateTax();
+  };
+
+  const proceedToCheckout = async () => {
+    if (!user || cartItems.length === 0) return;
+
+    setIsCheckingOut(true);
+    try {
+      // Create order
+      const orderData = {
+        user_id: user.id,
+        total_amount: calculateTotal(),
+        status: 'pending',
+        payment_status: 'pending',
+        shipping_address: {
+          // This would be filled from user profile or checkout form
+          address: "To be filled during checkout",
+          city: "Mumbai",
+          state: "Maharashtra",
+          pincode: "400001",
+          country: "India"
+        }
+      };
+
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert([orderData])
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = cartItems.map(item => ({
+        order_id: order.id,
+        product_id: item.products.id,
+        quantity: item.quantity,
+        price: item.products.price
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // Clear cart
+      const { error: clearCartError } = await supabase
+        .from('cart')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (clearCartError) throw clearCartError;
+
+      toast({
+        title: "Order Placed Successfully!",
+        description: `Order #${order.id.slice(0, 8)} has been created. Total: ₹${calculateTotal().toFixed(2)}`
+      });
+
+      // Refresh cart
+      setCartItems([]);
+      
+      // Trigger cart update event
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      toast({
+        title: "Checkout Failed",
+        description: "There was an error processing your order. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   if (!user) {
@@ -205,7 +288,7 @@ const Cart = () => {
                             {item.products.name}
                           </h3>
                           <p className="text-purple-400 font-bold">
-                            ${item.products.price}
+                            ₹{item.products.price.toFixed(2)}
                           </p>
                         </div>
 
@@ -242,7 +325,7 @@ const Cart = () => {
 
                         <div className="text-right">
                           <p className="text-xl font-bold text-white">
-                            ${(item.products.price * item.quantity).toFixed(2)}
+                            ₹{(item.products.price * item.quantity).toFixed(2)}
                           </p>
                           <Button
                             size="sm"
@@ -266,25 +349,29 @@ const Cart = () => {
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between">
                       <span className="text-gray-400">Subtotal</span>
-                      <span className="text-white">${calculateTotal().toFixed(2)}</span>
+                      <span className="text-white">₹{calculateSubtotal().toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Shipping</span>
-                      <span className="text-white">FREE</span>
+                      <span className="text-green-400">FREE</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Tax</span>
-                      <span className="text-white">${(calculateTotal() * 0.08).toFixed(2)}</span>
+                      <span className="text-gray-400">GST (18%)</span>
+                      <span className="text-white">₹{calculateTax().toFixed(2)}</span>
                     </div>
                     <hr className="border-purple-800/30" />
                     <div className="flex justify-between text-xl font-bold">
                       <span className="text-white">Total</span>
-                      <span className="text-purple-400">${(calculateTotal() * 1.08).toFixed(2)}</span>
+                      <span className="text-purple-400">₹{calculateTotal().toFixed(2)}</span>
                     </div>
                   </div>
 
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 mb-4">
-                    PROCEED TO CHECKOUT
+                  <Button 
+                    onClick={proceedToCheckout}
+                    disabled={isCheckingOut || cartItems.length === 0}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 mb-4"
+                  >
+                    {isCheckingOut ? "PROCESSING..." : "PROCEED TO CHECKOUT"}
                   </Button>
                   
                   <Link to="/shop">
@@ -292,6 +379,11 @@ const Cart = () => {
                       Continue Shopping
                     </Button>
                   </Link>
+
+                  <div className="mt-6 p-4 bg-gray-800 rounded-lg">
+                    <h3 className="text-sm font-bold text-purple-400 mb-2">SECURE CHECKOUT</h3>
+                    <p className="text-xs text-gray-400">Your payment information is processed securely. We do not store credit card details.</p>
+                  </div>
                 </div>
               </div>
             )}
