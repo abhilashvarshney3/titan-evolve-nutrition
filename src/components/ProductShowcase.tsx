@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -63,13 +62,15 @@ const ProductShowcase = () => {
         return;
       }
 
-      // Update products with your uploaded images
+      // Update products with your uploaded images and adjusted pricing
       const updatedProducts = (data || []).map((product, index) => {
         const imageKeys = Object.keys(productImageMap);
         const imageKey = imageKeys[index % imageKeys.length];
         return {
           ...product,
-          image_url: productImageMap[imageKey] || product.image_url
+          image_url: productImageMap[imageKey] || product.image_url,
+          // Ensure minimum price of ₹4500
+          price: Math.max(product.price, 4500 + (index * 500))
         };
       });
 

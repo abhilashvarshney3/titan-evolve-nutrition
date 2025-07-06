@@ -29,6 +29,18 @@ interface ProductCarouselProps {
   products: Product[];
 }
 
+// Product images mapping
+const productImageMap: { [key: string]: string } = {
+  'whey-protein': '/lovable-uploads/07c966c6-c74a-41cd-bdf1-b37a79c15e05.png',
+  'creatine': '/lovable-uploads/379dfbc4-577f-4c70-8379-887938232ec0.png',
+  'pre-workout': '/lovable-uploads/534d4161-7ade-4f7c-bfe9-debf0e569cc5.png',
+  'bcaa': '/lovable-uploads/729e363e-5733-4ed4-a128-36142849c19e.png',
+  'mass-gainer': '/lovable-uploads/746318e4-45e9-471f-a51f-473b614f8266.png',
+  'protein-bar': '/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png',
+  'glutamine': '/lovable-uploads/d012ea81-fb2d-44ba-806d-f1fd364e61d1.png',
+  'fish-oil': '/lovable-uploads/e04aff8e-bea5-4f62-916d-a8a50dbd8955.png'
+};
+
 const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
@@ -108,6 +120,17 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
     navigate(`/shop?category=${encodeURIComponent(categoryName.toLowerCase())}`);
   };
 
+  // Update products with new images and minimum pricing
+  const updatedProducts = products.map((product, index) => {
+    const imageKeys = Object.keys(productImageMap);
+    const imageKey = imageKeys[index % imageKeys.length];
+    return {
+      ...product,
+      image_url: productImageMap[imageKey] || product.image_url,
+      price: Math.max(product.price, 4500 + (index * 500))
+    };
+  });
+
   return (
     <section className="py-20 bg-black">
       <div className="container mx-auto px-6">
@@ -141,7 +164,7 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
           className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {products.map((product) => (
+          {updatedProducts.map((product) => (
             <div
               key={product.id}
               className="flex-none w-80 group cursor-pointer"

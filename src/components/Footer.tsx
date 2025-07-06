@@ -11,7 +11,7 @@ const Footer = () => {
           {/* Brand Section */}
           <div className="lg:col-span-1">
             <Link to="/" className="text-2xl font-black text-white tracking-wider mb-4 block">
-              <span className="text-purple-400">MUSCLE</span>FUEL
+              <span className="text-purple-400">TITAN</span>EVOLVE
             </Link>
             <p className="text-gray-400 mb-6 text-sm leading-relaxed">
               Premium supplements for serious athletes. Fuel your ambition with our high-quality products.
@@ -149,11 +149,11 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center text-gray-400 text-sm">
                 <Phone className="h-4 w-4 mr-3" />
-                <span>+91 98765 43210</span>
+                <span>+91 88008 53514</span>
               </div>
               <div className="flex items-center text-gray-400 text-sm">
                 <Mail className="h-4 w-4 mr-3" />
-                <span>info@musclefuel.com</span>
+                <span>info@titanevolve.com</span>
               </div>
               <div className="flex items-start text-gray-400 text-sm">
                 <MapPin className="h-4 w-4 mr-3 mt-1" />
@@ -178,7 +178,7 @@ const Footer = () => {
               </Link>
             </div>
             <p className="text-gray-400 text-xs">
-              © 2024 MuscleFuel. All rights reserved. Made in India 🇮🇳
+              © 2024 TitanEvolve. All rights reserved. Made in India 🇮🇳
             </p>
           </div>
         </div>
