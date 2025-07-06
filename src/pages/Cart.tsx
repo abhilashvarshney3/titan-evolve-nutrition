@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -143,14 +142,13 @@ const Cart = () => {
 
     setIsCheckingOut(true);
     try {
-      // Create order
+      // Create order with proper enum types
       const orderData = {
         user_id: user.id,
         total_amount: calculateTotal(),
-        status: 'pending',
-        payment_status: 'pending',
+        status: 'pending' as const,
+        payment_status: 'pending' as const,
         shipping_address: {
-          // This would be filled from user profile or checkout form
           address: "To be filled during checkout",
           city: "Mumbai",
           state: "Maharashtra",
