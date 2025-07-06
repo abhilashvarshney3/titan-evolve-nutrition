@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, MessageCircle } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,7 +24,6 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -137,77 +136,36 @@ const Cart = () => {
     return calculateSubtotal() + calculateTax();
   };
 
-  const proceedToCheckout = async () => {
-    if (!user || cartItems.length === 0) return;
+  const handleWhatsAppCheckout = () => {
+    if (cartItems.length === 0) return;
 
-    setIsCheckingOut(true);
-    try {
-      // Create order with proper enum types
-      const orderData = {
-        user_id: user.id,
-        total_amount: calculateTotal(),
-        status: 'pending' as const,
-        payment_status: 'pending' as const,
-        shipping_address: {
-          address: "To be filled during checkout",
-          city: "Mumbai",
-          state: "Maharashtra",
-          pincode: "400001",
-          country: "India"
-        }
-      };
+    // Generate order details for WhatsApp message
+    const orderDetails = cartItems.map(item => 
+      `${item.products.name} x ${item.quantity} = ₹${(item.products.price * item.quantity).toFixed(2)}`
+    ).join('\n');
 
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert([orderData])
-        .select()
-        .single();
+    const message = `Hi! I want to place an order from Titan Evolve:
 
-      if (orderError) throw orderError;
+*ORDER DETAILS:*
+${orderDetails}
 
-      // Create order items
-      const orderItems = cartItems.map(item => ({
-        order_id: order.id,
-        product_id: item.products.id,
-        quantity: item.quantity,
-        price: item.products.price
-      }));
+*SUMMARY:*
+Subtotal: ₹${calculateSubtotal().toFixed(2)}
+GST (18%): ₹${calculateTax().toFixed(2)}
+*Total: ₹${calculateTotal().toFixed(2)}*
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
+Please confirm availability and provide payment details.`;
 
-      if (itemsError) throw itemsError;
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/918800853514?text=${encodedMessage}`;
+    
+    // Open WhatsApp in new tab
+    window.open(whatsappUrl, '_blank');
 
-      // Clear cart
-      const { error: clearCartError } = await supabase
-        .from('cart')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (clearCartError) throw clearCartError;
-
-      toast({
-        title: "Order Placed Successfully!",
-        description: `Order #${order.id.slice(0, 8)} has been created. Total: ₹${calculateTotal().toFixed(2)}`
-      });
-
-      // Refresh cart
-      setCartItems([]);
-      
-      // Trigger cart update event
-      window.dispatchEvent(new CustomEvent('cartUpdated'));
-
-    } catch (error) {
-      console.error('Error during checkout:', error);
-      toast({
-        title: "Checkout Failed",
-        description: "There was an error processing your order. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsCheckingOut(false);
-    }
+    toast({
+      title: "Redirected to WhatsApp",
+      description: "Complete your purchase via WhatsApp chat."
+    });
   };
 
   if (!user) {
@@ -365,11 +323,12 @@ const Cart = () => {
                   </div>
 
                   <Button 
-                    onClick={proceedToCheckout}
-                    disabled={isCheckingOut || cartItems.length === 0}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 mb-4"
+                    onClick={handleWhatsAppCheckout}
+                    disabled={cartItems.length === 0}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 mb-4"
                   >
-                    {isCheckingOut ? "PROCESSING..." : "PROCEED TO CHECKOUT"}
+                    <MessageCircle className="mr-2 h-5 w-5" />
+                    ORDER VIA WHATSAPP
                   </Button>
                   
                   <Link to="/shop">
@@ -379,8 +338,8 @@ const Cart = () => {
                   </Link>
 
                   <div className="mt-6 p-4 bg-gray-800 rounded-lg">
-                    <h3 className="text-sm font-bold text-purple-400 mb-2">SECURE CHECKOUT</h3>
-                    <p className="text-xs text-gray-400">Your payment information is processed securely. We do not store credit card details.</p>
+                    <h3 className="text-sm font-bold text-green-400 mb-2">WHATSAPP CHECKOUT</h3>
+                    <p className="text-xs text-gray-400">Click above to complete your purchase via WhatsApp. We'll guide you through the payment process.</p>
                   </div>
                 </div>
               </div>

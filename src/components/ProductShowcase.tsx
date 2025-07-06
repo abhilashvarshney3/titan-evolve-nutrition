@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +21,18 @@ interface Product {
     name: string;
   };
 }
+
+// Updated product images mapping with your uploaded images
+const productImageMap: { [key: string]: string } = {
+  'whey-protein': '/lovable-uploads/07c966c6-c74a-41cd-bdf1-b37a79c15e05.png',
+  'creatine': '/lovable-uploads/379dfbc4-577f-4c70-8379-887938232ec0.png',
+  'pre-workout': '/lovable-uploads/534d4161-7ade-4f7c-bfe9-debf0e569cc5.png',
+  'bcaa': '/lovable-uploads/729e363e-5733-4ed4-a128-36142849c19e.png',
+  'mass-gainer': '/lovable-uploads/746318e4-45e9-471f-a51f-473b614f8266.png',
+  'protein-bar': '/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png',
+  'glutamine': '/lovable-uploads/d012ea81-fb2d-44ba-806d-f1fd364e61d1.png',
+  'fish-oil': '/lovable-uploads/e04aff8e-bea5-4f62-916d-a8a50dbd8955.png'
+};
 
 const ProductShowcase = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -50,7 +63,17 @@ const ProductShowcase = () => {
         return;
       }
 
-      setProducts(data || []);
+      // Update products with your uploaded images
+      const updatedProducts = (data || []).map((product, index) => {
+        const imageKeys = Object.keys(productImageMap);
+        const imageKey = imageKeys[index % imageKeys.length];
+        return {
+          ...product,
+          image_url: productImageMap[imageKey] || product.image_url
+        };
+      });
+
+      setProducts(updatedProducts);
     } catch (error) {
       console.error('Error in fetchFeaturedProducts:', error);
     } finally {

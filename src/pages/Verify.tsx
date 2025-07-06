@@ -44,7 +44,10 @@ const Verify = () => {
         // Mark code as used
         await supabase
           .from('verification_codes')
-          .update({ is_used: true })
+          .update({ 
+            is_used: true,
+            used_at: new Date().toISOString()
+          })
           .eq('id', data.id);
         
         setVerificationResult('success');
@@ -85,7 +88,7 @@ const Verify = () => {
             <div className="text-center mb-8">
               <Shield className="h-16 w-16 text-purple-400 mx-auto mb-4" />
               <h1 className="text-3xl font-black text-white mb-2">PRODUCT VERIFICATION</h1>
-              <p className="text-gray-400">Enter the 7-digit code from your product</p>
+              <p className="text-gray-400">Enter the verification code from your Titan Evolve product</p>
             </div>
 
             {verificationResult === null && (
@@ -96,21 +99,20 @@ const Verify = () => {
                   </label>
                   <Input
                     type="text"
-                    placeholder="Enter 7-digit code"
+                    placeholder="Enter verification code"
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value.toUpperCase())}
                     className="bg-black border-purple-700 text-white rounded-lg h-12 text-center text-xl font-mono tracking-widest"
-                    maxLength={7}
                     required
                   />
                   <p className="text-gray-500 text-xs mt-2">
-                    Find this code on your product packaging
+                    Find this code on your Titan Evolve product packaging
                   </p>
                 </div>
 
                 <Button 
                   type="submit"
-                  disabled={isVerifying || verificationCode.length !== 7}
+                  disabled={isVerifying || verificationCode.length === 0}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg disabled:opacity-50"
                 >
                   {isVerifying ? 'VERIFYING...' : 'VERIFY PRODUCT'}
