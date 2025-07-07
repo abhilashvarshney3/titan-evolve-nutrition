@@ -12,7 +12,7 @@ const Footer = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-3">
               <img 
-                src="/lovable-uploads/ChatGPT Image Jul 5, 2025, 06_17_18 AM.png" 
+                src="/lovable-uploads/LOGO.png" 
                 alt="Titan Evolve Logo" 
                 className="h-12 w-12 object-contain"
               />
