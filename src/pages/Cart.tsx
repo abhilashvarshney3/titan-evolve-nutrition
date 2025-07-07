@@ -165,7 +165,7 @@ const Cart = () => {
   const handleWhatsAppCheckout = () => {
     if (cartItems.length === 0) return;
 
-    const phoneNumber = "8800853514";
+    const phoneNumber = "918800853514";
     let message = "Hi! I want to place an order for the following items:\n\n";
     
     cartItems.forEach((item, index) => {
