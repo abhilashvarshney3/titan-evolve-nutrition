@@ -2,15 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, Minus, ShoppingBag, MessageCircle } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Link } from 'react-router-dom';
 
 interface CartItem {
   id: string;
+  product_id: string;
   quantity: number;
   products: {
     id: string;
@@ -21,7 +22,7 @@ interface CartItem {
   };
 }
 
-// Updated product images mapping with your new uploaded images
+// Updated product images mapping
 const productImageMap: { [key: string]: string } = {
   'whey-protein': '/lovable-uploads/e4203b92-71c2-4636-8682-1cc573310fbc.png',
   'lean-whey-1': '/lovable-uploads/6f21609e-a5cd-4cc0-a41a-82da539f5d0f.png',
@@ -41,6 +42,7 @@ const Cart = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -57,8 +59,7 @@ const Cart = () => {
       const { data, error } = await supabase
         .from('cart')
         .select(`
-          id,
-          quantity,
+          *,
           products (
             id,
             name,
@@ -70,25 +71,24 @@ const Cart = () => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      
+
       // Update cart items with new images and ensure minimum pricing
-      if (data) {
-        const updatedCartItems = data.map((item, index) => {
-          const imageKeys = Object.keys(productImageMap);
-          const imageKey = imageKeys[index % imageKeys.length];
-          return {
-            ...item,
-            products: {
-              ...item.products,
-              image_url: productImageMap[imageKey] || item.products.image_url,
-              price: Math.max(item.products.price, 4500)
-            }
-          };
-        });
-        setCartItems(updatedCartItems);
-      }
+      const updatedCartItems = (data || []).map((item, index) => {
+        const imageKeys = Object.keys(productImageMap);
+        const imageKey = imageKeys[index % imageKeys.length];
+        return {
+          ...item,
+          products: {
+            ...item.products,
+            image_url: productImageMap[imageKey] || item.products.image_url,
+            price: Math.max(item.products.price, 4500 + (index * 500))
+          }
+        };
+      });
+
+      setCartItems(updatedCartItems);
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      console.error('Error fetching cart items:', error);
       toast({
         title: "Error",
         description: "Failed to load cart items.",
@@ -101,7 +101,7 @@ const Cart = () => {
 
   const updateQuantity = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    
+
     setUpdating(itemId);
     try {
       const { error } = await supabase
@@ -116,6 +116,9 @@ const Cart = () => {
           item.id === itemId ? { ...item, quantity: newQuantity } : item
         )
       );
+
+      // Trigger cart update event
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
     } catch (error) {
       console.error('Error updating quantity:', error);
       toast({
@@ -139,10 +142,14 @@ const Cart = () => {
       if (error) throw error;
 
       setCartItems(items => items.filter(item => item.id !== itemId));
+      
       toast({
-        title: "Item Removed",
+        title: "Removed from Cart",
         description: "Item has been removed from your cart."
       });
+
+      // Trigger cart update event
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
     } catch (error) {
       console.error('Error removing item:', error);
       toast({
@@ -155,60 +162,19 @@ const Cart = () => {
     }
   };
 
-  const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => total + (item.products.price * item.quantity), 0);
-  };
-
-  const calculateTax = () => {
-    return calculateSubtotal() * 0.18; // 18% GST for India
-  };
-
-  const calculateTotal = () => {
-    return calculateSubtotal() + calculateTax();
-  };
-
-  const handleWhatsAppCheckout = () => {
-    if (cartItems.length === 0) return;
-
-    // Generate order details for WhatsApp message
-    const orderDetails = cartItems.map(item => 
-      `${item.products.name} x ${item.quantity} = ₹${(item.products.price * item.quantity).toFixed(2)}`
-    ).join('\n');
-
-    const message = `Hi! I want to place an order from Titan Evolve:
-
-*ORDER DETAILS:*
-${orderDetails}
-
-*SUMMARY:*
-Subtotal: ₹${calculateSubtotal().toFixed(2)}
-GST (18%): ₹${calculateTax().toFixed(2)}
-*Total: ₹${calculateTotal().toFixed(2)}*
-
-Please confirm availability and provide payment details.`;
-
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/918800853514?text=${encodedMessage}`;
-    
-    // Open WhatsApp in new tab
-    window.open(whatsappUrl, '_blank');
-
-    toast({
-      title: "Redirected to WhatsApp",
-      description: "Complete your purchase via WhatsApp chat."
-    });
-  };
+  const total = cartItems.reduce((sum, item) => sum + (item.products.price * item.quantity), 0);
+  const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   if (!user) {
     return (
       <Layout>
         <div className="min-h-screen bg-black text-white flex items-center justify-center">
-          <div className="text-center">
-            <ShoppingBag className="h-16 w-16 text-purple-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-4">Please Sign In</h2>
-            <p className="text-gray-400 mb-6">You need to be logged in to view your cart.</p>
+          <div className="text-center space-y-6 px-4">
+            <ShoppingBag className="h-20 w-20 text-purple-400 mx-auto" />
+            <h2 className="text-3xl font-bold">Please Sign In</h2>
+            <p className="text-gray-400 text-lg">You need to be logged in to view your cart.</p>
             <Link to="/login">
-              <Button className="bg-purple-600 hover:bg-purple-700">
+              <Button className="bg-purple-600 hover:bg-purple-700 text-lg px-8 py-3">
                 Sign In
               </Button>
             </Link>
@@ -222,7 +188,7 @@ Please confirm availability and provide payment details.`;
     return (
       <Layout>
         <div className="min-h-screen bg-black text-white flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600"></div>
         </div>
       </Layout>
     );
@@ -231,146 +197,194 @@ Please confirm availability and provide payment details.`;
   return (
     <Layout>
       <div className="min-h-screen bg-black text-white">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-purple-900 to-black py-20">
+        {/* Mobile Header */}
+        <div className="md:hidden bg-gradient-to-r from-purple-900 to-black p-4 flex items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="text-white hover:bg-purple-600 mr-3"
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+          <h1 className="text-2xl font-bold">Shopping Cart ({itemCount})</h1>
+        </div>
+
+        {/* Desktop Hero Section */}
+        <section className="hidden md:block bg-gradient-to-r from-purple-900 to-black py-16">
           <div className="container mx-auto px-6">
-            <h1 className="text-6xl font-black mb-4">YOUR CART</h1>
+            <h1 className="text-6xl font-black mb-4">SHOPPING CART</h1>
             <p className="text-xl text-gray-300">
-              {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
+              Review your items and proceed to checkout
             </p>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="container mx-auto px-6">
+        <section className="py-8 md:py-12">
+          <div className="container mx-auto px-4 md:px-6">
             {cartItems.length === 0 ? (
-              <div className="text-center py-20">
-                <ShoppingBag className="h-16 w-16 text-purple-400 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-                <p className="text-gray-400 mb-6">Start shopping to add items to your cart.</p>
+              <div className="text-center py-16 space-y-6">
+                <ShoppingBag className="h-24 w-24 text-purple-400 mx-auto" />
+                <h2 className="text-3xl font-bold">Your cart is empty</h2>
+                <p className="text-gray-400 text-lg">Add some products to get started!</p>
                 <Link to="/shop">
-                  <Button className="bg-purple-600 hover:bg-purple-700">
-                    Continue Shopping
+                  <Button className="bg-purple-600 hover:bg-purple-700 text-lg px-8 py-3">
+                    Start Shopping
                   </Button>
                 </Link>
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Cart Items */}
+                {/* Cart Items - Mobile & Desktop */}
                 <div className="lg:col-span-2 space-y-4">
+                  <h2 className="hidden md:block text-2xl font-bold mb-6">Cart Items ({itemCount})</h2>
+                  
                   {cartItems.map((item) => (
                     <div
                       key={item.id}
-                      className="bg-gray-900 rounded-xl p-6 border border-purple-800/20"
+                      className="bg-gray-900 rounded-xl p-4 md:p-6 flex flex-col sm:flex-row gap-4 hover:bg-gray-800 transition-colors"
                     >
-                      <div className="flex items-center space-x-4">
+                      {/* Product Image */}
+                      <Link to={`/product/${item.product_id}`} className="flex-shrink-0">
                         <img
                           src={item.products.image_url || '/placeholder.svg'}
                           alt={item.products.name}
-                          className="w-20 h-20 object-cover rounded-lg"
+                          className="w-full sm:w-24 md:w-32 h-32 sm:h-24 md:h-32 object-cover rounded-lg hover:scale-105 transition-transform"
                         />
-                        
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-white mb-1">
+                      </Link>
+
+                      {/* Product Details */}
+                      <div className="flex-1 space-y-3 sm:space-y-2">
+                        <Link to={`/product/${item.product_id}`} className="block">
+                          <h3 className="text-lg md:text-xl font-bold text-white hover:text-purple-400 transition-colors line-clamp-2">
                             {item.products.name}
                           </h3>
-                          <p className="text-purple-400 font-bold">
-                            ₹{item.products.price.toFixed(2)}
-                          </p>
+                        </Link>
+                        
+                        <p className="text-purple-400 text-xl md:text-2xl font-bold">
+                          ₹{item.products.price.toFixed(0)}
+                        </p>
+
+                        {/* Mobile Quantity & Remove */}
+                        <div className="flex items-center justify-between sm:hidden">
+                          <div className="flex items-center space-x-2 bg-black rounded-lg p-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              disabled={updating === item.id || item.quantity <= 1}
+                              className="h-8 w-8 text-white hover:bg-purple-600"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="w-12 text-center font-bold text-white">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              disabled={updating === item.id || item.quantity >= item.products.stock_quantity}
+                              className="h-8 w-8 text-white hover:bg-purple-600"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeItem(item.id)}
+                            disabled={updating === item.id}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-600/20"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </Button>
                         </div>
 
-                        <div className="flex items-center space-x-3">
+                        {/* Subtotal - Mobile */}
+                        <div className="sm:hidden">
+                          <p className="text-gray-400 text-sm">
+                            Subtotal: <span className="text-white font-bold">₹{(item.products.price * item.quantity).toFixed(0)}</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Desktop Quantity & Actions */}
+                      <div className="hidden sm:flex flex-col items-end justify-between space-y-4">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeItem(item.id)}
+                          disabled={updating === item.id}
+                          className="text-red-400 hover:text-red-300 hover:bg-red-600/20"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </Button>
+                        
+                        <div className="flex items-center space-x-2 bg-black rounded-lg p-1">
                           <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={updating === item.id}
+                            variant="ghost"
+                            size="icon"
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white"
+                            disabled={updating === item.id || item.quantity <= 1}
+                            className="h-8 w-8 text-white hover:bg-purple-600"
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
-                          
-                          <Input
-                            type="number"
-                            value={item.quantity}
-                            onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
-                            className="w-16 text-center bg-black border-purple-700 text-white"
-                            min="1"
-                            max={item.products.stock_quantity}
-                          />
-                          
+                          <span className="w-12 text-center font-bold text-white">
+                            {item.quantity}
+                          </span>
                           <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={updating === item.id || item.quantity >= item.products.stock_quantity}
+                            variant="ghost"
+                            size="icon"
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white"
+                            disabled={updating === item.id || item.quantity >= item.products.stock_quantity}
+                            className="h-8 w-8 text-white hover:bg-purple-600"
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
 
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-white">
-                            ₹{(item.products.price * item.quantity).toFixed(2)}
-                          </p>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={updating === item.id}
-                            onClick={() => removeItem(item.id)}
-                            className="mt-2 border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <p className="text-xl font-bold text-white">
+                          ₹{(item.products.price * item.quantity).toFixed(0)}
+                        </p>
                       </div>
                     </div>
                   ))}
                 </div>
 
                 {/* Order Summary */}
-                <div className="bg-gray-900 rounded-xl p-6 border border-purple-800/20 h-fit">
-                  <h2 className="text-2xl font-bold mb-6 text-purple-400">ORDER SUMMARY</h2>
-                  
-                  <div className="space-y-4 mb-6">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Subtotal</span>
-                      <span className="text-white">₹{calculateSubtotal().toFixed(2)}</span>
+                <div className="lg:col-span-1">
+                  <div className="bg-gray-900 rounded-xl p-6 sticky top-24 space-y-6">
+                    <h3 className="text-2xl font-bold text-purple-400">Order Summary</h3>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between text-gray-400">
+                        <span>Subtotal ({itemCount} items)</span>
+                        <span>₹{total.toFixed(0)}</span>
+                      </div>
+                      <div className="flex justify-between text-gray-400">
+                        <span>Shipping</span>
+                        <span className="text-green-400">FREE</span>
+                      </div>
+                      <div className="border-t border-purple-800/30 pt-4">
+                        <div className="flex justify-between text-xl font-bold text-white">
+                          <span>Total</span>
+                          <span>₹{total.toFixed(0)}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Shipping</span>
-                      <span className="text-green-400">FREE</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">GST (18%)</span>
-                      <span className="text-white">₹{calculateTax().toFixed(2)}</span>
-                    </div>
-                    <hr className="border-purple-800/30" />
-                    <div className="flex justify-between text-xl font-bold">
-                      <span className="text-white">Total</span>
-                      <span className="text-purple-400">₹{calculateTotal().toFixed(2)}</span>
-                    </div>
-                  </div>
 
-                  <Button 
-                    onClick={handleWhatsAppCheckout}
-                    disabled={cartItems.length === 0}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 mb-4"
-                  >
-                    <MessageCircle className="mr-2 h-5 w-5" />
-                    ORDER VIA WHATSAPP
-                  </Button>
-                  
-                  <Link to="/shop">
-                    <Button variant="outline" className="w-full border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white">
-                      Continue Shopping
+                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 text-lg">
+                      PROCEED TO CHECKOUT
                     </Button>
-                  </Link>
 
-                  <div className="mt-6 p-4 bg-gray-800 rounded-lg">
-                    <h3 className="text-sm font-bold text-green-400 mb-2">WHATSAPP CHECKOUT</h3>
-                    <p className="text-xs text-gray-400">Click above to complete your purchase via WhatsApp. We'll guide you through the payment process.</p>
+                    <Link to="/shop">
+                      <Button variant="outline" className="w-full border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white">
+                        Continue Shopping
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>

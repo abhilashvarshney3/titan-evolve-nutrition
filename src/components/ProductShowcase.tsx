@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Star, ShoppingCart, ArrowRight, Heart } from 'lucide-react';
+import { Star, ShoppingCart, ArrowRight, Heart, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useWishlist } from '@/hooks/useWishlist';
 
 interface Product {
   id: string;
@@ -40,6 +42,7 @@ const ProductShowcase = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   useEffect(() => {
     fetchFeaturedProducts();
@@ -143,6 +146,23 @@ const ProductShowcase = () => {
     }
   };
 
+  const handleInstantCheckout = async (product: Product) => {
+    if (!user) {
+      toast({
+        title: "Please Sign In",
+        description: "You need to be logged in for instant checkout.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Add to cart first
+    await handleQuickAdd(product);
+    
+    // Redirect to cart for checkout
+    window.location.href = '/cart';
+  };
+
   if (loading) {
     return (
       <section className="py-20 bg-black">
@@ -217,19 +237,44 @@ const ProductShowcase = () => {
                   </div>
 
                   {/* Wishlist Button */}
-                  <button className="absolute top-4 right-4 p-3 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-purple-600 hover:scale-110">
-                    <Heart className="h-5 w-5 text-white" />
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleWishlist(product.id, product.name);
+                    }}
+                    className={`absolute top-4 right-4 p-3 rounded-full transition-all duration-300 hover:scale-110 ${
+                      isInWishlist(product.id)
+                        ? 'bg-red-600 text-white'
+                        : 'bg-black/50 text-white hover:bg-purple-600'
+                    }`}
+                  >
+                    <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                   </button>
 
-                  {/* Quick Add Overlay */}
+                  {/* Quick Actions Overlay */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <Button 
-                      onClick={() => handleQuickAdd(product)}
-                      className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-8 py-3 transform hover:scale-105 transition-all duration-300"
-                    >
-                      <ShoppingCart className="h-5 w-5 mr-2" />
-                      QUICK ADD
-                    </Button>
+                    <div className="flex flex-col gap-3">
+                      <Button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleQuickAdd(product);
+                        }}
+                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-8 py-3 transform hover:scale-105 transition-all duration-300"
+                      >
+                        <ShoppingCart className="h-5 w-5 mr-2" />
+                        QUICK ADD
+                      </Button>
+                      <Button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleInstantCheckout(product);
+                        }}
+                        className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold px-8 py-3 transform hover:scale-105 transition-all duration-300"
+                      >
+                        <Zap className="h-5 w-5 mr-2" />
+                        BUY NOW
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Link>
@@ -279,13 +324,21 @@ const ProductShowcase = () => {
                     <span className="text-green-400 text-sm">Free Shipping</span>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2">
                     <Button
                       size="sm"
                       onClick={() => handleQuickAdd(product)}
                       className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 font-bold"
                     >
                       ADD TO CART
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => handleInstantCheckout(product)}
+                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-2 font-bold text-xs"
+                    >
+                      <Zap className="h-3 w-3 mr-1" />
+                      BUY NOW
                     </Button>
                   </div>
                 </div>

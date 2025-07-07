@@ -69,9 +69,16 @@ const Header = () => {
     <header className="bg-black/95 backdrop-blur-md border-b border-purple-800/20 sticky top-0 z-50">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="text-2xl font-black text-white tracking-wider">
-            <span className="text-purple-400">TITAN</span>EVOLVE
+          {/* Logo with Image */}
+          <Link to="/" className="flex items-center space-x-3">
+            <img 
+              src="/lovable-uploads/ChatGPT Image Jul 5, 2025, 06_17_18 AM.png" 
+              alt="Titan Evolve Logo" 
+              className="h-10 w-10 object-contain"
+            />
+            <span className="text-2xl font-black text-white tracking-wider">
+              <span className="text-purple-400">TITAN</span>EVOLVE
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -170,15 +177,34 @@ const Header = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-white hover:bg-purple-600"
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
+          {/* Mobile Actions Bar */}
+          <div className="flex md:hidden items-center space-x-2">
+            {/* Mobile Cart - Always Visible */}
+            <Link to="/cart">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:bg-purple-600 relative"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {cartCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-white hover:bg-purple-600"
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
         </div>
 
         {/* Mobile Search Bar */}
@@ -206,28 +232,28 @@ const Header = () => {
             <div className="flex flex-col space-y-4">
               <Link
                 to="/"
-                className="text-white hover:text-purple-400 transition-colors"
+                className="text-white hover:text-purple-400 transition-colors text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 to="/shop"
-                className="text-white hover:text-purple-400 transition-colors"
+                className="text-white hover:text-purple-400 transition-colors text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Shop
               </Link>
               <Link
                 to="/about"
-                className="text-white hover:text-purple-400 transition-colors"
+                className="text-white hover:text-purple-400 transition-colors text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
               </Link>
               <Link
                 to="/contact"
-                className="text-white hover:text-purple-400 transition-colors"
+                className="text-white hover:text-purple-400 transition-colors text-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
@@ -246,22 +272,6 @@ const Header = () => {
                   <Search className="h-4 w-4 mr-2" />
                   Search
                 </Button>
-
-                <Link to="/cart" onClick={() => setIsMenuOpen(false)}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-purple-600 relative"
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    Cart
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
 
                 {user ? (
                   <div className="flex items-center space-x-2">
