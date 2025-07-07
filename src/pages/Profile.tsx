@@ -229,11 +229,32 @@ const Profile = () => {
     e.preventDefault();
     if (!user) return;
 
+    // Validate required fields
+    if (!newAddress.first_name || !newAddress.last_name || !newAddress.address_line_1 || 
+        !newAddress.city || !newAddress.state || !newAddress.postal_code) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setUpdating(true);
     try {
       const addressData = {
-        ...newAddress,
-        user_id: user.id
+        user_id: user.id,
+        type: newAddress.type || 'home',
+        first_name: newAddress.first_name,
+        last_name: newAddress.last_name,
+        address_line_1: newAddress.address_line_1,
+        address_line_2: newAddress.address_line_2 || '',
+        city: newAddress.city,
+        state: newAddress.state,
+        postal_code: newAddress.postal_code,
+        country: newAddress.country || 'India',
+        phone: newAddress.phone || '',
+        is_default: newAddress.is_default || false
       };
 
       if (editingAddress) {
