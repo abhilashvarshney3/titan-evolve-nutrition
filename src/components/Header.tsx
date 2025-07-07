@@ -72,7 +72,7 @@ const Header = () => {
           {/* Logo with Image */}
           <Link to="/" className="flex items-center space-x-3">
             <img 
-              src="/lovable-uploads/ChatGPT Image Jul 5, 2025, 06_17_18 AM.png" 
+              src="public/lovable-uploads/WhatsApp Image 2025-07-07 at 21.15.48_a104de20.jpg" 
               alt="Titan Evolve Logo" 
               className="h-10 w-10 object-contain"
             />
