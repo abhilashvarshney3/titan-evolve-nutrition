@@ -1,10 +1,12 @@
+
 import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, ShoppingCart, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Star, Heart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useWishlist } from '@/hooks/useWishlist';
 
 interface Product {
   id: string;
@@ -46,6 +48,7 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -169,52 +172,67 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
               key={product.id}
               className="flex-none w-80 group cursor-pointer"
             >
-              <Link to={`/product/${product.id}`} className="block">
-                <div className="relative overflow-hidden bg-gray-900 mb-6 transform transition-all duration-500 hover:scale-105">
-                  {(product.is_new || product.is_featured) && (
-                    <div className="absolute top-4 left-4 z-10">
-                      <span className="bg-purple-600 text-white px-3 py-1 text-xs font-bold tracking-wider">
-                        {product.is_new ? 'NEW' : 'FEATURED'}
-                      </span>
-                    </div>
-                  )}
-                  
+              <div className="relative overflow-hidden bg-gray-900 mb-6 transform transition-all duration-500 hover:scale-105">
+                {(product.is_new || product.is_featured) && (
+                  <div className="absolute top-4 left-4 z-10">
+                    <span className="bg-purple-600 text-white px-3 py-1 text-xs font-bold tracking-wider">
+                      {product.is_new ? 'NEW' : 'FEATURED'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Wishlist Button */}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleWishlist(product.id, product.name);
+                  }}
+                  className={`absolute top-4 right-4 z-10 p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                    isInWishlist(product.id)
+                      ? 'bg-red-600 text-white'
+                      : 'bg-black/50 text-white hover:bg-red-600/80'
+                  }`}
+                >
+                  <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
+                </button>
+                
+                <Link to={`/product/${product.id}`} className="block">
                   <img
                     src={product.image_url}
                     alt={product.name}
                     className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <Button 
+                </Link>
+                
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <Button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleQuickAdd(product.id, product.name);
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-none font-bold transform hover:scale-105 transition-all duration-300"
+                  >
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    QUICK ADD
+                  </Button>
+                </div>
+
+                {/* Explore Button */}
+                {product.categories && (
+                  <div className="absolute bottom-4 left-4 z-10">
+                    <Button
                       onClick={(e) => {
                         e.preventDefault();
-                        handleQuickAdd(product.id, product.name);
+                        handleExploreClick(product.categories!.name);
                       }}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-none font-bold transform hover:scale-105 transition-all duration-300"
+                      size="sm"
+                      className="bg-purple-600/80 hover:bg-purple-700 text-white px-4 py-2 text-xs font-bold"
                     >
-                      <ShoppingCart className="mr-2 h-5 w-5" />
-                      QUICK ADD
+                      EXPLORE {product.categories.name.toUpperCase()}
                     </Button>
                   </div>
-
-                  {/* Explore Button */}
-                  {product.categories && (
-                    <div className="absolute bottom-4 left-4 z-10">
-                      <Button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleExploreClick(product.categories!.name);
-                        }}
-                        size="sm"
-                        className="bg-purple-600/80 hover:bg-purple-700 text-white px-4 py-2 text-xs font-bold"
-                      >
-                        EXPLORE {product.categories.name.toUpperCase()}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </Link>
+                )}
+              </div>
 
               <div className="space-y-3">
                 <div className="flex items-center gap-2">

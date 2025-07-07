@@ -3,6 +3,11 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Star, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useWishlist } from '@/hooks/useWishlist';
 
 interface ProductCardProps {
   id: string;
@@ -18,6 +23,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({
+  id,
   name,
   category,
   price,
@@ -28,17 +34,86 @@ const ProductCard = ({
   badge,
   description
 }: ProductCardProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const isOnSale = originalPrice && originalPrice > price;
+
+  const handleQuickAdd = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user) {
+      toast({
+        title: "Please Sign In",
+        description: "You need to be logged in to add items to cart.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data: existingItem } = await supabase
+        .from('cart')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('product_id', id)
+        .single();
+
+      if (existingItem) {
+        const { error } = await supabase
+          .from('cart')
+          .update({ quantity: existingItem.quantity + 1 })
+          .eq('id', existingItem.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('cart')
+          .insert([
+            {
+              user_id: user.id,
+              product_id: id,
+              quantity: 1
+            }
+          ]);
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Added to Cart",
+        description: `${name} has been added to your cart.`
+      });
+
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(id, name);
+  };
 
   return (
     <div className="group relative bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
       {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-        />
+        <Link to={`/product/${id}`}>
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+        </Link>
         
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -55,17 +130,16 @@ const ProductCard = ({
         </div>
 
         {/* Wishlist Button */}
-        <button className="absolute top-3 right-3 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/70">
-          <Heart className="h-4 w-4 text-white" />
+        <button 
+          onClick={handleWishlistToggle}
+          className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+            isInWishlist(id)
+              ? 'bg-red-600 text-white'
+              : 'bg-black/50 text-white hover:bg-red-600/80'
+          }`}
+        >
+          <Heart className={`h-4 w-4 ${isInWishlist(id) ? 'fill-current' : ''}`} />
         </button>
-        
-        {/* Quick Add Overlay */}
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <Button className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2">
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            QUICK ADD
-          </Button>
-        </div>
       </div>
 
       {/* Content */}
@@ -76,9 +150,11 @@ const ProductCard = ({
         </span>
         
         {/* Title */}
-        <h3 className="text-white text-lg font-bold line-clamp-2 group-hover:text-red-400 transition-colors">
-          {name}
-        </h3>
+        <Link to={`/product/${id}`}>
+          <h3 className="text-white text-lg font-bold line-clamp-2 group-hover:text-red-400 transition-colors">
+            {name}
+          </h3>
+        </Link>
 
         {/* Rating */}
         <div className="flex items-center gap-2">
@@ -101,19 +177,21 @@ const ProductCard = ({
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-2">
             <span className="text-white text-xl font-bold">
-              ${price.toFixed(2)}
+              ₹{price.toFixed(0)}
             </span>
             {originalPrice && (
               <span className="text-gray-500 text-sm line-through">
-                ${originalPrice.toFixed(2)}
+                ₹{originalPrice.toFixed(0)}
               </span>
             )}
           </div>
           
           <Button
+            onClick={handleQuickAdd}
             size="sm"
             className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 text-sm font-bold"
           >
+            <ShoppingCart className="h-3 w-3 mr-1" />
             ADD
           </Button>
         </div>

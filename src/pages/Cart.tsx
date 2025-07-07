@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, MessageCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -160,6 +160,29 @@ const Cart = () => {
     } finally {
       setUpdating(null);
     }
+  };
+
+  const handleWhatsAppCheckout = () => {
+    if (cartItems.length === 0) return;
+
+    const phoneNumber = "8800853514";
+    let message = "Hi! I want to place an order for the following items:\n\n";
+    
+    cartItems.forEach((item, index) => {
+      message += `${index + 1}. ${item.products.name}\n`;
+      message += `   Quantity: ${item.quantity}\n`;
+      message += `   Price: ₹${item.products.price.toFixed(0)} each\n`;
+      message += `   Subtotal: ₹${(item.products.price * item.quantity).toFixed(0)}\n\n`;
+    });
+
+    const total = cartItems.reduce((sum, item) => sum + (item.products.price * item.quantity), 0);
+    message += `Total Amount: ₹${total.toFixed(0)}\n\n`;
+    message += "Please confirm the order and provide delivery details.";
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
   };
 
   const total = cartItems.reduce((sum, item) => sum + (item.products.price * item.quantity), 0);
@@ -376,8 +399,12 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 text-lg">
-                      PROCEED TO CHECKOUT
+                    <Button 
+                      onClick={handleWhatsAppCheckout}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 text-lg flex items-center justify-center gap-2"
+                    >
+                      <MessageCircle className="h-5 w-5" />
+                      CHECKOUT VIA WHATSAPP
                     </Button>
 
                     <Link to="/shop">

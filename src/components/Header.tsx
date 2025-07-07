@@ -72,7 +72,7 @@ const Header = () => {
           {/* Logo with Image */}
           <Link to="/" className="flex items-center space-x-3">
             <img 
-              src="public/lovable-uploads/LOGO.png" 
+              src="/lovable-uploads/LOGO.png" 
               alt="Titan Evolve Logo" 
               className="h-10 w-10 object-contain"
             />

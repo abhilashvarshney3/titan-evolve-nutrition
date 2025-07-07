@@ -237,8 +237,8 @@ const NewProductsSection = () => {
                   </span>
                   
                   <Button
-                    size="sm"
                     onClick={() => handleQuickAdd(product)}
+                    size="sm"
                     className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 font-bold"
                   >
                     ADD
