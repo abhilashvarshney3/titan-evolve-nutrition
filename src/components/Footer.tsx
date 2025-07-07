@@ -14,7 +14,7 @@ const Footer = () => {
               <img 
                 src="/lovable-uploads/LOGO.png" 
                 alt="Titan Evolve Logo" 
-                className="h-12 w-12 object-contain"
+                className="h-10 w-10 object-contain"
               />
               <div className="text-2xl font-black tracking-wider">
                 <span className="text-purple-400">TITAN</span>EVOLVE
