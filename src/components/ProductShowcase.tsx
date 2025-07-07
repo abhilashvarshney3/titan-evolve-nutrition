@@ -21,16 +21,18 @@ interface Product {
   };
 }
 
-// Updated product images mapping with your uploaded images
+// Updated product images mapping with your new uploaded images
 const productImageMap: { [key: string]: string } = {
-  'whey-protein': '/lovable-uploads/07c966c6-c74a-41cd-bdf1-b37a79c15e05.png',
-  'creatine': '/lovable-uploads/379dfbc4-577f-4c70-8379-887938232ec0.png',
-  'pre-workout': '/lovable-uploads/534d4161-7ade-4f7c-bfe9-debf0e569cc5.png',
-  'bcaa': '/lovable-uploads/729e363e-5733-4ed4-a128-36142849c19e.png',
-  'mass-gainer': '/lovable-uploads/746318e4-45e9-471f-a51f-473b614f8266.png',
-  'protein-bar': '/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png',
-  'glutamine': '/lovable-uploads/d012ea81-fb2d-44ba-806d-f1fd364e61d1.png',
-  'fish-oil': '/lovable-uploads/e04aff8e-bea5-4f62-916d-a8a50dbd8955.png'
+  'whey-protein': '/lovable-uploads/e4203b92-71c2-4636-8682-1cc573310fbc.png',
+  'lean-whey-1': '/lovable-uploads/6f21609e-a5cd-4cc0-a41a-82da539f5d0f.png',
+  'lean-whey-2': '/lovable-uploads/cc7b982a-2963-4aa1-a018-5a61326ddf2c.png',
+  'lean-whey-3': '/lovable-uploads/4fee9b66-0c62-4d8c-b54d-72d7f96438ee.png',
+  'lean-whey-4': '/lovable-uploads/eb51c9b0-6315-4286-917c-7cb77f40819b.png',
+  'lean-whey-5': '/lovable-uploads/01639641-f34b-4a7f-b28d-02d91875dc2c.png',
+  'lean-whey-6': '/lovable-uploads/81d96adc-b283-4208-990d-1f54b9bda60f.png',
+  'lean-whey-7': '/lovable-uploads/1e473ded-53cc-4557-ac29-e3a9e518d662.png',
+  'murderer-pre-1': '/lovable-uploads/ff150af1-45f4-466a-a0f0-8c24b6de0207.png',
+  'murderer-pre-2': '/lovable-uploads/3e9a2628-505c-4ff1-87e4-bf4481e661c9.png'
 };
 
 const ProductShowcase = () => {
