@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
+import { getFeaturedProducts, type ProductData } from '@/data/products';
 
 interface Product {
   id: string;
@@ -38,56 +39,20 @@ const productImageMap: { [key: string]: string } = {
 };
 
 const ProductShowcase = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   useEffect(() => {
-    fetchFeaturedProducts();
+    // Use centralized product data instead of fetching from Supabase
+    const featuredProducts = getFeaturedProducts().slice(0, 6);
+    setProducts(featuredProducts);
+    setLoading(false);
   }, []);
 
-  const fetchFeaturedProducts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          categories (
-            name
-          )
-        `)
-        .eq('is_featured', true)
-        .order('created_at', { ascending: false })
-        .limit(6);
-
-      if (error) {
-        console.error('Error fetching products:', error);
-        return;
-      }
-
-      // Update products with your uploaded images and adjusted pricing
-      const updatedProducts = (data || []).map((product, index) => {
-        const imageKeys = Object.keys(productImageMap);
-        const imageKey = imageKeys[index % imageKeys.length];
-        return {
-          ...product,
-          image_url: productImageMap[imageKey] || product.image_url,
-          // Ensure minimum price of ₹4500
-          price: Math.max(product.price, 4500 + (index * 500))
-        };
-      });
-
-      setProducts(updatedProducts);
-    } catch (error) {
-      console.error('Error in fetchFeaturedProducts:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleQuickAdd = async (product: Product) => {
+  const handleQuickAdd = async (product: ProductData) => {
     if (!user) {
       toast({
         title: "Please Sign In",
@@ -146,7 +111,7 @@ const ProductShowcase = () => {
     }
   };
 
-  const handleInstantCheckout = async (product: Product) => {
+  const handleInstantCheckout = async (product: ProductData) => {
     if (!user) {
       toast({
         title: "Please Sign In",
@@ -212,29 +177,34 @@ const ProductShowcase = () => {
             >
               {/* Image Container */}
               <Link to={`/product/${product.id}`}>
-                <div className="relative aspect-square overflow-hidden">
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/placeholder.svg';
-                    }}
-                  />
-                  
-                  {/* Badges */}
-                  <div className="absolute top-4 left-4 flex flex-col gap-2">
-                    {product.is_new && (
-                      <Badge className="bg-purple-600 text-white px-3 py-1 text-sm font-bold">
-                        NEW
-                      </Badge>
-                    )}
-                    {product.is_featured && (
-                      <Badge className="bg-yellow-600 text-black px-3 py-1 text-sm font-bold">
-                        FEATURED
-                      </Badge>
-                    )}
-                  </div>
+                 <div className="relative aspect-square overflow-hidden">
+                   <img
+                     src={product.image}
+                     alt={product.name}
+                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                     onError={(e) => {
+                       (e.target as HTMLImageElement).src = '/lovable-uploads/LOGO.png';
+                     }}
+                   />
+                   
+                   {/* Badges */}
+                   <div className="absolute top-4 left-4 flex flex-col gap-2">
+                     {product.isNew && (
+                       <Badge className="bg-purple-600 text-white px-3 py-1 text-sm font-bold">
+                         NEW
+                       </Badge>
+                     )}
+                     {product.isFeatured && (
+                       <Badge className="bg-yellow-600 text-black px-3 py-1 text-sm font-bold">
+                         FEATURED
+                       </Badge>
+                     )}
+                     {product.badge && (
+                       <Badge className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-3 py-1 text-sm font-bold">
+                         {product.badge}
+                       </Badge>
+                     )}
+                   </div>
 
                   {/* Wishlist Button */}
                   <button
@@ -281,10 +251,10 @@ const ProductShowcase = () => {
 
               {/* Content */}
               <div className="p-8 space-y-4">
-                {/* Category */}
-                <span className="text-purple-400 text-sm font-bold tracking-wider uppercase">
-                  {product.categories?.name || 'Supplement'}
-                </span>
+                 {/* Category */}
+                 <span className="text-purple-400 text-sm font-bold tracking-wider uppercase">
+                   {product.category}
+                 </span>
                 
                 {/* Title */}
                 <Link to={`/product/${product.id}`}>
@@ -293,22 +263,22 @@ const ProductShowcase = () => {
                   </h3>
                 </Link>
 
-                {/* Rating */}
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${
-                          i < 4
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-600'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-gray-400 text-sm">(247 reviews)</span>
-                </div>
+                 {/* Rating */}
+                 <div className="flex items-center gap-3">
+                   <div className="flex items-center">
+                     {[...Array(5)].map((_, i) => (
+                       <Star
+                         key={i}
+                         className={`h-4 w-4 ${
+                           i < Math.floor(product.rating || 4.8)
+                             ? 'text-yellow-400 fill-current'
+                             : 'text-gray-600'
+                         }`}
+                       />
+                     ))}
+                   </div>
+                   <span className="text-gray-400 text-sm">({product.reviewCount || 247} reviews)</span>
+                 </div>
 
                 {/* Description */}
                 <p className="text-gray-400 line-clamp-2 leading-relaxed">
@@ -343,20 +313,20 @@ const ProductShowcase = () => {
                   </div>
                 </div>
 
-                {/* Stock Status */}
-                <div className="text-sm">
-                  {product.stock_quantity > 0 ? (
-                    <span className="text-green-400 flex items-center gap-1">
-                      <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                      In Stock ({product.stock_quantity} available)
-                    </span>
-                  ) : (
-                    <span className="text-red-400 flex items-center gap-1">
-                      <span className="w-2 h-2 bg-red-400 rounded-full"></span>
-                      Out of Stock
-                    </span>
-                  )}
-                </div>
+                 {/* Stock Status */}
+                 <div className="text-sm">
+                   {product.stockQuantity > 0 ? (
+                     <span className="text-green-400 flex items-center gap-1">
+                       <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                       In Stock ({product.stockQuantity} available)
+                     </span>
+                   ) : (
+                     <span className="text-red-400 flex items-center gap-1">
+                       <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                       Out of Stock
+                     </span>
+                   )}
+                 </div>
               </div>
             </div>
           ))}

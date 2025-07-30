@@ -26,15 +26,15 @@ const Hero = () => {
         </div>
         
         <h1 className="text-6xl md:text-8xl font-black leading-none mb-8 tracking-tight animate-fade-in">
-          MURDER YOUR
+          TITAN
           <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-purple-300">
-            LIMITS
+            EVOLVE
           </span>
         </h1>
         
         <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in">
-          Scientifically engineered supplements for elite performance. 
-          Unleash your true potential.
+          Born for athletes. Built by the relentless. Driven by discipline.
+          Premium Indian supplements backed by science, driven by performance.
         </p>
 
         <div className="flex justify-center animate-fade-in">
