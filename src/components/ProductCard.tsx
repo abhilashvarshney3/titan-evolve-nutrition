@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Star, Heart } from 'lucide-react';
+import { ShoppingCart, Star, Heart, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -103,6 +103,14 @@ const ProductCard = ({
     toggleWishlist(id, name);
   };
 
+  const handleQuickBuy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const message = `Hi! I'm interested in purchasing ${name} (₹${price}). Can you help me with the order?`;
+    const whatsappUrl = `https://wa.me/918506912255?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <div className="group relative bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
       {/* Image Container */}
@@ -173,8 +181,8 @@ const ProductCard = ({
           <span className="text-gray-400 text-xs">({reviewCount})</span>
         </div>
 
-        {/* Price and Add to Cart */}
-        <div className="flex items-center justify-between pt-2">
+        {/* Price and Buttons */}
+        <div className="flex flex-col gap-3 pt-2">
           <div className="flex items-center gap-2">
             <span className="text-white text-xl font-bold">
               ₹{price.toFixed(0)}
@@ -186,14 +194,25 @@ const ProductCard = ({
             )}
           </div>
           
-          <Button
-            onClick={handleQuickAdd}
-            size="sm"
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 text-sm font-bold"
-          >
-            <ShoppingCart className="h-3 w-3 mr-1" />
-            ADD
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleQuickAdd}
+              size="sm"
+              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-sm font-bold flex-1"
+            >
+              <ShoppingCart className="h-3 w-3 mr-1" />
+              ADD
+            </Button>
+            <Button
+              onClick={handleQuickBuy}
+              size="sm"
+              variant="outline"
+              className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold flex-1"
+            >
+              <MessageCircle className="h-3 w-3 mr-1" />
+              BUY
+            </Button>
+          </div>
         </div>
       </div>
     </div>

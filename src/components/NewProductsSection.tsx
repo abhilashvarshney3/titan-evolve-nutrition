@@ -2,15 +2,22 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Star, ShoppingCart, Heart, Zap } from 'lucide-react';
+import { Star, ShoppingCart, Heart, Zap, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
-import { getNewProducts, ProductData } from '@/data/products';
 
-// Using centralized ProductData interface
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image_url: string;
+  description: string;
+  category_id: string;
+  categories: { name: string };
+}
 
 const productImageMap: { [key: string]: string } = {
   'whey-protein': '/lovable-uploads/e4203b92-71c2-4636-8682-1cc573310fbc.png',
@@ -26,7 +33,7 @@ const productImageMap: { [key: string]: string } = {
 };
 
 const NewProductsSection = () => {
-  const [products, setProducts] = useState<ProductData[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -36,10 +43,35 @@ const NewProductsSection = () => {
     loadNewProducts();
   }, []);
 
-  const loadNewProducts = () => {
+  const loadNewProducts = async () => {
     try {
-      const newProducts = getNewProducts();
-      setProducts(newProducts);
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          id,
+          name,
+          price,
+          image_url,
+          description,
+          category_id,
+          categories (name)
+        `)
+        .eq('is_new', true)
+        .limit(8);
+
+      if (error) throw error;
+
+      // Update products with proper images
+      const productsWithImages = (data || []).map((product, index) => {
+        const imageKeys = Object.keys(productImageMap);
+        const imageKey = imageKeys[index % imageKeys.length];
+        return {
+          ...product,
+          image_url: productImageMap[imageKey] || product.image_url
+        };
+      });
+
+      setProducts(productsWithImages);
     } catch (error) {
       console.error('Error loading new products:', error);
     } finally {
@@ -47,7 +79,7 @@ const NewProductsSection = () => {
     }
   };
 
-  const handleQuickAdd = async (product: ProductData) => {
+  const handleQuickAdd = async (product: Product) => {
     if (!user) {
       toast({
         title: "Please Sign In",
@@ -63,7 +95,7 @@ const NewProductsSection = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('product_id', product.id)
-        .single();
+        .maybeSingle();
 
       if (existingItem) {
         const { error } = await supabase
@@ -102,6 +134,12 @@ const NewProductsSection = () => {
     }
   };
 
+  const handleQuickBuy = (product: Product) => {
+    const message = `Hi! I'm interested in purchasing ${product.name} (₹${product.price}). Can you help me with the order?`;
+    const whatsappUrl = `https://wa.me/918506912255?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   if (loading || products.length === 0) {
     return null;
   }
@@ -131,7 +169,7 @@ const NewProductsSection = () => {
               <Link to={`/product/${product.id}`}>
                 <div className="relative aspect-square overflow-hidden">
                   <img
-                    src={product.image}
+                    src={product.image_url}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
@@ -161,7 +199,7 @@ const NewProductsSection = () => {
 
               <div className="p-6 space-y-4">
                 <span className="text-purple-400 text-sm font-bold tracking-wider uppercase">
-                  {product.category}
+                  {product.categories?.name || 'Product'}
                 </span>
                 
                 <Link to={`/product/${product.id}`}>
@@ -186,18 +224,30 @@ const NewProductsSection = () => {
                   <span className="text-gray-400 text-sm">(New!)</span>
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
+                <div className="flex flex-col gap-3 pt-2">
                   <span className="text-white text-2xl font-bold">
                     ₹{product.price.toFixed(0)}
                   </span>
                   
-                  <Button
-                    onClick={() => handleQuickAdd(product)}
-                    size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 font-bold"
-                  >
-                    ADD
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleQuickAdd(product)}
+                      size="sm"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 font-bold flex-1"
+                    >
+                      <ShoppingCart className="h-3 w-3 mr-1" />
+                      ADD
+                    </Button>
+                    <Button
+                      onClick={() => handleQuickBuy(product)}
+                      size="sm"
+                      variant="outline"
+                      className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-4 py-2 font-bold flex-1"
+                    >
+                      <MessageCircle className="h-3 w-3 mr-1" />
+                      BUY
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -205,7 +205,7 @@ const Profile = () => {
 
       if (error) throw error;
 
-      // Update wishlist items with new images and pricing
+      // Update wishlist items with proper images from the mapping
       const updatedWishlist = (data || []).map((item, index) => {
         const imageKeys = Object.keys(productImageMap);
         const imageKey = imageKeys[index % imageKeys.length];
@@ -213,8 +213,7 @@ const Profile = () => {
           ...item,
           products: {
             ...item.products,
-            image_url: productImageMap[imageKey] || item.products.image_url,
-            price: Math.max(item.products.price, 4500 + (index * 500))
+            image_url: productImageMap[imageKey] || item.products.image_url || '/lovable-uploads/LOGO.png'
           }
         };
       });
