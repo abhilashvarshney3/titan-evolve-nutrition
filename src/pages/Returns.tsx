@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Layout from '@/components/Layout';
-import { RotateCcw, Clock, Shield, CheckCircle } from 'lucide-react';
+import { RotateCcw, Clock, Shield, CheckCircle, Camera, AlertTriangle } from 'lucide-react';
 
 const Returns = () => {
   return (
@@ -41,49 +41,101 @@ const Returns = () => {
               </div>
             </div>
 
-            <div className="bg-gray-900 rounded-xl p-8">
-              <h2 className="text-3xl font-bold text-purple-400 mb-6">Return Policy</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Return Conditions</h3>
-                  <ul className="text-gray-300 space-y-2">
-                    <li>• Products must be unopened and in original packaging</li>
-                    <li>• Return request must be initiated within 30 days of delivery</li>
-                    <li>• Products should be in unused condition</li>
-                    <li>• Original invoice must be provided</li>
+            <div className="bg-gradient-to-r from-red-900/30 to-black p-8 rounded-2xl border border-red-800/30 mb-12">
+              <div className="flex items-center mb-6">
+                <Shield className="h-8 w-8 text-red-400 mr-4" />
+                <h2 className="text-3xl font-black text-red-400">RETURNS & REFUND POLICY</h2>
+              </div>
+              <p className="text-lg text-gray-300 leading-relaxed mb-8">
+                We stand by our product quality. However, if there's damage or tampering during shipping, 
+                we offer replacements or refunds under our strict policy:
+              </p>
+
+              {/* Mandatory Unboxing Video */}
+              <div className="bg-red-900/20 p-6 rounded-xl border border-red-700/30 mb-8">
+                <div className="flex items-center mb-4">
+                  <Camera className="h-6 w-6 text-red-400 mr-3" />
+                  <h3 className="text-xl font-bold text-red-400">MANDATORY UNBOXING VIDEO</h3>
+                </div>
+                <ul className="space-y-3 text-gray-300">
+                  <li className="flex items-start">
+                    <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
+                    You must record a 360° unboxing video with your phone
+                  </li>
+                  <li className="flex items-start">
+                    <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
+                    Video must show seal condition, box label, and product clearly
+                  </li>
+                  <li className="flex items-start">
+                    <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
+                    Ensure good lighting and product in focus — all in one take
+                  </li>
+                </ul>
+              </div>
+
+              {/* Refund/Replacement Validity */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div className="bg-gray-900/50 p-6 rounded-xl border border-gray-700/30">
+                  <h3 className="text-xl font-bold text-white mb-4">REFUND/REPLACEMENT VALIDITY</h3>
+                  <ul className="space-y-3 text-gray-300">
+                    <li className="flex items-start">
+                      <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2"></span>
+                      Must report the issue within 24 hours of delivery
+                    </li>
+                    <li className="flex items-start">
+                      <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2"></span>
+                      Share the video immediately via email or WhatsApp
+                    </li>
+                    <li className="flex items-start">
+                      <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
+                      <span className="font-bold text-red-400">No video = no claim will be accepted</span>
+                    </li>
                   </ul>
                 </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">How to Return</h3>
-                  <ol className="text-gray-300 space-y-2 list-decimal list-inside">
-                    <li>Contact our customer support team</li>
-                    <li>Provide order number and reason for return</li>
-                    <li>Receive return authorization and shipping label</li>
-                    <li>Pack the product securely and ship it back</li>
-                    <li>Refund will be processed within 7-10 business days</li>
-                  </ol>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Refund Process</h3>
-                  <ul className="text-gray-300 space-y-2">
-                    <li>• Refunds are processed to the original payment method</li>
-                    <li>• Bank transfers take 3-5 business days</li>
-                    <li>• Credit card refunds take 5-7 business days</li>
-                    <li>• Shipping charges are non-refundable</li>
+                
+                <div className="bg-gray-900/50 p-6 rounded-xl border border-gray-700/30">
+                  <div className="flex items-center mb-4">
+                    <AlertTriangle className="h-6 w-6 text-yellow-400 mr-3" />
+                    <h3 className="text-xl font-bold text-yellow-400">WHAT WE DON'T ACCEPT</h3>
+                  </div>
+                  <ul className="space-y-3 text-gray-300">
+                    <li className="flex items-start">
+                      <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>
+                      Opened, used, or tampered products without a valid reason
+                    </li>
+                    <li className="flex items-start">
+                      <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>
+                      Return requests after 24 hours
+                    </li>
+                    <li className="flex items-start">
+                      <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>
+                      Flavor dislikes or taste preferences
+                    </li>
                   </ul>
                 </div>
+              </div>
 
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Non-Returnable Items</h3>
-                  <ul className="text-gray-300 space-y-2">
-                    <li>• Opened or used supplements</li>
-                    <li>• Products damaged by customer negligence</li>
-                    <li>• Items returned after 30 days</li>
-                    <li>• Products without proper packaging</li>
-                  </ul>
+              {/* Contact Information */}
+              <div className="text-center bg-purple-900/20 p-8 rounded-2xl border border-purple-800/30">
+                <h3 className="text-2xl font-bold text-purple-400 mb-4">Need Help?</h3>
+                <p className="text-lg text-gray-300 mb-4">
+                  For any return-related queries, contact us immediately
+                </p>
+                <div className="flex flex-col md:flex-row gap-4 justify-center">
+                  <a 
+                    href="https://wa.me/918506912255" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
+                  >
+                    WhatsApp: +91 8506912255
+                  </a>
+                  <a 
+                    href="mailto:support@titanevolve.com" 
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
+                  >
+                    Email Support
+                  </a>
                 </div>
               </div>
             </div>

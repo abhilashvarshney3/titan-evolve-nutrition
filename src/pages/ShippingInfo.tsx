@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '@/components/Layout';
-import { Truck, Clock, Shield, Camera, AlertTriangle } from 'lucide-react';
+import { Truck, Clock } from 'lucide-react';
 
 const ShippingInfo = () => {
   return (
@@ -78,81 +78,6 @@ const ShippingInfo = () => {
                 </div>
               </div>
 
-              {/* Returns & Refund Policy */}
-              <div className="bg-gradient-to-r from-red-900/30 to-black p-8 rounded-2xl border border-red-800/30 mb-12">
-                <div className="flex items-center mb-6">
-                  <Shield className="h-8 w-8 text-red-400 mr-4" />
-                  <h2 className="text-3xl font-black text-red-400">RETURNS & REFUND POLICY</h2>
-                </div>
-                <p className="text-lg text-gray-300 leading-relaxed mb-8">
-                  We stand by our product quality. However, if there's damage or tampering during shipping, 
-                  we offer replacements or refunds under our strict policy:
-                </p>
-
-                {/* Mandatory Unboxing Video */}
-                <div className="bg-red-900/20 p-6 rounded-xl border border-red-700/30 mb-8">
-                  <div className="flex items-center mb-4">
-                    <Camera className="h-6 w-6 text-red-400 mr-3" />
-                    <h3 className="text-xl font-bold text-red-400">MANDATORY UNBOXING VIDEO</h3>
-                  </div>
-                  <ul className="space-y-3 text-gray-300">
-                    <li className="flex items-start">
-                      <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
-                      You must record a 360° unboxing video with your phone
-                    </li>
-                    <li className="flex items-start">
-                      <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
-                      Video must show seal condition, box label, and product clearly
-                    </li>
-                    <li className="flex items-start">
-                      <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
-                      Ensure good lighting and product in focus — all in one take
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Refund/Replacement Validity */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                  <div className="bg-gray-900/50 p-6 rounded-xl border border-gray-700/30">
-                    <h3 className="text-xl font-bold text-white mb-4">REFUND/REPLACEMENT VALIDITY</h3>
-                    <ul className="space-y-3 text-gray-300">
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2"></span>
-                        Must report the issue within 24 hours of delivery
-                      </li>
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2"></span>
-                        Share the video immediately via email or WhatsApp
-                      </li>
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
-                        <span className="font-bold text-red-400">No video = no claim will be accepted</span>
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div className="bg-gray-900/50 p-6 rounded-xl border border-gray-700/30">
-                    <div className="flex items-center mb-4">
-                      <AlertTriangle className="h-6 w-6 text-yellow-400 mr-3" />
-                      <h3 className="text-xl font-bold text-yellow-400">WHAT WE DON'T ACCEPT</h3>
-                    </div>
-                    <ul className="space-y-3 text-gray-300">
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>
-                        Opened, used, or tampered products without a valid reason
-                      </li>
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>
-                        Return requests after 24 hours
-                      </li>
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>
-                        Flavor dislikes or taste preferences
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
 
               {/* Contact Information */}
               <div className="text-center bg-purple-900/20 p-8 rounded-2xl border border-purple-800/30">

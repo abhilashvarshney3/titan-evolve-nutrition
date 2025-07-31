@@ -154,7 +154,7 @@ const ProductShowcase = () => {
               onClick={scrollLeft}
               variant="outline"
               size="icon"
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-purple-500 hover:bg-purple-600 hover:border-purple-400"
+              className="absolute -left-6 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-purple-500 hover:bg-purple-600 hover:border-purple-400"
             >
               <ChevronLeft className="h-5 w-5 text-white" />
             </Button>
@@ -162,7 +162,7 @@ const ProductShowcase = () => {
               onClick={scrollRight}
               variant="outline"
               size="icon"
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-purple-500 hover:bg-purple-600 hover:border-purple-400"
+              className="absolute -right-6 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-purple-500 hover:bg-purple-600 hover:border-purple-400"
             >
               <ChevronRight className="h-5 w-5 text-white" />
             </Button>

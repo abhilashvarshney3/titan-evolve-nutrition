@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
+import { products } from '@/data/products';
 
 interface ProductCardProps {
   id: string;
@@ -38,6 +39,10 @@ const ProductCard = ({
   const { toast } = useToast();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isOnSale = originalPrice && originalPrice > price;
+
+  // Get the correct image from products data
+  const productData = products.find(p => p.id === id);
+  const correctImage = productData?.image || image;
 
   const handleQuickAdd = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -117,7 +122,7 @@ const ProductCard = ({
       <div className="relative aspect-[4/3] overflow-hidden">
         <Link to={`/product/${id}`}>
           <img
-            src={image}
+            src={correctImage}
             alt={name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
