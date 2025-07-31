@@ -10,36 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
 import { getFeaturedProducts, type ProductData } from '@/data/products';
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  is_featured: boolean;
-  is_new: boolean;
-  stock_quantity: number;
-  categories?: {
-    name: string;
-  };
-}
-
-// Updated product images mapping with your new uploaded images
-const productImageMap: { [key: string]: string } = {
-  'whey-protein': '/lovable-uploads/e4203b92-71c2-4636-8682-1cc573310fbc.png',
-  'lean-whey-1': '/lovable-uploads/6f21609e-a5cd-4cc0-a41a-82da539f5d0f.png',
-  'lean-whey-2': '/lovable-uploads/cc7b982a-2963-4aa1-a018-5a61326ddf2c.png',
-  'lean-whey-3': '/lovable-uploads/4fee9b66-0c62-4d8c-b54d-72d7f96438ee.png',
-  'lean-whey-4': '/lovable-uploads/eb51c9b0-6315-4286-917c-7cb77f40819b.png',
-  'lean-whey-5': '/lovable-uploads/01639641-f34b-4a7f-b28d-02d91875dc2c.png',
-  'lean-whey-6': '/lovable-uploads/81d96adc-b283-4208-990d-1f54b9bda60f.png',
-  'lean-whey-7': '/lovable-uploads/1e473ded-53cc-4557-ac29-e3a9e518d662.png',
-  'murderer-pre-1': '/lovable-uploads/ff150af1-45f4-466a-a0f0-8c24b6de0207.png',
-  'murderer-pre-2': '/lovable-uploads/3e9a2628-505c-4ff1-87e4-bf4481e661c9.png'
-};
-
 const ProductShowcase = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -49,37 +21,10 @@ const ProductShowcase = () => {
     loadFeaturedProducts();
   }, []);
 
-  const loadFeaturedProducts = async () => {
+  const loadFeaturedProducts = () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          id,
-          name,
-          description,
-          price,
-          image_url,
-          is_featured,
-          is_new,
-          stock_quantity,
-          categories (name)
-        `)
-        .eq('is_featured', true)
-        .limit(6);
-
-      if (error) throw error;
-
-      // Update products with proper images
-      const productsWithImages = (data || []).map((product, index) => {
-        const imageKeys = Object.keys(productImageMap);
-        const imageKey = imageKeys[index % imageKeys.length];
-        return {
-          ...product,
-          image_url: productImageMap[imageKey] || product.image_url
-        };
-      });
-
-      setProducts(productsWithImages);
+      const featuredProducts = getFeaturedProducts();
+      setProducts(featuredProducts);
     } catch (error) {
       console.error('Error loading featured products:', error);
     } finally {
@@ -87,7 +32,7 @@ const ProductShowcase = () => {
     }
   };
 
-  const handleQuickAdd = async (product: Product) => {
+  const handleQuickAdd = async (product: ProductData) => {
     if (!user) {
       toast({
         title: "Please Sign In",
@@ -142,7 +87,7 @@ const ProductShowcase = () => {
     }
   };
 
-  const handleQuickBuy = (product: Product) => {
+  const handleQuickBuy = (product: ProductData) => {
     const message = `Hi! I'm interested in purchasing ${product.name} (₹${product.price}). Can you help me with the order?`;
     const whatsappUrl = `https://wa.me/918506912255?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -205,7 +150,7 @@ const ProductShowcase = () => {
                   <Link to={`/product/${product.id}`}>
                      <div className="relative aspect-square overflow-hidden">
                        <img
-                         src={product.image_url}
+                         src={product.image}
                          alt={product.name}
                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                          onError={(e) => {
@@ -215,14 +160,19 @@ const ProductShowcase = () => {
                        
                        {/* Badges */}
                        <div className="absolute top-4 left-4 flex flex-col gap-2">
-                         {product.is_new && (
+                         {product.isNew && (
                            <Badge className="bg-purple-600 text-white px-3 py-1 text-sm font-bold">
                              NEW
                            </Badge>
                          )}
-                         {product.is_featured && (
+                         {product.isFeatured && (
                            <Badge className="bg-yellow-600 text-black px-3 py-1 text-sm font-bold">
                              FEATURED
+                           </Badge>
+                         )}
+                         {product.badge && (
+                           <Badge className="bg-red-600 text-white px-3 py-1 text-sm font-bold">
+                             {product.badge}
                            </Badge>
                          )}
                        </div>
@@ -249,7 +199,7 @@ const ProductShowcase = () => {
                   <div className="p-6 space-y-4">
                      {/* Category */}
                      <span className="text-purple-400 text-sm font-bold tracking-wider uppercase">
-                       {product.categories?.name || 'Product'}
+                       {product.category}
                      </span>
                     
                     {/* Title */}
@@ -313,10 +263,10 @@ const ProductShowcase = () => {
 
                      {/* Stock Status */}
                      <div className="text-sm">
-                       {product.stock_quantity > 0 ? (
+                       {product.stockQuantity > 0 ? (
                          <span className="text-green-400 flex items-center gap-1">
                            <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                           In Stock ({product.stock_quantity} available)
+                           In Stock ({product.stockQuantity} available)
                          </span>
                        ) : (
                          <span className="text-red-400 flex items-center gap-1">
