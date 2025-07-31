@@ -8,22 +8,10 @@ import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useWishlist } from '@/hooks/useWishlist';
+import { getProductById, getProductsByCategory, ProductData } from '@/data/products';
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  category_id: string;
-  stock_quantity: number;
-  sku: string;
-  is_featured: boolean;
-  is_new: boolean;
-  categories?: {
-    name: string;
-  };
-}
+// Using centralized ProductData interface
 
 // Updated product images mapping with your new uploaded images
 const productImageMap: { [key: string]: string } = {
@@ -41,78 +29,44 @@ const productImageMap: { [key: string]: string } = {
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<ProductData | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   useEffect(() => {
     if (id) {
-      fetchProduct();
+      loadProduct();
     }
   }, [id]);
 
-  const fetchProduct = async () => {
+  const loadProduct = () => {
     if (!id) return;
 
     try {
-      const { data: product, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          categories (
-            name
-          )
-        `)
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-
-      if (product) {
-        // Update product with new image and adjusted pricing
-        const imageKeys = Object.keys(productImageMap);
-        const randomImageKey = imageKeys[Math.floor(Math.random() * imageKeys.length)];
-        const updatedProduct = {
-          ...product,
-          image_url: productImageMap[randomImageKey] || product.image_url,
-          price: Math.max(product.price, 4500)
-        };
+      const foundProduct = getProductById(id);
+      
+      if (foundProduct) {
+        setProduct(foundProduct);
         
-        setProduct(updatedProduct);
+        // Get related products from same category
+        const related = getProductsByCategory(foundProduct.categoryId)
+          .filter(p => p.id !== foundProduct.id)
+          .slice(0, 4);
         
-        // Fetch related products from same category
-        if (product.category_id) {
-          const { data: related } = await supabase
-            .from('products')
-            .select(`
-              *,
-              categories (
-                name
-              )
-            `)
-            .eq('category_id', product.category_id)
-            .neq('id', product.id)
-            .limit(4);
-
-          if (related) {
-            // Update related products with new images and pricing
-            const updatedRelated = related.map((relatedProduct, index) => {
-              const imageKey = imageKeys[index % imageKeys.length];
-              return {
-                ...relatedProduct,
-                image_url: productImageMap[imageKey] || relatedProduct.image_url,
-                price: Math.max(relatedProduct.price, 4500 + (index * 500))
-              };
-            });
-            setRelatedProducts(updatedRelated);
-          }
-        }
+        setRelatedProducts(related);
+      } else {
+        toast({
+          title: "Error",
+          description: "Product not found.",
+          variant: "destructive"
+        });
       }
     } catch (error) {
-      console.error('Error fetching product:', error);
+      console.error('Error loading product:', error);
       toast({
         title: "Error",
         description: "Failed to load product details.",
@@ -292,17 +246,41 @@ const ProductDetail = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               {/* Product Image */}
               <div className="relative">
-                <div className="aspect-square bg-gray-900 rounded-xl overflow-hidden">
+                <div className="aspect-square bg-gray-900 rounded-xl overflow-hidden relative">
                   <img
-                    src={product.image_url}
+                    src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
-                  {(product.is_new || product.is_featured) && (
-                    <Badge className="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 text-sm font-bold">
-                      {product.is_new ? 'NEW' : 'FEATURED'}
-                    </Badge>
-                  )}
+                  <div className="absolute top-4 left-4 flex flex-col gap-2">
+                    {product.isNew && (
+                      <Badge className="bg-purple-600 text-white px-3 py-1 text-sm font-bold">
+                        NEW
+                      </Badge>
+                    )}
+                    {product.isFeatured && (
+                      <Badge className="bg-yellow-600 text-black px-3 py-1 text-sm font-bold">
+                        FEATURED
+                      </Badge>
+                    )}
+                    {product.badge && (
+                      <Badge className="bg-red-600 text-white px-3 py-1 text-sm font-bold">
+                        {product.badge}
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  {/* Wishlist Button */}
+                  <button 
+                    onClick={() => toggleWishlist(product.id, product.name)}
+                    className={`absolute top-4 right-4 p-3 rounded-full transition-all duration-300 hover:scale-110 ${
+                      isInWishlist(product.id)
+                        ? 'bg-red-600 text-white'
+                        : 'bg-black/50 text-white hover:bg-purple-600'
+                    }`}
+                  >
+                    <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
+                  </button>
                 </div>
               </div>
 
@@ -310,7 +288,7 @@ const ProductDetail = () => {
               <div className="space-y-6">
                 <div>
                   <h1 className="text-4xl font-black text-white mb-2">{product.name}</h1>
-                  <p className="text-purple-400 text-lg uppercase tracking-wider">{product.categories?.name || 'Supplement'}</p>
+                  <p className="text-purple-400 text-lg uppercase tracking-wider">{product.category}</p>
                 </div>
 
                 {/* Rating */}
@@ -327,7 +305,7 @@ const ProductDetail = () => {
                       />
                     ))}
                   </div>
-                  <span className="text-gray-400">(247 reviews)</span>
+                  <span className="text-gray-400">({product.reviewCount || 247} reviews)</span>
                 </div>
 
                 {/* Price */}
@@ -340,8 +318,8 @@ const ProductDetail = () => {
 
                 {/* Stock Status */}
                 <div className="text-sm">
-                  {product.stock_quantity > 0 ? (
-                    <span className="text-green-400">✓ In Stock ({product.stock_quantity} available)</span>
+                  {product.stockQuantity > 0 ? (
+                    <span className="text-green-400">✓ In Stock ({product.stockQuantity} available)</span>
                   ) : (
                     <span className="text-red-400">✗ Out of Stock</span>
                   )}
@@ -363,9 +341,9 @@ const ProductDetail = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setQuantity(Math.min(product.stock_quantity, quantity + 1))}
+                      onClick={() => setQuantity(Math.min(product.stockQuantity, quantity + 1))}
                       className="text-white hover:bg-purple-600"
-                      disabled={quantity >= product.stock_quantity}
+                      disabled={quantity >= product.stockQuantity}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
@@ -376,17 +354,22 @@ const ProductDetail = () => {
                 <div className="flex gap-4">
                   <Button
                     onClick={handleAddToCart}
-                    disabled={product.stock_quantity === 0}
+                    disabled={product.stockQuantity === 0}
                     className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingCart className="mr-2 h-5 w-5" />
                     ADD TO CART
                   </Button>
                   <Button
+                    onClick={() => toggleWishlist(product.id, product.name)}
                     variant="outline"
-                    className="border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white p-3"
+                    className={`p-3 transition-all duration-300 ${
+                      isInWishlist(product.id)
+                        ? 'border-red-600 text-red-600 bg-red-600/10'
+                        : 'border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white'
+                    }`}
                   >
-                    <Heart className="h-5 w-5" />
+                    <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                   </Button>
                 </div>
 
@@ -417,20 +400,41 @@ const ProductDetail = () => {
               <h3 className="text-2xl font-bold text-white mb-6">Product Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <h4 className="text-lg font-bold text-purple-400 mb-4">Key Features</h4>
+                  <h4 className="text-lg font-bold text-purple-400 mb-4">Key Benefits</h4>
                   <ul className="space-y-2 text-gray-300">
-                    <li>• Premium quality ingredients</li>
-                    <li>• Lab tested for purity</li>
-                    <li>• No artificial additives</li>
-                    <li>• Easy to mix and consume</li>
-                    <li>• Made in India</li>
+                    {product.details.keyBenefits.map((benefit, index) => (
+                      <li key={index}>• {benefit}</li>
+                    ))}
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold text-purple-400 mb-4">Usage Instructions</h4>
-                  <p className="text-gray-300">
-                    Mix 1 scoop with 200-250ml of water or milk. Consume 30 minutes before workout for pre-workout supplements or immediately after workout for protein supplements.
-                  </p>
+                  <h4 className="text-lg font-bold text-purple-400 mb-4">Product Information</h4>
+                  <div className="space-y-2 text-gray-300">
+                    {product.details.netWeight && <p><strong>Net Weight:</strong> {product.details.netWeight}</p>}
+                    {product.details.servings && <p><strong>Servings:</strong> {product.details.servings}</p>}
+                    {product.details.form && <p><strong>Form:</strong> {product.details.form}</p>}
+                    {product.details.flavor && <p><strong>Flavor:</strong> {product.details.flavor}</p>}
+                    <p><strong>SKU:</strong> {product.sku}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                <div>
+                  <h4 className="text-lg font-bold text-purple-400 mb-4">How to Use</h4>
+                  <ul className="space-y-2 text-gray-300">
+                    {product.details.howToUse.map((instruction, index) => (
+                      <li key={index}>• {instruction}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-purple-400 mb-4">Certifications</h4>
+                  <ul className="space-y-2 text-gray-300">
+                    {product.details.certifications.map((cert, index) => (
+                      <li key={index}>• {cert}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
@@ -447,11 +451,11 @@ const ProductDetail = () => {
                   <div key={relatedProduct.id} className="group bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 relative">
                     <Link to={`/product/${relatedProduct.id}`}>
                       <div className="aspect-square overflow-hidden">
-                        <img
-                          src={relatedProduct.image_url}
-                          alt={relatedProduct.name}
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                        />
+                      <img
+                        src={relatedProduct.image}
+                        alt={relatedProduct.name}
+                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                      />
                       </div>
                     </Link>
                     
@@ -472,7 +476,7 @@ const ProductDetail = () => {
                           {relatedProduct.name}
                         </h3>
                       </Link>
-                      <p className="text-purple-400 text-sm mb-2">{relatedProduct.categories?.name}</p>
+                      <p className="text-purple-400 text-sm mb-2">{relatedProduct.category}</p>
                       <p className="text-white text-xl font-bold">₹{relatedProduct.price.toFixed(0)}</p>
                     </div>
                   </div>

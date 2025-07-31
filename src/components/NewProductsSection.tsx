@@ -8,19 +8,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
+import { getNewProducts, ProductData } from '@/data/products';
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  is_new: boolean;
-  stock_quantity: number;
-  categories?: {
-    name: string;
-  };
-}
+// Using centralized ProductData interface
 
 const productImageMap: { [key: string]: string } = {
   'whey-protein': '/lovable-uploads/e4203b92-71c2-4636-8682-1cc573310fbc.png',
@@ -36,51 +26,28 @@ const productImageMap: { [key: string]: string } = {
 };
 
 const NewProductsSection = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   useEffect(() => {
-    fetchNewProducts();
+    loadNewProducts();
   }, []);
 
-  const fetchNewProducts = async () => {
+  const loadNewProducts = () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          categories (
-            name
-          )
-        `)
-        .eq('is_new', true)
-        .order('created_at', { ascending: false })
-        .limit(4);
-
-      if (error) throw error;
-
-      const updatedProducts = (data || []).map((product, index) => {
-        const imageKeys = Object.keys(productImageMap);
-        const imageKey = imageKeys[index % imageKeys.length];
-        return {
-          ...product,
-          image_url: productImageMap[imageKey] || product.image_url,
-          price: Math.max(product.price, 4500 + (index * 500))
-        };
-      });
-
-      setProducts(updatedProducts);
+      const newProducts = getNewProducts();
+      setProducts(newProducts);
     } catch (error) {
-      console.error('Error fetching new products:', error);
+      console.error('Error loading new products:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickAdd = async (product: Product) => {
+  const handleQuickAdd = async (product: ProductData) => {
     if (!user) {
       toast({
         title: "Please Sign In",
@@ -164,7 +131,7 @@ const NewProductsSection = () => {
               <Link to={`/product/${product.id}`}>
                 <div className="relative aspect-square overflow-hidden">
                   <img
-                    src={product.image_url}
+                    src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
@@ -206,7 +173,7 @@ const NewProductsSection = () => {
 
               <div className="p-6 space-y-4">
                 <span className="text-purple-400 text-sm font-bold tracking-wider uppercase">
-                  {product.categories?.name || 'Supplement'}
+                  {product.category}
                 </span>
                 
                 <Link to={`/product/${product.id}`}>

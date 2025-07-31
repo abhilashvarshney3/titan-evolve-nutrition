@@ -10,28 +10,10 @@ import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useWishlist } from '@/hooks/useWishlist';
+import { products as centralizedProducts, getAllCategories, ProductData } from '@/data/products';
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  category_id: string;
-  stock_quantity: number;
-  sku: string;
-  is_featured: boolean;
-  is_new: boolean;
-  categories?: {
-    name: string;
-  };
-}
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-}
+// Using centralized ProductData interface and categories
 
 // Updated product images mapping with your new uploaded images
 const productImageMap: { [key: string]: string } = {
@@ -49,8 +31,8 @@ const productImageMap: { [key: string]: string } = {
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<ProductData[]>([]);
+  const [categories, setCategories] = useState<{id: string, name: string, description: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
@@ -58,6 +40,7 @@ const Shop = () => {
   const [sortBy, setSortBy] = useState('name');
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   const priceRanges = [
     { id: 'all', name: 'All Prices' },
@@ -75,44 +58,16 @@ const Shop = () => {
   ];
 
   useEffect(() => {
-    fetchCategories();
-    fetchProducts();
+    loadCategoriesAndProducts();
   }, []);
 
-  useEffect(() => {
-    filterProducts();
-  }, [searchQuery, selectedCategory, priceRange, sortBy]);
-
-  const fetchCategories = async () => {
+  const loadCategoriesAndProducts = () => {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      setCategories(data || []);
+      const allCategories = getAllCategories();
+      setCategories(Object.values(allCategories));
+      setProducts(centralizedProducts);
     } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          categories (
-            name
-          )
-        `)
-        .order('name');
-
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('Error loading products:', error);
       toast({
         title: "Error",
         description: "Failed to load products.",
@@ -137,7 +92,7 @@ const Shop = () => {
     // Category filter
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(product =>
-        product.categories?.name.toLowerCase() === selectedCategory.toLowerCase()
+        product.category.toLowerCase() === selectedCategory.toLowerCase()
       );
     }
 
@@ -158,7 +113,7 @@ const Shop = () => {
         case 'price-high':
           return b.price - a.price;
         case 'featured':
-          return b.is_featured ? 1 : -1;
+          return b.isFeatured ? 1 : -1;
         default:
           return a.name.localeCompare(b.name);
       }
@@ -175,7 +130,7 @@ const Shop = () => {
     setSearchParams(params);
   };
 
-  const handleQuickAdd = async (product: Product) => {
+  const handleQuickAdd = async (product: ProductData) => {
     if (!user) {
       toast({
         title: "Please Sign In",
@@ -234,20 +189,7 @@ const Shop = () => {
     }
   };
 
-  // Update products with new images and ensure minimum pricing of ₹4500
-  const updateProductsWithImages = (products: Product[]) => {
-    const imageKeys = Object.keys(productImageMap);
-    return products.map((product, index) => {
-      const imageKey = imageKeys[index % imageKeys.length];
-      return {
-        ...product,
-        image_url: productImageMap[imageKey] || product.image_url,
-        price: Math.max(product.price, 4500 + (index * 500))
-      };
-    });
-  };
-
-  const filteredProducts = updateProductsWithImages(filterProducts());
+  const filteredProducts = filterProducts();
 
   return (
     <Layout>
@@ -345,28 +287,43 @@ const Shop = () => {
                     <Link to={`/product/${product.id}`}>
                       <div className="relative aspect-square overflow-hidden">
                         <img
-                          src={product.image_url || '/placeholder.svg'}
+                          src={product.image || '/placeholder.svg'}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                         
                         {/* Badges */}
                         <div className="absolute top-3 left-3 flex flex-col gap-2">
-                          {product.is_new && (
+                          {product.isNew && (
                             <Badge className="bg-purple-600 text-white px-2 py-1 text-xs font-bold">
                               NEW
                             </Badge>
                           )}
-                          {product.is_featured && (
+                          {product.isFeatured && (
                             <Badge className="bg-yellow-600 text-black px-2 py-1 text-xs font-bold">
                               FEATURED
+                            </Badge>
+                          )}
+                          {product.badge && (
+                            <Badge className="bg-red-600 text-white px-2 py-1 text-xs font-bold">
+                              {product.badge}
                             </Badge>
                           )}
                         </div>
 
                         {/* Wishlist Button */}
-                        <button className="absolute top-3 right-3 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-purple-600">
-                          <Heart className="h-4 w-4 text-white" />
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleWishlist(product.id, product.name);
+                          }}
+                          className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                            isInWishlist(product.id)
+                              ? 'bg-red-600 text-white'
+                              : 'bg-black/50 text-white hover:bg-purple-600'
+                          }`}
+                        >
+                          <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                         </button>
                       </div>
                     </Link>
@@ -386,7 +343,7 @@ const Shop = () => {
                     <div className="p-6 space-y-4">
                       {/* Category */}
                       <span className="text-purple-400 text-xs font-bold tracking-wider uppercase">
-                        {product.categories?.name || 'Supplement'}
+                        {product.category}
                       </span>
                       
                       {/* Title */}
@@ -410,7 +367,7 @@ const Shop = () => {
                             />
                           ))}
                         </div>
-                        <span className="text-gray-400 text-xs">(247)</span>
+                        <span className="text-gray-400 text-xs">({product.reviewCount || 247})</span>
                       </div>
 
                       {/* Description */}
@@ -435,8 +392,8 @@ const Shop = () => {
 
                       {/* Stock Status */}
                       <div className="text-xs">
-                        {product.stock_quantity > 0 ? (
-                          <span className="text-green-400">✓ In Stock ({product.stock_quantity})</span>
+                        {product.stockQuantity > 0 ? (
+                          <span className="text-green-400">✓ In Stock ({product.stockQuantity})</span>
                         ) : (
                           <span className="text-red-400">✗ Out of Stock</span>
                         )}

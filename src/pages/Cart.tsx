@@ -8,6 +8,7 @@ import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getProductById } from '@/data/products';
 
 interface CartItem {
   id: string;
@@ -58,35 +59,27 @@ const Cart = () => {
     try {
       const { data, error } = await supabase
         .from('cart')
-        .select(`
-          *,
-          products (
-            id,
-            name,
-            price,
-            image_url,
-            stock_quantity
-          )
-        `)
+        .select('*')
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      // Update cart items with new images and ensure minimum pricing
-      const updatedCartItems = (data || []).map((item, index) => {
-        const imageKeys = Object.keys(productImageMap);
-        const imageKey = imageKeys[index % imageKeys.length];
+      // Map cart items with centralized product data
+      const cartItemsWithProducts = (data || []).map(item => {
+        const product = getProductById(item.product_id);
         return {
           ...item,
-          products: {
-            ...item.products,
-            image_url: productImageMap[imageKey] || item.products.image_url,
-            price: Math.max(item.products.price, 4500 + (index * 500))
-          }
+          products: product ? {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image_url: product.image,
+            stock_quantity: product.stockQuantity
+          } : null
         };
-      });
+      }).filter(item => item.products !== null);
 
-      setCartItems(updatedCartItems);
+      setCartItems(cartItemsWithProducts as CartItem[]);
     } catch (error) {
       console.error('Error fetching cart items:', error);
       toast({
