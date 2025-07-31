@@ -221,31 +221,6 @@ const ProductShowcase = () => {
                     <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
                   </button>
 
-                  {/* Quick Actions Overlay */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <div className="flex flex-col gap-3">
-                      <Button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleQuickAdd(product);
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-8 py-3 transform hover:scale-105 transition-all duration-300"
-                      >
-                        <ShoppingCart className="h-5 w-5 mr-2" />
-                        QUICK ADD
-                      </Button>
-                      <Button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleInstantCheckout(product);
-                        }}
-                        className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold px-8 py-3 transform hover:scale-105 transition-all duration-300"
-                      >
-                        <Zap className="h-5 w-5 mr-2" />
-                        BUY NOW
-                      </Button>
-                    </div>
-                  </div>
                 </div>
               </Link>
 

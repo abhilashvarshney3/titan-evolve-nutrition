@@ -53,7 +53,7 @@ export const productCategories = {
 
 export const products: ProductData[] = [
   {
-    id: "prod_1",
+    id: "550e8400-e29b-41d4-a716-446655440001",
     name: "Titan Evolve – Creatine Monohydrate (Unflavored)",
     description: "200 Mesh Ultra Micronized Powder for strength and explosive power",
     price: 1199,
@@ -108,7 +108,7 @@ export const products: ProductData[] = [
     }
   },
   {
-    id: "prod_2",
+    id: "550e8400-e29b-41d4-a716-446655440002",
     name: "Titan Evolve – Pre-Workout (Watermelon)",
     description: "Refreshing, juicy and slightly tangy pre-workout for explosive energy",
     price: 1750,
@@ -167,7 +167,7 @@ export const products: ProductData[] = [
     }
   },
   {
-    id: "prod_3", 
+    id: "550e8400-e29b-41d4-a716-446655440003",
     name: "Titan Evolve – Pre-Workout (Bubblegum Burst)",
     description: "Sweet & nostalgic candy burst with zero aftertaste",
     price: 1750,
@@ -226,7 +226,7 @@ export const products: ProductData[] = [
     }
   },
   {
-    id: "prod_4",
+    id: "550e8400-e29b-41d4-a716-446655440004",
     name: "Titan Evolve – Mass Gainer (Double Rich Chocolate) 2.7kg",
     description: "Creamy, dense cocoa flavor — easy on the stomach",
     price: 2499,
@@ -284,7 +284,7 @@ export const products: ProductData[] = [
     }
   },
   {
-    id: "prod_5",
+    id: "550e8400-e29b-41d4-a716-446655440005",
     name: "Titan Evolve – Mass Gainer (Double Rich Chocolate) 4.5kg",
     description: "Creamy, dense cocoa flavor — easy on the stomach",
     price: 3499,
@@ -341,7 +341,7 @@ export const products: ProductData[] = [
     }
   },
   {
-    id: "prod_6",
+    id: "550e8400-e29b-41d4-a716-446655440006",
     name: "Titan Evolve – Mass Gainer (Kesar Pista Delight) 2.7kg",
     description: "A royal fusion of saffron and pistachio with warm, aromatic undertones",
     price: 2499,
@@ -399,7 +399,7 @@ export const products: ProductData[] = [
     }
   },
   {
-    id: "prod_7",
+    id: "550e8400-e29b-41d4-a716-446655440007",
     name: "Titan Evolve – Mass Gainer (Kesar Pista Delight) 4.5kg",
     description: "A royal fusion of saffron and pistachio with warm, aromatic undertones",
     price: 3499,
@@ -457,7 +457,7 @@ export const products: ProductData[] = [
     }
   },
   {
-    id: "prod_8",
+    id: "550e8400-e29b-41d4-a716-446655440008",
     name: "Titan Evolve – Lean Whey Protein (Double Rich Chocolate)",
     description: "Deep, rich cocoa with a clean finish - 25g protein per serving",
     price: 4999,
@@ -517,7 +517,7 @@ export const products: ProductData[] = [
     }
   },
   {
-    id: "prod_9",
+    id: "550e8400-e29b-41d4-a716-446655440009",
     name: "Titan Evolve – Lean Whey Protein (American Ice Cream)",
     description: "Creamy, dessert-like experience with a vanilla-caramel blend",
     price: 4999,
