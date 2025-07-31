@@ -1,87 +1,183 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
-import { Truck, Clock, Shield, Package } from 'lucide-react';
+import { Truck, Clock, Shield, Camera, AlertTriangle } from 'lucide-react';
 
 const ShippingInfo = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-black text-white">
-        <section className="bg-gradient-to-r from-purple-900 to-black py-20">
-          <div className="container mx-auto px-6 text-center">
-            <h1 className="text-6xl font-black mb-6">SHIPPING INFO</h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Everything you need to know about our shipping policy
+        {/* Hero Section */}
+        <section className="relative h-96 bg-gradient-to-r from-purple-900 to-black flex items-center">
+          <div className="container mx-auto px-6">
+            <h1 className="text-7xl font-black tracking-tight mb-4">SHIPPING INFO</h1>
+            <p className="text-2xl text-gray-300 max-w-2xl">
+              Fast, reliable delivery to fuel your fitness journey
             </p>
           </div>
         </section>
 
-        <section className="py-12">
+        {/* Content */}
+        <section className="py-20">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-              <div className="text-center">
-                <Truck className="h-12 w-12 text-purple-400 mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">Free Shipping</h3>
-                <p className="text-gray-400">On orders above ₹2,000</p>
-              </div>
-              <div className="text-center">
-                <Clock className="h-12 w-12 text-purple-400 mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">Fast Delivery</h3>
-                <p className="text-gray-400">3-7 business days</p>
-              </div>
-              <div className="text-center">
-                <Shield className="h-12 w-12 text-purple-400 mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">Secure Packaging</h3>
-                <p className="text-gray-400">Safe & secure delivery</p>
-              </div>
-              <div className="text-center">
-                <Package className="h-12 w-12 text-purple-400 mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">Order Tracking</h3>
-                <p className="text-gray-400">Real-time updates</p>
-              </div>
-            </div>
-
-            <div className="bg-gray-900 rounded-xl p-8">
-              <h2 className="text-3xl font-bold text-purple-400 mb-6">Shipping Details</h2>
+            <div className="max-w-6xl mx-auto">
               
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Shipping Charges</h3>
-                  <ul className="text-gray-300 space-y-2">
-                    <li>• Free shipping on orders above ₹2,000</li>
-                    <li>• ₹150 shipping charges for orders below ₹2,000</li>
-                    <li>• Express delivery available for ₹300 extra</li>
-                  </ul>
+              {/* Order Processing */}
+              <div className="bg-gradient-to-r from-purple-900/30 to-black p-8 rounded-2xl border border-purple-800/30 mb-12">
+                <div className="flex items-center mb-6">
+                  <Clock className="h-8 w-8 text-purple-400 mr-4" />
+                  <h2 className="text-3xl font-black text-purple-400">ORDER PROCESSING</h2>
                 </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Delivery Timeline</h3>
-                  <ul className="text-gray-300 space-y-2">
-                    <li>• Metro cities: 3-5 business days</li>
-                    <li>• Tier 2 cities: 5-7 business days</li>
-                    <li>• Remote areas: 7-10 business days</li>
-                    <li>• Express delivery: 1-2 business days (metro cities only)</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Order Processing</h3>
-                  <ul className="text-gray-300 space-y-2">
-                    <li>• Orders placed before 2 PM are processed the same day</li>
-                    <li>• Orders placed after 2 PM are processed the next business day</li>
-                    <li>• No processing on Sundays and public holidays</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Tracking Your Order</h3>
-                  <ul className="text-gray-300 space-y-2">
-                    <li>• You'll receive a tracking number via SMS and email</li>
-                    <li>• Track your order in real-time on our website</li>
-                    <li>• Get updates at every step of delivery</li>
-                  </ul>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <p className="text-lg text-gray-300 leading-relaxed">
+                      Orders are processed within <span className="text-purple-400 font-bold">24–48 hours</span> after payment
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-lg text-gray-300 leading-relaxed">
+                      You'll receive tracking info via email/SMS once dispatched
+                    </p>
+                  </div>
                 </div>
               </div>
+
+              {/* Delivery Timeline */}
+              <div className="bg-gray-900/50 p-8 rounded-2xl border border-purple-800/20 mb-12">
+                <div className="flex items-center mb-6">
+                  <Truck className="h-8 w-8 text-purple-400 mr-4" />
+                  <h2 className="text-3xl font-black text-purple-400">DELIVERY TIMELINE</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-purple-900/20 p-6 rounded-xl border border-purple-700/30">
+                    <h3 className="text-xl font-bold text-white mb-3">Metro Cities</h3>
+                    <p className="text-2xl font-black text-purple-400">2–4 working days</p>
+                  </div>
+                  <div className="bg-purple-900/20 p-6 rounded-xl border border-purple-700/30">
+                    <h3 className="text-xl font-bold text-white mb-3">Tier 2 & Rural Areas</h3>
+                    <p className="text-2xl font-black text-purple-400">4–7 working days</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping Charges */}
+              <div className="bg-gradient-to-r from-green-900/30 to-black p-8 rounded-2xl border border-green-800/30 mb-12">
+                <h2 className="text-3xl font-black text-green-400 mb-6">SHIPPING CHARGES</h2>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-green-900/20 rounded-lg border border-green-700/30">
+                    <span className="text-lg text-gray-300">FREE shipping on all prepaid orders above</span>
+                    <span className="text-2xl font-bold text-green-400">₹1499</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-900/30 rounded-lg border border-gray-700/30">
+                    <span className="text-lg text-gray-300">Flat shipping for orders below ₹1499</span>
+                    <span className="text-xl font-bold text-white">₹99</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-orange-900/20 rounded-lg border border-orange-700/30">
+                    <span className="text-lg text-gray-300">Cash on Delivery (COD) additional charge</span>
+                    <span className="text-xl font-bold text-orange-400">₹199</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Returns & Refund Policy */}
+              <div className="bg-gradient-to-r from-red-900/30 to-black p-8 rounded-2xl border border-red-800/30 mb-12">
+                <div className="flex items-center mb-6">
+                  <Shield className="h-8 w-8 text-red-400 mr-4" />
+                  <h2 className="text-3xl font-black text-red-400">RETURNS & REFUND POLICY</h2>
+                </div>
+                <p className="text-lg text-gray-300 leading-relaxed mb-8">
+                  We stand by our product quality. However, if there's damage or tampering during shipping, 
+                  we offer replacements or refunds under our strict policy:
+                </p>
+
+                {/* Mandatory Unboxing Video */}
+                <div className="bg-red-900/20 p-6 rounded-xl border border-red-700/30 mb-8">
+                  <div className="flex items-center mb-4">
+                    <Camera className="h-6 w-6 text-red-400 mr-3" />
+                    <h3 className="text-xl font-bold text-red-400">MANDATORY UNBOXING VIDEO</h3>
+                  </div>
+                  <ul className="space-y-3 text-gray-300">
+                    <li className="flex items-start">
+                      <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
+                      You must record a 360° unboxing video with your phone
+                    </li>
+                    <li className="flex items-start">
+                      <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
+                      Video must show seal condition, box label, and product clearly
+                    </li>
+                    <li className="flex items-start">
+                      <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
+                      Ensure good lighting and product in focus — all in one take
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Refund/Replacement Validity */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                  <div className="bg-gray-900/50 p-6 rounded-xl border border-gray-700/30">
+                    <h3 className="text-xl font-bold text-white mb-4">REFUND/REPLACEMENT VALIDITY</h3>
+                    <ul className="space-y-3 text-gray-300">
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2"></span>
+                        Must report the issue within 24 hours of delivery
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2"></span>
+                        Share the video immediately via email or WhatsApp
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-red-400 rounded-full mr-3 mt-2"></span>
+                        <span className="font-bold text-red-400">No video = no claim will be accepted</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-gray-900/50 p-6 rounded-xl border border-gray-700/30">
+                    <div className="flex items-center mb-4">
+                      <AlertTriangle className="h-6 w-6 text-yellow-400 mr-3" />
+                      <h3 className="text-xl font-bold text-yellow-400">WHAT WE DON'T ACCEPT</h3>
+                    </div>
+                    <ul className="space-y-3 text-gray-300">
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>
+                        Opened, used, or tampered products without a valid reason
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>
+                        Return requests after 24 hours
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>
+                        Flavor dislikes or taste preferences
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="text-center bg-purple-900/20 p-8 rounded-2xl border border-purple-800/30">
+                <h3 className="text-2xl font-bold text-purple-400 mb-4">Need Help?</h3>
+                <p className="text-lg text-gray-300 mb-4">
+                  For any shipping-related queries, contact us immediately
+                </p>
+                <div className="flex flex-col md:flex-row gap-4 justify-center">
+                  <a 
+                    href="https://wa.me/918506912255" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
+                  >
+                    WhatsApp: +91 8506912255
+                  </a>
+                  <a 
+                    href="mailto:support@titanevolve.com" 
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
+                  >
+                    Email Support
+                  </a>
+                </div>
+              </div>
+              
             </div>
           </div>
         </section>

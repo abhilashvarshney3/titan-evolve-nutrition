@@ -2,17 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Star, ShoppingCart, Heart, Zap, MessageCircle } from 'lucide-react';
+import { Star, ShoppingCart, Heart, Zap, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
 import { getNewProducts, type ProductData } from '@/data/products';
+import { useRef } from 'react';
 
 const NewProductsSection = () => {
   const [products, setProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -93,6 +95,18 @@ const NewProductsSection = () => {
     window.open(whatsappUrl, '_blank');
   };
 
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
+
   if (loading || products.length === 0) {
     return null;
   }
@@ -113,7 +127,27 @@ const NewProductsSection = () => {
         </div>
 
         <div className="relative">
-          <div className="overflow-x-auto scrollbar-hide">
+          {/* Desktop Navigation Arrows */}
+          <div className="hidden md:flex">
+            <Button
+              onClick={scrollLeft}
+              variant="outline"
+              size="icon"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-purple-500 hover:bg-purple-600 hover:border-purple-400"
+            >
+              <ChevronLeft className="h-5 w-5 text-white" />
+            </Button>
+            <Button
+              onClick={scrollRight}
+              variant="outline"
+              size="icon"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-purple-500 hover:bg-purple-600 hover:border-purple-400"
+            >
+              <ChevronRight className="h-5 w-5 text-white" />
+            </Button>
+          </div>
+          
+          <div className="overflow-x-auto scrollbar-hide" ref={scrollContainerRef}>
             <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
               {products.map((product, index) => (
                 <div

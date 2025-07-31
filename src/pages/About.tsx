@@ -9,76 +9,84 @@ const About = () => {
         {/* Hero Section */}
         <section className="relative h-96 bg-gradient-to-r from-purple-900 to-black flex items-center">
           <div className="container mx-auto px-6">
-            <h1 className="text-7xl font-black tracking-tight mb-4">ABOUT US</h1>
-            <p className="text-2xl text-gray-300 max-w-2xl">
-              Pioneering the future of performance nutrition
+            <h1 className="text-7xl font-black tracking-tight mb-4">ABOUT TITAN EVOLVE</h1>
+            <p className="text-2xl text-gray-300 max-w-3xl">
+              Born for athletes. Built by the relentless. Driven by discipline.
             </p>
           </div>
         </section>
 
-        {/* Content */}
+        {/* Main Content */}
         <section className="py-20">
           <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-                <div>
-                  <h2 className="text-4xl font-black mb-6 text-purple-400">OUR MISSION</h2>
-                  <p className="text-lg text-gray-300 leading-relaxed mb-6">
-                    At TITAN EVOLVE, we believe in pushing the boundaries of human potential. 
-                    Our mission is to provide athletes and fitness enthusiasts with scientifically 
-                    engineered supplements that deliver uncompromising results.
-                  </p>
-                  <p className="text-lg text-gray-300 leading-relaxed">
-                    Every product in our lineup is meticulously formulated using cutting-edge 
-                    research and premium ingredients sourced from around the globe.
-                  </p>
+            <div className="max-w-6xl mx-auto">
+              {/* Introduction */}
+              <div className="text-center mb-16">
+                <p className="text-xl text-gray-300 leading-relaxed max-w-4xl mx-auto">
+                  Titan Evolve is a premium Indian nutraceutical brand crafted to fulfil the needs of athletes, 
+                  strength training enthusiasts, and fitness-driven individuals. Engineered by elite coaches, 
+                  sports scientists, and performance-focused professionals, our mission is to deliver high-quality 
+                  supplements backed by science, driven by performance, and elevated by taste.
+                </p>
+                <div className="mt-8 text-2xl font-bold text-purple-400">
+                  We don't chase trends. We chase results.
                 </div>
-                <div className="bg-purple-900/20 p-8 rounded-xl border border-purple-800/30">
-                  <h3 className="text-2xl font-bold mb-4 text-purple-400">WHY CHOOSE US?</h3>
-                  <ul className="space-y-3 text-gray-300">
-                    <li className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                      Premium, lab-tested ingredients
-                    </li>
-                    <li className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                      Science-backed formulations
-                    </li>
-                    <li className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                      Transparent labeling
-                    </li>
-                    <li className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                      Third-party testing
-                    </li>
-                    <li className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                      Authentic product verification
-                    </li>
-                  </ul>
-                </div>
+                <p className="mt-4 text-lg text-gray-300">
+                  From the training ground to the podium — we fuel evolution, a TITAN in process.
+                </p>
+                <p className="mt-4 text-lg text-gray-300">
+                  Whether you're a beginner, everyday gym-goer, elite lifter, or competitive athlete — 
+                  Titan Evolve is your trusted partner in building strength, endurance, aesthetics, and mindset.
+                </p>
               </div>
 
-              <div className="text-center">
-                <h2 className="text-4xl font-black mb-8 text-purple-400">THE TITAN DIFFERENCE</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="bg-gray-900/50 p-6 rounded-xl border border-purple-800/20">
-                    <div className="text-3xl font-black text-purple-500 mb-4">QUALITY</div>
+              {/* Vision Section */}
+              <div className="bg-gradient-to-r from-purple-900/30 to-black p-12 rounded-2xl border border-purple-800/30 mb-16">
+                <h2 className="text-4xl font-black mb-6 text-purple-400 text-center">OUR VISION</h2>
+                <p className="text-xl text-gray-300 leading-relaxed text-center max-w-4xl mx-auto">
+                  To become India's most trusted and performance-first supplement brand — combining elite-level quality, 
+                  scientific formulation, and a community culture that empowers athletes across all disciplines.
+                </p>
+              </div>
+
+              {/* Why Choose Us */}
+              <div className="text-center mb-16">
+                <h2 className="text-4xl font-black mb-12 text-purple-400">WHY CHOOSE TITAN EVOLVE?</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="bg-gray-900/50 p-8 rounded-xl border border-purple-800/20 hover:border-purple-600/40 transition-all duration-300">
+                    <div className="text-purple-500 text-lg font-bold mb-4">✔️ Real Athletes, Real Testing</div>
                     <p className="text-gray-300">
-                      We use only the highest quality ingredients, rigorously tested for purity and potency.
+                      Formulated by real athletes and coaches & tested in real training environments
                     </p>
                   </div>
-                  <div className="bg-gray-900/50 p-6 rounded-xl border border-purple-800/20">
-                    <div className="text-3xl font-black text-purple-500 mb-4">INNOVATION</div>
+                  <div className="bg-gray-900/50 p-8 rounded-xl border border-purple-800/20 hover:border-purple-600/40 transition-all duration-300">
+                    <div className="text-purple-500 text-lg font-bold mb-4">✔️ Maximum Impact</div>
                     <p className="text-gray-300">
-                      Our R&D team constantly pushes the boundaries of supplement science.
+                      Micronized, bioavailable ingredients for maximum impact
                     </p>
                   </div>
-                  <div className="bg-gray-900/50 p-6 rounded-xl border border-purple-800/20">
-                    <div className="text-3xl font-black text-purple-500 mb-4">RESULTS</div>
+                  <div className="bg-gray-900/50 p-8 rounded-xl border border-purple-800/20 hover:border-purple-600/40 transition-all duration-300">
+                    <div className="text-purple-500 text-lg font-bold mb-4">✔️ Pure & Clean</div>
                     <p className="text-gray-300">
-                      Every product is designed to deliver measurable, consistent results.
+                      Transparent labels, zero banned substances, no filler junk
+                    </p>
+                  </div>
+                  <div className="bg-gray-900/50 p-8 rounded-xl border border-purple-800/20 hover:border-purple-600/40 transition-all duration-300">
+                    <div className="text-purple-500 text-lg font-bold mb-4">✔️ Superior Taste</div>
+                    <p className="text-gray-300">
+                      Superior taste profiles with smooth, mixable blends
+                    </p>
+                  </div>
+                  <div className="bg-gray-900/50 p-8 rounded-xl border border-purple-800/20 hover:border-purple-600/40 transition-all duration-300">
+                    <div className="text-purple-500 text-lg font-bold mb-4">✔️ Trusted by Athletes</div>
+                    <p className="text-gray-300">
+                      Trusted by strength athletes, fitness enthusiasts, and performance-driven individuals
+                    </p>
+                  </div>
+                  <div className="bg-gray-900/50 p-8 rounded-xl border border-purple-800/20 hover:border-purple-600/40 transition-all duration-300">
+                    <div className="text-purple-500 text-lg font-bold mb-4">✔️ Community Focused</div>
+                    <p className="text-gray-300">
+                      Community-focused brand built on grit, knowledge, and trust
                     </p>
                   </div>
                 </div>
