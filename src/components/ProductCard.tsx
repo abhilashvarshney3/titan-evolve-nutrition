@@ -112,7 +112,7 @@ const ProductCard = ({
     e.preventDefault();
     e.stopPropagation();
     const message = `Hi! I'm interested in purchasing ${name} (₹${price}). Can you help me with the order?`;
-    const whatsappUrl = `https://wa.me/918506912255?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/919650602521?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 

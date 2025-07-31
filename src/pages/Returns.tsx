@@ -123,12 +123,12 @@ const Returns = () => {
                 </p>
                 <div className="flex flex-col md:flex-row gap-4 justify-center">
                   <a 
-                    href="https://wa.me/918506912255" 
+                    href="https://wa.me/919650602521" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
                   >
-                    WhatsApp: +91 8506912255
+                    WhatsApp: +91 9650602521
                   </a>
                   <a 
                     href="mailto:support@titanevolve.com" 
