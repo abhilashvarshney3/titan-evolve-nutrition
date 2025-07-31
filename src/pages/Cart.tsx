@@ -286,11 +286,13 @@ const Cart = () => {
                     >
                       {/* Product Image */}
                       <Link to={`/product/${item.product_id}`} className="flex-shrink-0">
-                        <img
-                          src={item.products.image_url || '/placeholder.svg'}
-                          alt={item.products.name}
-                          className="w-full sm:w-24 md:w-32 h-32 sm:h-24 md:h-32 object-cover rounded-lg hover:scale-105 transition-transform"
-                        />
+                        <div className="w-full sm:w-24 md:w-32 h-32 sm:h-24 md:h-32 rounded-lg overflow-hidden bg-gray-800">
+                          <img
+                            src={item.products.image_url || '/placeholder.svg'}
+                            alt={item.products.name}
+                            className="w-full h-full object-contain hover:scale-105 transition-transform"
+                          />
+                        </div>
                       </Link>
 
                       {/* Product Details */}

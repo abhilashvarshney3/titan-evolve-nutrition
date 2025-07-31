@@ -720,11 +720,13 @@ const Profile = () => {
                       <Card key={item.id} className="bg-gray-900 border-purple-800/30 overflow-hidden hover:scale-105 transition-transform">
                         <div className="relative">
                           <Link to={`/product/${item.product_id}`}>
-                            <img
-                              src={item.products.image_url || '/placeholder.svg'}
-                              alt={item.products.name}
-                              className="w-full h-48 object-cover"
-                            />
+                            <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-800">
+                              <img
+                                src={item.products.image_url || '/placeholder.svg'}
+                                alt={item.products.name}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
                           </Link>
                           <Button
                             variant="ghost"

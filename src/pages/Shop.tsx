@@ -357,11 +357,11 @@ const Shop = () => {
                     className="group bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 border border-purple-800/20 animate-fade-in relative"
                   >
                     <Link to={`/product/${product.id}`}>
-                      <div className="relative aspect-square overflow-hidden">
+                      <div className="relative aspect-square overflow-hidden bg-gray-800">
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                         />
                         
                         {/* Badges */}
