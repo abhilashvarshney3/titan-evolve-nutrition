@@ -519,7 +519,7 @@ export const products: ProductData[] = [
   {
     id: "550e8400-e29b-41d4-a716-446655440009",
     name: "Titan Evolve – Lean Whey Protein (American Ice Cream)",
-    description: "Creamy, dessert-like experience with a vanilla-caramel blend",
+    description: "Creamy, dessert-like experience with a vanilla-caramel blend - 25g protein per serving",
     price: 4999,
     image: "/lovable-uploads/LOGO.png",
     category: "Whey Protein",
@@ -530,7 +530,7 @@ export const products: ProductData[] = [
     sku: "TE-WP-AIC-2KG",
     badge: "New",
     rating: 4.8,
-    reviewCount: 267,
+    reviewCount: 187,
     details: {
       netWeight: "2kg",
       servings: "66",
