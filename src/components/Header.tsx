@@ -34,7 +34,10 @@ const Header = () => {
   }, [user]);
 
   const fetchCartCount = async () => {
-    if (!user) return;
+    if (!user) {
+      setCartCount(0);
+      return;
+    }
 
     try {
       const { data, error } = await supabase
@@ -48,6 +51,7 @@ const Header = () => {
       setCartCount(total);
     } catch (error) {
       console.error('Error fetching cart count:', error);
+      setCartCount(0);
     }
   };
 

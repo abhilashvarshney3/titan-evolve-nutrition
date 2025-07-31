@@ -158,7 +158,7 @@ const Cart = () => {
   const handleWhatsAppCheckout = () => {
     if (cartItems.length === 0) return;
 
-    const phoneNumber = "918800853514";
+    const phoneNumber = "918506912255";
     let message = "Hi! I want to place an order for the following items:\n\n";
     
     cartItems.forEach((item, index) => {
@@ -168,8 +168,14 @@ const Cart = () => {
       message += `   Subtotal: ₹${(item.products.price * item.quantity).toFixed(0)}\n\n`;
     });
 
-    const total = cartItems.reduce((sum, item) => sum + (item.products.price * item.quantity), 0);
+    const subtotal = cartItems.reduce((sum, item) => sum + (item.products.price * item.quantity), 0);
+    const shipping = subtotal >= 1499 ? 0 : 99;
+    const total = subtotal + shipping;
+    
+    message += `Subtotal: ₹${subtotal.toFixed(0)}\n`;
+    message += `Shipping: ${shipping === 0 ? 'FREE' : `₹${shipping}`}\n`;
     message += `Total Amount: ₹${total.toFixed(0)}\n\n`;
+    message += "Payment Method: [ ] Prepaid [ ] Cash on Delivery (+₹199)\n\n";
     message += "Please confirm the order and provide delivery details.";
 
     const encodedMessage = encodeURIComponent(message);
@@ -380,14 +386,33 @@ const Cart = () => {
                         <span>Subtotal ({itemCount} items)</span>
                         <span>₹{total.toFixed(0)}</span>
                       </div>
-                      <div className="flex justify-between text-gray-400">
-                        <span>Shipping</span>
-                        <span className="text-green-400">FREE</span>
+                      
+                      {/* Shipping Calculation */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-gray-400">
+                          <span>Shipping</span>
+                          <span className={total >= 1499 ? "text-green-400" : "text-yellow-400"}>
+                            {total >= 1499 ? "FREE" : "₹99"}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {total >= 1499 
+                            ? "FREE shipping on prepaid orders above ₹1499" 
+                            : `Add ₹${(1499 - total).toFixed(0)} more for FREE shipping`
+                          }
+                        </div>
+                        <div className="text-xs text-orange-400">
+                          Cash on Delivery (COD) available with ₹199 additional charge
+                        </div>
                       </div>
+                      
                       <div className="border-t border-purple-800/30 pt-4">
                         <div className="flex justify-between text-xl font-bold text-white">
                           <span>Total</span>
-                          <span>₹{total.toFixed(0)}</span>
+                          <span>₹{(total + (total >= 1499 ? 0 : 99)).toFixed(0)}</span>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          (Shipping included for prepaid orders)
                         </div>
                       </div>
                     </div>
