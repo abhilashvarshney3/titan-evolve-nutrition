@@ -5,12 +5,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Star, ShoppingCart, Heart, MessageCircle } from 'lucide-react';
+import { Search, Star, ShoppingCart, Heart, MessageCircle, Plus, Minus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useCartQuantity } from '@/hooks/useCartQuantity';
 import { products as centralizedProducts, getAllCategories, ProductData } from '@/data/products';
 
 // Using centralized ProductData interface and categories
@@ -182,6 +183,83 @@ const Shop = () => {
     const message = `Hi! I'm interested in purchasing ${product.name} (₹${product.price}). Can you help me with the order?`;
     const whatsappUrl = `https://wa.me/919650602521?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+  };
+
+  
+  // CartButtons component for shop page
+  const CartButtons = ({ productId, productName }: { productId: string; productName: string }) => {
+    const { quantity, loading, incrementQuantity, decrementQuantity, addToCart } = useCartQuantity(productId);
+    const { user } = useAuth();
+    const { toast } = useToast();
+
+    const handleAddToCart = () => {
+      if (!user) {
+        toast({
+          title: "Please Sign In",
+          description: "You need to be logged in to add items to cart.",
+          variant: "destructive"
+        });
+        return;
+      }
+      addToCart(productName);
+    };
+
+    const handleQuickBuy = () => {
+      const message = `Hi! I'm interested in purchasing ${productName}. Can you help me with the order?`;
+      const whatsappUrl = `https://wa.me/919650602521?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    };
+
+    return (
+      <div className="flex gap-2">
+        {quantity > 0 ? (
+          // Quantity Controls - Compact and responsive
+          <div className="flex items-center bg-purple-600 rounded-lg overflow-hidden">
+            <Button
+              size="sm"
+              onClick={() => decrementQuantity(productName)}
+              disabled={loading}
+              className="bg-purple-700 hover:bg-purple-800 text-white px-2 py-1 rounded-none h-8 min-w-8"
+            >
+              <Minus className="h-3 w-3" />
+            </Button>
+            <span className="bg-purple-600 text-white px-2 py-1 text-sm font-bold min-w-8 text-center flex items-center justify-center h-8">
+              {quantity}
+            </span>
+            <Button
+              size="sm"
+              onClick={() => incrementQuantity(productName)}
+              disabled={loading}
+              className="bg-purple-700 hover:bg-purple-800 text-white px-2 py-1 rounded-none h-8 min-w-8"
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </div>
+        ) : (
+          // Add to Cart Button - Purple theme
+          <Button
+            size="sm"
+            onClick={handleAddToCart}
+            disabled={loading}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 text-sm font-bold"
+          >
+            <ShoppingCart className="h-3 w-3 mr-1" />
+            ADD TO CART
+          </Button>
+        )}
+        
+        {/* Quick Buy Button */}
+        <Button
+          size="sm"
+          onClick={handleQuickBuy}
+          variant="outline"
+          className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold"
+        >
+          <MessageCircle className="h-3 w-3 mr-1" />
+          BUY
+        </Button>
+      </div>
+    );
   };
 
   const filteredProducts = filterProducts();
@@ -364,25 +442,8 @@ const Shop = () => {
                           ₹{product.price.toFixed(0)}
                         </span>
                         
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleQuickAdd(product)}
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 text-sm font-bold flex-1"
-                          >
-                            <ShoppingCart className="h-3 w-3 mr-1" />
-                            ADD
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handleQuickBuy(product)}
-                            variant="outline"
-                            className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold flex-1"
-                          >
-                            <MessageCircle className="h-3 w-3 mr-1" />
-                            BUY
-                          </Button>
-                        </div>
+                        {/* Cart quantity controls */}
+                        <CartButtons productId={product.id} productName={product.name} />
                       </div>
 
                       {/* Stock Status */}

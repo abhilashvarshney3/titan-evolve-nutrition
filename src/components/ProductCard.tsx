@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -107,19 +106,19 @@ const ProductCard = ({
             </Badge>
           )}
           {isOnSale && (
-            <Badge variant="destructive" className="px-2 py-1 text-xs font-bold">
+            <Badge className="bg-green-600 text-white px-2 py-1 text-xs font-bold">
               SALE
             </Badge>
           )}
         </div>
 
         {/* Wishlist Button */}
-        <button 
+        <button
           onClick={handleWishlistToggle}
           className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 hover:scale-110 ${
             isInWishlist(id)
               ? 'bg-red-600 text-white'
-              : 'bg-black/50 text-white hover:bg-red-600/80'
+              : 'bg-black/50 text-white hover:bg-purple-600'
           }`}
         >
           <Heart className={`h-4 w-4 ${isInWishlist(id) ? 'fill-current' : ''}`} />
@@ -129,13 +128,13 @@ const ProductCard = ({
       {/* Content */}
       <div className="p-4 space-y-3">
         {/* Category */}
-        <span className="text-red-400 text-xs font-bold tracking-wider uppercase">
+        <span className="text-purple-400 text-xs font-bold tracking-wider uppercase">
           {category}
         </span>
         
         {/* Title */}
         <Link to={`/product/${id}`}>
-          <h3 className="text-white text-lg font-bold line-clamp-2 group-hover:text-red-400 transition-colors">
+          <h3 className="text-white text-lg font-bold line-clamp-2 group-hover:text-purple-400 transition-colors">
             {name}
           </h3>
         </Link>
@@ -157,67 +156,71 @@ const ProductCard = ({
           <span className="text-gray-400 text-xs">({reviewCount})</span>
         </div>
 
-        {/* Price and Buttons */}
-        <div className="flex flex-col gap-3 pt-2">
-          <div className="flex items-center gap-2">
-            <span className="text-white text-xl font-bold">
-              ₹{price.toFixed(0)}
+        {/* Description */}
+        <p className="text-gray-400 text-sm line-clamp-2">
+          {description}
+        </p>
+
+        {/* Price */}
+        <div className="flex items-center gap-2">
+          <span className="text-white text-xl font-bold">
+            ₹{price.toFixed(0)}
+          </span>
+          {originalPrice && (
+            <span className="text-gray-500 text-sm line-through">
+              ₹{originalPrice.toFixed(0)}
             </span>
-            {originalPrice && (
-              <span className="text-gray-500 text-sm line-through">
-                ₹{originalPrice.toFixed(0)}
-              </span>
-            )}
-          </div>
-          
-          <div className="flex gap-2">
-            {quantity > 0 ? (
-              // Quantity Controls
-              <div className="flex items-center bg-purple-600 rounded-lg overflow-hidden flex-1">
-                <Button
-                  size="sm"
-                  onClick={handleDecrementQuantity}
-                  disabled={loading}
-                  className="bg-purple-700 hover:bg-purple-800 text-white px-3 py-2 rounded-none h-8"
-                >
-                  <Minus className="h-3 w-3" />
-                </Button>
-                <span className="bg-purple-600 text-white px-3 py-2 text-sm font-bold min-w-[40px] text-center">
-                  {quantity}
-                </span>
-                <Button
-                  size="sm"
-                  onClick={handleIncrementQuantity}
-                  disabled={loading}
-                  className="bg-purple-700 hover:bg-purple-800 text-white px-3 py-2 rounded-none h-8"
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              // Add to Cart Button
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          {quantity > 0 ? (
+            // Quantity Controls - Compact and responsive
+            <div className="flex items-center bg-purple-600 rounded-lg overflow-hidden">
               <Button
                 size="sm"
-                onClick={handleAddToCart}
+                onClick={handleDecrementQuantity}
                 disabled={loading}
-                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-sm font-bold flex-1"
+                className="bg-purple-700 hover:bg-purple-800 text-white px-2 py-1 rounded-none h-8 min-w-8"
               >
-                <ShoppingCart className="h-3 w-3 mr-1" />
-                ADD TO CART
+                <Minus className="h-3 w-3" />
               </Button>
-            )}
-            
-            {/* Quick Buy Button */}
+              <span className="bg-purple-600 text-white px-2 py-1 text-sm font-bold min-w-8 text-center flex items-center justify-center h-8">
+                {quantity}
+              </span>
+              <Button
+                size="sm"
+                onClick={handleIncrementQuantity}
+                disabled={loading}
+                className="bg-purple-700 hover:bg-purple-800 text-white px-2 py-1 rounded-none h-8 min-w-8"
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+          ) : (
+            // Add to Cart Button - Purple theme
             <Button
-              onClick={handleQuickBuy}
               size="sm"
-              variant="outline"
-              className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold"
+              onClick={handleAddToCart}
+              disabled={loading}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 text-sm font-bold"
             >
-              <MessageCircle className="h-3 w-3 mr-1" />
-              BUY
+              <ShoppingCart className="h-3 w-3 mr-1" />
+              ADD TO CART
             </Button>
-          </div>
+          )}
+          
+          {/* Quick Buy Button */}
+          <Button
+            size="sm"
+            onClick={handleQuickBuy}
+            variant="outline"
+            className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold"
+          >
+            <MessageCircle className="h-3 w-3 mr-1" />
+            BUY
+          </Button>
         </div>
       </div>
     </div>
