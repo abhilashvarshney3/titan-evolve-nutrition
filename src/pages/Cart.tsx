@@ -64,20 +64,38 @@ const Cart = () => {
 
       if (error) throw error;
 
-      // Map cart items with centralized product data
-      const cartItemsWithProducts = (data || []).map(item => {
+      // Map cart items with centralized product data and clean up orphaned items
+      const cartItemsWithProducts = [];
+      const orphanedItems = [];
+      
+      for (const item of data || []) {
         const product = getProductById(item.product_id);
-        return {
-          ...item,
-          products: product ? {
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image_url: product.image,
-            stock_quantity: product.stockQuantity
-          } : null
-        };
-      }).filter(item => item.products !== null);
+        if (product) {
+          cartItemsWithProducts.push({
+            ...item,
+            products: {
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              image_url: product.image,
+              stock_quantity: product.stockQuantity
+            }
+          });
+        } else {
+          orphanedItems.push(item.id);
+        }
+      }
+
+      // Remove orphaned cart items (products that no longer exist)
+      if (orphanedItems.length > 0) {
+        await supabase
+          .from('cart')
+          .delete()
+          .in('id', orphanedItems);
+        
+        // Trigger cart update to refresh counter
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
+      }
 
       setCartItems(cartItemsWithProducts as CartItem[]);
     } catch (error) {
