@@ -268,24 +268,14 @@ const ProductShowcase = () => {
                     </span>
                     <span className="text-green-400 text-sm">Free Shipping</span>
                   </div>
-                  
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleQuickAdd(product)}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 font-bold"
-                    >
-                      ADD TO CART
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleInstantCheckout(product)}
-                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-2 font-bold text-xs"
-                    >
-                      <Zap className="h-3 w-3 mr-1" />
-                      BUY NOW
-                    </Button>
-                  </div>
+                   
+                   <Button
+                     size="sm"
+                     onClick={() => handleQuickAdd(product)}
+                     className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 font-bold"
+                   >
+                     ADD TO CART
+                   </Button>
                 </div>
 
                  {/* Stock Status */}

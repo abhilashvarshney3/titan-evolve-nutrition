@@ -30,22 +30,22 @@ export interface ProductData {
 
 export const productCategories = {
   creatine: {
-    id: "cat_1",
+    id: "550e8400-e29b-41d4-a716-446655440101",
     name: "Creatine",
     description: "Pure creatine monohydrate for strength and power"
   },
   preworkout: {
-    id: "cat_2", 
+    id: "550e8400-e29b-41d4-a716-446655440102", 
     name: "Pre-Workout",
     description: "Energy and pump formulas for peak performance"
   },
   massgainer: {
-    id: "cat_3",
+    id: "550e8400-e29b-41d4-a716-446655440103",
     name: "Mass Gainer", 
     description: "Quality calories for clean bulking"
   },
   protein: {
-    id: "cat_4",
+    id: "550e8400-e29b-41d4-a716-446655440104",
     name: "Whey Protein",
     description: "Premium whey protein for muscle growth"
   }
@@ -59,7 +59,7 @@ export const products: ProductData[] = [
     price: 1199,
     image: "/lovable-uploads/LOGO.png", // Will be updated with actual product images
     category: "Creatine",
-    categoryId: "cat_1",
+    categoryId: "550e8400-e29b-41d4-a716-446655440101",
     stockQuantity: 50,
     isFeatured: true,
     isNew: false,
@@ -114,7 +114,7 @@ export const products: ProductData[] = [
     price: 1750,
     image: "/lovable-uploads/LOGO.png",
     category: "Pre-Workout",
-    categoryId: "cat_2", 
+    categoryId: "550e8400-e29b-41d4-a716-446655440102",
     stockQuantity: 30,
     isFeatured: true,
     isNew: true,
@@ -173,7 +173,7 @@ export const products: ProductData[] = [
     price: 1750,
     image: "/lovable-uploads/LOGO.png",
     category: "Pre-Workout",
-    categoryId: "cat_2",
+    categoryId: "550e8400-e29b-41d4-a716-446655440102",
     stockQuantity: 25,
     isFeatured: false,
     isNew: true,
@@ -232,7 +232,7 @@ export const products: ProductData[] = [
     price: 2499,
     image: "/lovable-uploads/LOGO.png",
     category: "Mass Gainer",
-    categoryId: "cat_3",
+    categoryId: "550e8400-e29b-41d4-a716-446655440103",
     stockQuantity: 20,
     isFeatured: true,
     isNew: false,
@@ -290,7 +290,7 @@ export const products: ProductData[] = [
     price: 3499,
     image: "/lovable-uploads/LOGO.png",
     category: "Mass Gainer",
-    categoryId: "cat_3",
+    categoryId: "550e8400-e29b-41d4-a716-446655440103",
     stockQuantity: 15,
     isFeatured: false,
     isNew: false,
@@ -347,7 +347,7 @@ export const products: ProductData[] = [
     price: 2499,
     image: "/lovable-uploads/LOGO.png",
     category: "Mass Gainer",
-    categoryId: "cat_3",
+    categoryId: "550e8400-e29b-41d4-a716-446655440103",
     stockQuantity: 18,
     isFeatured: false,
     isNew: true,
@@ -405,7 +405,7 @@ export const products: ProductData[] = [
     price: 3499,
     image: "/lovable-uploads/LOGO.png",
     category: "Mass Gainer",
-    categoryId: "cat_3",
+    categoryId: "550e8400-e29b-41d4-a716-446655440103",
     stockQuantity: 12,
     isFeatured: false,
     isNew: true,
@@ -463,7 +463,7 @@ export const products: ProductData[] = [
     price: 4999,
     image: "/lovable-uploads/LOGO.png",
     category: "Whey Protein",
-    categoryId: "cat_4",
+    categoryId: "550e8400-e29b-41d4-a716-446655440104",
     stockQuantity: 35,
     isFeatured: true,
     isNew: false,
@@ -523,7 +523,7 @@ export const products: ProductData[] = [
     price: 4999,
     image: "/lovable-uploads/LOGO.png",
     category: "Whey Protein",
-    categoryId: "cat_4",
+    categoryId: "550e8400-e29b-41d4-a716-446655440104",
     stockQuantity: 28,
     isFeatured: false,
     isNew: true,
