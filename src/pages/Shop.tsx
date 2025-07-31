@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Star, ShoppingCart, Heart } from 'lucide-react';
+import { Search, Star, ShoppingCart, Heart, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -189,6 +189,12 @@ const Shop = () => {
     }
   };
 
+  const handleQuickBuy = (product: ProductData) => {
+    const message = `Hi! I'm interested in purchasing ${product.name} (₹${product.price}). Can you help me with the order?`;
+    const whatsappUrl = `https://wa.me/918506912255?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const filteredProducts = filterProducts();
 
   return (
@@ -283,11 +289,10 @@ const Shop = () => {
                     key={product.id}
                     className="group bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 border border-purple-800/20 animate-fade-in relative"
                   >
-                    {/* Image Container */}
                     <Link to={`/product/${product.id}`}>
                       <div className="relative aspect-square overflow-hidden">
                         <img
-                          src={product.image || '/placeholder.svg'}
+                          src={productImageMap[Object.keys(productImageMap)[Math.floor(Math.random() * Object.keys(productImageMap).length)]] || product.image || '/placeholder.svg'}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
@@ -328,7 +333,6 @@ const Shop = () => {
                       </div>
                     </Link>
 
-
                     {/* Content */}
                     <div className="p-6 space-y-4">
                       {/* Category */}
@@ -365,19 +369,31 @@ const Shop = () => {
                         {product.description}
                       </p>
 
-                      {/* Price and Add to Cart */}
-                      <div className="flex items-center justify-between pt-2">
+                      {/* Price and Buttons */}
+                      <div className="flex flex-col gap-3 pt-2">
                         <span className="text-white text-xl font-bold">
                           ₹{product.price.toFixed(0)}
                         </span>
                         
-                        <Button
-                          size="sm"
-                          onClick={() => handleQuickAdd(product)}
-                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1 text-sm font-bold"
-                        >
-                          ADD
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleQuickAdd(product)}
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 text-sm font-bold flex-1"
+                          >
+                            <ShoppingCart className="h-3 w-3 mr-1" />
+                            ADD
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleQuickBuy(product)}
+                            variant="outline"
+                            className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold flex-1"
+                          >
+                            <MessageCircle className="h-3 w-3 mr-1" />
+                            BUY
+                          </Button>
+                        </div>
                       </div>
 
                       {/* Stock Status */}

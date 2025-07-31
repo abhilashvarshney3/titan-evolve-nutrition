@@ -159,99 +159,107 @@ const NewProductsSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.map((product, index) => (
-            <div
-              key={product.id}
-              className="group bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl overflow-hidden hover:from-purple-900/30 hover:to-gray-800 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 border border-purple-800/20 animate-fade-in relative"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <Link to={`/product/${product.id}`}>
-                <div className="relative aspect-square overflow-hidden">
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  
-                  <div className="absolute top-4 left-4">
-                    <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 text-sm font-bold animate-pulse">
-                      NEW
-                    </Badge>
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toggleWishlist(product.id, product.name);
-                    }}
-                    className={`absolute top-4 right-4 p-3 rounded-full transition-all duration-300 hover:scale-110 ${
-                      isInWishlist(product.id)
-                        ? 'bg-red-600 text-white'
-                        : 'bg-black/50 text-white hover:bg-purple-600'
-                    }`}
-                  >
-                    <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
-                  </button>
-
-                </div>
-              </Link>
-
-              <div className="p-6 space-y-4">
-                <span className="text-purple-400 text-sm font-bold tracking-wider uppercase">
-                  {product.categories?.name || 'Product'}
-                </span>
-                
-                <Link to={`/product/${product.id}`}>
-                  <h3 className="text-white text-xl font-bold line-clamp-2 group-hover:text-purple-400 transition-colors">
-                    {product.name}
-                  </h3>
-                </Link>
-
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${
-                          i < 4
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-600'
-                        }`}
+        <div className="relative">
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+              {products.map((product, index) => (
+                <div
+                  key={product.id}
+                  className="group bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl overflow-hidden hover:from-purple-900/30 hover:to-gray-800 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 border border-purple-800/20 animate-fade-in relative"
+                  style={{ 
+                    animationDelay: `${index * 100}ms`,
+                    minWidth: '320px',
+                    width: '320px'
+                  }}
+                >
+                  <Link to={`/product/${product.id}`}>
+                    <div className="relative aspect-square overflow-hidden">
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                    ))}
-                  </div>
-                  <span className="text-gray-400 text-sm">(New!)</span>
-                </div>
+                      
+                      <div className="absolute top-4 left-4">
+                        <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 text-sm font-bold animate-pulse">
+                          NEW
+                        </Badge>
+                      </div>
 
-                <div className="flex flex-col gap-3 pt-2">
-                  <span className="text-white text-2xl font-bold">
-                    ₹{product.price.toFixed(0)}
-                  </span>
-                  
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleQuickAdd(product)}
-                      size="sm"
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 font-bold flex-1"
-                    >
-                      <ShoppingCart className="h-3 w-3 mr-1" />
-                      ADD
-                    </Button>
-                    <Button
-                      onClick={() => handleQuickBuy(product)}
-                      size="sm"
-                      variant="outline"
-                      className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-4 py-2 font-bold flex-1"
-                    >
-                      <MessageCircle className="h-3 w-3 mr-1" />
-                      BUY
-                    </Button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleWishlist(product.id, product.name);
+                        }}
+                        className={`absolute top-4 right-4 p-3 rounded-full transition-all duration-300 hover:scale-110 ${
+                          isInWishlist(product.id)
+                            ? 'bg-red-600 text-white'
+                            : 'bg-black/50 text-white hover:bg-purple-600'
+                        }`}
+                      >
+                        <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
+                      </button>
+
+                    </div>
+                  </Link>
+
+                  <div className="p-6 space-y-4">
+                    <span className="text-purple-400 text-sm font-bold tracking-wider uppercase">
+                      {product.categories?.name || 'Product'}
+                    </span>
+                    
+                    <Link to={`/product/${product.id}`}>
+                      <h3 className="text-white text-xl font-bold line-clamp-2 group-hover:text-purple-400 transition-colors">
+                        {product.name}
+                      </h3>
+                    </Link>
+
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${
+                              i < 4
+                                ? 'text-yellow-400 fill-current'
+                                : 'text-gray-600'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-gray-400 text-sm">(New!)</span>
+                    </div>
+
+                    <div className="flex flex-col gap-3 pt-2">
+                      <span className="text-white text-2xl font-bold">
+                        ₹{product.price.toFixed(0)}
+                      </span>
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleQuickAdd(product)}
+                          size="sm"
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 font-bold flex-1"
+                        >
+                          <ShoppingCart className="h-3 w-3 mr-1" />
+                          ADD
+                        </Button>
+                        <Button
+                          onClick={() => handleQuickBuy(product)}
+                          size="sm"
+                          variant="outline"
+                          className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-4 py-2 font-bold flex-1"
+                        >
+                          <MessageCircle className="h-3 w-3 mr-1" />
+                          BUY
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
 
         <div className="text-center mt-12 animate-fade-in">

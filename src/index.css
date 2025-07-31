@@ -75,6 +75,23 @@
     scroll-behavior: smooth;
   }
 
+  /* Hide scrollbars but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Responsive horizontal scroll for mobile */
+  @media (max-width: 768px) {
+    .scrollbar-hide {
+      padding-bottom: 1rem;
+    }
+  }
+
   body {
     @apply bg-black text-white;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
