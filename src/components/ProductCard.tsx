@@ -2,12 +2,12 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Star, Heart, MessageCircle } from 'lucide-react';
+import { ShoppingCart, Star, Heart, MessageCircle, Plus, Minus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useCartQuantity } from '@/hooks/useCartQuantity';
 import { products } from '@/data/products';
 
 interface ProductCardProps {
@@ -38,13 +38,14 @@ const ProductCard = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { quantity, loading, incrementQuantity, decrementQuantity, addToCart } = useCartQuantity(id);
   const isOnSale = originalPrice && originalPrice > price;
 
   // Get the correct image from products data
   const productData = products.find(p => p.id === id);
   const correctImage = productData?.image || image;
 
-  const handleQuickAdd = async (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -57,49 +58,19 @@ const ProductCard = ({
       return;
     }
 
-    try {
-      const { data: existingItem } = await supabase
-        .from('cart')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('product_id', id)
-        .single();
+    addToCart(name);
+  };
 
-      if (existingItem) {
-        const { error } = await supabase
-          .from('cart')
-          .update({ quantity: existingItem.quantity + 1 })
-          .eq('id', existingItem.id);
+  const handleIncrementQuantity = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    incrementQuantity(name);
+  };
 
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('cart')
-          .insert([
-            {
-              user_id: user.id,
-              product_id: id,
-              quantity: 1
-            }
-          ]);
-
-        if (error) throw error;
-      }
-
-      toast({
-        title: "Added to Cart",
-        description: `${name} has been added to your cart.`
-      });
-
-      window.dispatchEvent(new CustomEvent('cartUpdated'));
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add item to cart.",
-        variant: "destructive"
-      });
-    }
+  const handleDecrementQuantity = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    decrementQuantity(name);
   };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
@@ -200,19 +171,48 @@ const ProductCard = ({
           </div>
           
           <div className="flex gap-2">
-            <Button
-              onClick={handleQuickAdd}
-              size="sm"
-              className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-sm font-bold flex-1"
-            >
-              <ShoppingCart className="h-3 w-3 mr-1" />
-              ADD
-            </Button>
+            {quantity > 0 ? (
+              // Quantity Controls
+              <div className="flex items-center bg-purple-600 rounded-lg overflow-hidden flex-1">
+                <Button
+                  size="sm"
+                  onClick={handleDecrementQuantity}
+                  disabled={loading}
+                  className="bg-purple-700 hover:bg-purple-800 text-white px-3 py-2 rounded-none h-8"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+                <span className="bg-purple-600 text-white px-3 py-2 text-sm font-bold min-w-[40px] text-center">
+                  {quantity}
+                </span>
+                <Button
+                  size="sm"
+                  onClick={handleIncrementQuantity}
+                  disabled={loading}
+                  className="bg-purple-700 hover:bg-purple-800 text-white px-3 py-2 rounded-none h-8"
+                >
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
+            ) : (
+              // Add to Cart Button
+              <Button
+                size="sm"
+                onClick={handleAddToCart}
+                disabled={loading}
+                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-sm font-bold flex-1"
+              >
+                <ShoppingCart className="h-3 w-3 mr-1" />
+                ADD TO CART
+              </Button>
+            )}
+            
+            {/* Quick Buy Button */}
             <Button
               onClick={handleQuickBuy}
               size="sm"
               variant="outline"
-              className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold flex-1"
+              className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold"
             >
               <MessageCircle className="h-3 w-3 mr-1" />
               BUY
