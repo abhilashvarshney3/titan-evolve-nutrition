@@ -81,11 +81,11 @@ const NewProductsSection = () => {
           {/* Products Grid */}
           <div
             ref={scrollContainerRef}
-            className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-6"
+            className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-6"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {products.map((product) => (
-              <div key={product.id} className="flex-shrink-0 w-80">
+              <div key={product.id} className="flex-shrink-0 w-64 sm:w-72 md:w-80">
                 <ProductCard
                   id={product.id}
                   name={product.name}
