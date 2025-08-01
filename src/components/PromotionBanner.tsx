@@ -1,10 +1,55 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Gift, Zap, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+
+interface PromotionSettings {
+  enabled: boolean;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  backgroundColor?: string;
+}
 
 const PromotionBanner = () => {
+  const [promotionSettings, setPromotionSettings] = useState<PromotionSettings>({
+    enabled: true,
+    title: "50% OFF",
+    subtitle: "Transform your fitness journey with premium supplements at unbeatable prices.",
+    buttonText: "SHOP NOW",
+    backgroundColor: "#7c3aed"
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadPromotionSettings();
+  }, []);
+
+  const loadPromotionSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('content_settings' as any)
+        .select('*')
+        .eq('key', 'promotion_banner')
+        .single();
+
+      if (error) throw error;
+      if (data && (data as any).value) {
+        setPromotionSettings((data as any).value);
+      }
+    } catch (error) {
+      console.error('Error loading promotion settings:', error);
+      // Keep default settings if database fails
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading || !promotionSettings.enabled) {
+    return null;
+  }
+
   return (
     <section className="py-20 bg-gradient-to-r from-purple-800 via-pink-600 to-red-600 relative overflow-hidden">
       {/* Background Animation */}
@@ -18,7 +63,7 @@ const PromotionBanner = () => {
             <div className="flex items-center justify-center space-x-4 mb-6">
               <Gift className="h-12 w-12 text-white animate-bounce" />
               <h2 className="text-6xl md:text-8xl font-black text-white tracking-tight">
-                50% OFF
+                {promotionSettings.title}
               </h2>
               <Gift className="h-12 w-12 text-white animate-bounce" style={{ animationDelay: '0.5s' }} />
             </div>
@@ -28,8 +73,7 @@ const PromotionBanner = () => {
             </h3>
             
             <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-              Transform your fitness journey with premium supplements at unbeatable prices. 
-              Limited time offer on selected products!
+              {promotionSettings.subtitle}
             </p>
           </div>
 
@@ -67,7 +111,7 @@ const PromotionBanner = () => {
                 size="lg" 
                 className="bg-white text-purple-800 hover:bg-gray-100 px-12 py-4 text-xl font-black shadow-2xl hover:scale-105 transition-all duration-300"
               >
-                SHOP NOW
+                {promotionSettings.buttonText}
                 <Zap className="ml-2 h-6 w-6" />
               </Button>
             </Link>

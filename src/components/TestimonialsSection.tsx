@@ -1,59 +1,90 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, Quote } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Rohit Sharma",
-    role: "Professional Bodybuilder",
-    image: "/lovable-uploads/ChatGPT Image Jul 4, 2025, 02_35_56 PM.png",
-    rating: 5,
-    text: "Titan Evolve's supplements have transformed my training. The quality is unmatched and results speak for themselves. I've gained 15kg of lean muscle in 6 months!"
-  },
-  {
-    id: 2,
-    name: "Priya Patel",
-    role: "Fitness Influencer",
-    image: "/lovable-uploads/ChatGPT Image Jul 4, 2025, 04_57_45 PM.png",
-    rating: 5,
-    text: "As a fitness influencer, I've tried many brands. Titan Evolve stands out with their pure ingredients and amazing taste. My followers love my recommendations!"
-  },
-  {
-    id: 3,
-    name: "Arjun Singh",
-    role: "Marathon Runner",
-    image: "/lovable-uploads/ChatGPT Image Jul 4, 2025, 04_58_27 PM.png",
-    rating: 5,
-    text: "The endurance boost I get from Titan Evolve's pre-workout is incredible. I've improved my marathon time by 12 minutes since I started using their products."
-  },
-  {
-    id: 4,
-    name: "Sneha Reddy",
-    role: "Yoga Instructor",
-    image: "/lovable-uploads/ChatGPT Image Jul 5, 2025, 05_43_54 AM.png",
-    rating: 5,
-    text: "Natural, clean, and effective. Titan Evolve's protein blends perfectly in my post-yoga smoothies. My energy levels have never been better!"
-  },
-  {
-    id: 5,
-    name: "Vikram Kumar",
-    role: "Powerlifter",
-    image: "/lovable-uploads/ChatGPT Image Jul 5, 2025, 05_44_23 AM.png",
-    rating: 5,
-    text: "I've been powerlifting for 10 years. Titan Evolve's creatine and protein have helped me break personal records I thought were impossible."
-  },
-  {
-    id: 6,
-    name: "Anjali Gupta",
-    role: "Nutritionist",
-    image: "/lovable-uploads/ChatGPT Image Jul 5, 2025, 05_46_58 AM.png",
-    rating: 5,
-    text: "As a nutritionist, I recommend Titan Evolve to all my clients. Their transparency in ingredients and third-party testing gives me complete confidence."
-  }
-];
+interface Testimonial {
+  id: string;
+  name: string;
+  role?: string;
+  company?: string;
+  content: string;
+  rating: number;
+  image_url?: string;
+  is_active: boolean;
+  display_order: number;
+}
 
 const TestimonialsSection = () => {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadTestimonials();
+  }, []);
+
+  const loadTestimonials = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('testimonials' as any)
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order');
+
+      if (error) throw error;
+      setTestimonials((data as any) || []);
+    } catch (error) {
+      console.error('Error loading testimonials:', error);
+      // Fallback to static testimonials if database fails
+      setTestimonials([
+        {
+          id: '1',
+          name: "Rohit Sharma",
+          role: "Professional Bodybuilder",
+          content: "Titan Evolve's supplements have transformed my training. The quality is unmatched and results speak for themselves. I've gained 15kg of lean muscle in 6 months!",
+          rating: 5,
+          image_url: "/lovable-uploads/ChatGPT Image Jul 4, 2025, 02_35_56 PM.png",
+          is_active: true,
+          display_order: 1
+        },
+        {
+          id: '2',
+          name: "Priya Patel",
+          role: "Fitness Influencer",
+          content: "As a fitness influencer, I've tried many brands. Titan Evolve stands out with their pure ingredients and amazing taste. My followers love my recommendations!",
+          rating: 5,
+          image_url: "/lovable-uploads/ChatGPT Image Jul 4, 2025, 04_57_45 PM.png",
+          is_active: true,
+          display_order: 2
+        },
+        {
+          id: '3',
+          name: "Arjun Singh",
+          role: "Marathon Runner",
+          content: "The endurance boost I get from Titan Evolve's pre-workout is incredible. I've improved my marathon time by 12 minutes since I started using their products.",
+          rating: 5,
+          image_url: "/lovable-uploads/ChatGPT Image Jul 4, 2025, 04_58_27 PM.png",
+          is_active: true,
+          display_order: 3
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-gradient-to-b from-black to-gray-900">
+        <div className="container mx-auto px-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+            <p className="mt-4 text-gray-400">Loading testimonials...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="py-20 bg-gradient-to-b from-black to-gray-900">
       <div className="container mx-auto px-6">
@@ -88,19 +119,26 @@ const TestimonialsSection = () => {
 
               {/* Testimonial Text */}
               <p className="text-gray-300 leading-relaxed mb-6 text-lg">
-                "{testimonial.text}"
+                "{testimonial.content}"
               </p>
 
               {/* Author */}
               <div className="flex items-center space-x-4">
-                <img
-                  src={testimonial.image}
-                  alt={testimonial.name}
-                  className="w-14 h-14 rounded-full object-cover border-2 border-purple-400"
-                />
+                {testimonial.image_url && (
+                  <img
+                    src={testimonial.image_url}
+                    alt={testimonial.name}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-purple-400"
+                  />
+                )}
                 <div>
                   <h4 className="text-white font-bold text-lg">{testimonial.name}</h4>
-                  <p className="text-purple-400 text-sm font-medium">{testimonial.role}</p>
+                  <p className="text-purple-400 text-sm font-medium">
+                    {testimonial.role && testimonial.company 
+                      ? `${testimonial.role} at ${testimonial.company}`
+                      : testimonial.role || testimonial.company || ''
+                    }
+                  </p>
                 </div>
               </div>
 
