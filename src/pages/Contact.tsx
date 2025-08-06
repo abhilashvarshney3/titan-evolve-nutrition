@@ -66,7 +66,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white">Email Us</h3>
-                      <p className="text-gray-400">support@titanevolve.com</p>
+                      <p className="text-gray-400">titanevolvenutrition.care@gmail.com</p>
                     </div>
                   </div>
 
@@ -76,7 +76,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white">Call Us</h3>
-                      <p className="text-gray-400">+91 9650602521</p>
+                      <p className="text-gray-400">+91 9211991181</p>
                     </div>
                   </div>
 
@@ -87,8 +87,8 @@ const Contact = () => {
                     <div>
                       <h3 className="text-xl font-bold text-white">Visit Us</h3>
                       <p className="text-gray-400">
-                        123 Fitness Street<br />
-                        Los Angeles, CA 90210
+                        No.007, Perody Maison, Bilekahalli,<br />
+                        Banglore-560076
                       </p>
                     </div>
                   </div>
@@ -112,6 +112,9 @@ const Contact = () => {
               {/* Contact Form */}
               <div className="bg-gray-900 p-8 rounded-xl border border-purple-800/30">
                 <h3 className="text-2xl font-bold mb-6 text-purple-400">Send Us a Message</h3>
+                <p className="text-gray-400 mb-6">
+                  For <span className="text-purple-400 font-bold">Bulk Orders</span> and <span className="text-purple-400 font-bold">Wholesale Distribution Enquiries</span>, please reach out to us.
+                </p>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

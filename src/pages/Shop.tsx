@@ -181,7 +181,7 @@ const Shop = () => {
 
   const handleQuickBuy = (product: ProductData) => {
     const message = `Hi! I'm interested in purchasing ${product.name} (₹${product.price}). Can you help me with the order?`;
-    const whatsappUrl = `https://wa.me/919650602521?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/919211991181?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
@@ -206,7 +206,7 @@ const Shop = () => {
 
     const handleQuickBuy = () => {
       const message = `Hi! I'm interested in purchasing ${productName}. Can you help me with the order?`;
-      const whatsappUrl = `https://wa.me/919650602521?text=${encodeURIComponent(message)}`;
+      const whatsappUrl = `https://wa.me/919211991181?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
     };
 

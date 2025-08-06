@@ -87,15 +87,15 @@ const ShippingInfo = () => {
                 </p>
                 <div className="flex flex-col md:flex-row gap-4 justify-center">
                   <a 
-                    href="https://wa.me/919650602521" 
+                    href="https://wa.me/919211991181" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
                   >
-                    WhatsApp: +91 9650602521
+                    WhatsApp: +91 9211991181
                   </a>
                   <a 
-                    href="mailto:support@titanevolve.com" 
+                    href="mailto:titanevolvenutrition.care@gmail.com" 
                     className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
                   >
                     Email Support

@@ -104,15 +104,15 @@ const Footer = () => {
             <div className="space-y-4">
               <div className="flex items-center space-x-3 text-gray-400">
                 <Mail className="h-5 w-5" />
-                <span>support@titanevolve.com</span>
+                <span>titanevolvenutrition.care@gmail.com</span>
               </div>
               <div className="flex items-center space-x-3 text-gray-400">
                 <Phone className="h-5 w-5" />
-                <span>+91 9650602521</span>
+                <span>+91 9211991181</span>
               </div>
               <div className="flex items-start space-x-3 text-gray-400">
                 <MapPin className="h-5 w-5 mt-1 flex-shrink-0" />
-                <span>Mumbai, Maharashtra, India</span>
+                <span>No.007, Perody Maison, Bilekahalli,<br />Banglore-560076</span>
               </div>
             </div>
           </div>
