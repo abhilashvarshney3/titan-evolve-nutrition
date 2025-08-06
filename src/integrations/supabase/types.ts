@@ -124,6 +124,69 @@ export type Database = {
         }
         Relationships: []
       }
+      code_uploads: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_log: Json | null
+          failed_codes: number
+          filename: string
+          id: string
+          status: string
+          total_codes: number
+          uploaded_codes: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_log?: Json | null
+          failed_codes?: number
+          filename: string
+          id?: string
+          status?: string
+          total_codes?: number
+          uploaded_codes?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_log?: Json | null
+          failed_codes?: number
+          filename?: string
+          id?: string
+          status?: string
+          total_codes?: number
+          uploaded_codes?: number
+        }
+        Relationships: []
+      }
+      content_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string | null
@@ -196,6 +259,36 @@ export type Database = {
           total_amount?: number
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      pages: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          is_published: boolean | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          slug?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -288,6 +381,48 @@ export type Database = {
         }
         Relationships: []
       }
+      testimonials: {
+        Row: {
+          company: string | null
+          content: string
+          created_at: string
+          display_order: number | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          name: string
+          rating: number | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          content: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name: string
+          rating?: number | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          content?: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string
+          rating?: number | null
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       verification_codes: {
         Row: {
           code: string
@@ -295,6 +430,7 @@ export type Database = {
           id: string
           is_used: boolean | null
           product_id: string | null
+          used_at: string | null
         }
         Insert: {
           code: string
@@ -302,6 +438,7 @@ export type Database = {
           id?: string
           is_used?: boolean | null
           product_id?: string | null
+          used_at?: string | null
         }
         Update: {
           code?: string
@@ -309,6 +446,7 @@ export type Database = {
           id?: string
           is_used?: boolean | null
           product_id?: string | null
+          used_at?: string | null
         }
         Relationships: [
           {

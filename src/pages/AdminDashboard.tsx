@@ -24,8 +24,10 @@ import {
   Settings,
   MessageSquare,
   FileText,
-  Save
+  Save,
+  Upload
 } from 'lucide-react';
+import CodeUploadSection from '@/components/admin/CodeUploadSection';
 
 interface Product {
   id: string;
@@ -463,6 +465,7 @@ const AdminDashboard = () => {
             <TabsTrigger value="products" className="data-[state=active]:bg-red-600">Products</TabsTrigger>
             <TabsTrigger value="content" className="data-[state=active]:bg-red-600">Content</TabsTrigger>
             <TabsTrigger value="testimonials" className="data-[state=active]:bg-red-600">Testimonials</TabsTrigger>
+            <TabsTrigger value="codes" className="data-[state=active]:bg-red-600">Verification Codes</TabsTrigger>
           </TabsList>
 
           {/* Products Management */}
@@ -623,6 +626,10 @@ const AdminDashboard = () => {
                 </table>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="codes">
+            <CodeUploadSection />
           </TabsContent>
 
           {/* Content Management */}
