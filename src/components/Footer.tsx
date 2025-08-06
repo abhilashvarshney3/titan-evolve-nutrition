@@ -90,11 +90,7 @@ const Footer = () => {
                   Track Order
                 </Link>
               </li>
-              <li>
-                <Link to="/size-guide" className="text-gray-400 hover:text-white transition-colors">
-                  Size Guide
-                </Link>
-              </li>
+             
             </ul>
           </div>
 
