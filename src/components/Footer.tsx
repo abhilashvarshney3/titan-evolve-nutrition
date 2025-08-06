@@ -71,11 +71,6 @@ const Footer = () => {
             <h3 className="text-xl font-bold text-purple-400">CUSTOMER SERVICE</h3>
             <ul className="space-y-3">
               <li>
-                <Link to="/help" className="text-gray-400 hover:text-white transition-colors">
-                  Help Center
-                </Link>
-              </li>
-              <li>
                 <Link to="/shipping-info" className="text-gray-400 hover:text-white transition-colors">
                   Shipping Info
                 </Link>
@@ -108,7 +103,7 @@ const Footer = () => {
               </div>
               <div className="flex items-start space-x-3 text-gray-400">
                 <MapPin className="h-5 w-5 mt-1 flex-shrink-0" />
-                <span>No.007, Perody Maison, Bilekahalli,<br />Banglore-560076</span>
+                <span>Bilekahalli,<br />Banglore-560076</span>
               </div>
             </div>
           </div>
@@ -121,12 +116,6 @@ const Footer = () => {
               © 2024 Titan Evolve. All rights reserved.
             </p>
             <div className="flex space-x-6 text-sm">
-              <Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">
-                Privacy Policy
-              </Link>
-              <Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
-                Terms of Service
-              </Link>
               <Link to="/faq" className="text-gray-400 hover:text-white transition-colors">
                 FAQ
               </Link>
