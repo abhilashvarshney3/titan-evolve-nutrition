@@ -110,7 +110,7 @@ const Contact = () => {
                         Banglore-560076
                       </p>
                     </div>
-                  </div>
+                 
 
                  
                    
