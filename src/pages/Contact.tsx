@@ -104,7 +104,7 @@ const Contact = () => {
                       <MapPin className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white">Visit Us</h3>
+                      <h3 className="text-xl font-bold text-white">Address</h3>
                       <p className="text-gray-400">
                         No.007, Perody Maison, Bilekahalli,<br />
                         Banglore-560076
@@ -112,18 +112,8 @@ const Contact = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-purple-600 p-3 rounded-full">
-                      <Clock className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">Business Hours</h3>
-                      <p className="text-gray-400">
-                        Monday - Friday: 9 AM - 6 PM<br />
-                        Saturday: 10 AM - 4 PM<br />
-                        Sunday: Closed
-                      </p>
-                    </div>
+                 
+                   
                   </div>
                 </div>
               </div>
