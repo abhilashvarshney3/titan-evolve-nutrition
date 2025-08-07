@@ -309,7 +309,7 @@ const Shop = () => {
           <div className="container mx-auto px-6">
             <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
               {/* Search */}
-              <form onSubmit={handleSearch} className="flex-1 max-w-sm lg:max-w-lg">
+              <form onSubmit={handleSearch} className="w-full lg:w-auto lg:min-w-96 lg:max-w-2xl">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <Input

@@ -16,6 +16,7 @@ import Signup from "./pages/Signup"
 import Profile from "./pages/Profile"
 import AdminDashboard from "./pages/AdminDashboard"
 import Verify from "./pages/Verify"
+import VerificationSuccess from "./pages/VerificationSuccess"
 import NotFound from "./pages/NotFound"
 import FAQ from "./pages/FAQ"
 import ShippingInfo from "./pages/ShippingInfo"
@@ -43,11 +44,12 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin369369" element={<AdminDashboard />} />
-            <Route path="/verify" element={<Verify />} />
+            <Route path="/verification-success" element={<VerificationSuccess />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/verify" element={<Verify />} />
             <Route path="/shipping-info" element={<ShippingInfo />} />
-            <Route path="/returns" element={<Returns />} />
-            <Route path="/track-order" element={<TrackOrder />} />            
+            <Route path="/returns" element={<Returns />} />            
+            <Route path="/track-order" element={<TrackOrder />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
