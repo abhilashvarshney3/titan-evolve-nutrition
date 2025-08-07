@@ -89,8 +89,8 @@ const ProductCard = ({
   return (
     <div className="group relative bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
       {/* Image Container */}
-      <div className="relative h-48 overflow-hidden bg-gray-800 flex items-center justify-center">
-        <Link to={`/product/${id}`}>
+      <div className="relative h-56 overflow-hidden bg-gray-800 flex items-center justify-center p-4">
+        <Link to={`/product/${id}`} className="h-full w-full flex items-center justify-center">
           <img
             src={correctImage}
             alt={name}

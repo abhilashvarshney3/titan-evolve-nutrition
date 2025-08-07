@@ -246,11 +246,11 @@ const ProductDetail = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               {/* Product Image */}
               <div className="relative">
-                <div className="aspect-square bg-gray-900 rounded-xl overflow-hidden relative">
+                <div className="aspect-square bg-gray-900 rounded-xl overflow-hidden relative flex items-center justify-center p-8">
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="max-w-full max-h-full object-contain"
                   />
                   <div className="absolute top-4 left-4 flex flex-col gap-2">
                     {product.isNew && (
@@ -385,7 +385,7 @@ const ProductDetail = () => {
                   </div>
                   <div className="text-center">
                     <RotateCcw className="h-8 w-8 text-purple-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-400">30-Day Return</p>
+                    <p className="text-sm text-gray-400">7-Day Return</p>
                   </div>
                 </div>
               </div>
@@ -450,11 +450,11 @@ const ProductDetail = () => {
                 {relatedProducts.map((relatedProduct) => (
                   <div key={relatedProduct.id} className="group bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 relative">
                     <Link to={`/product/${relatedProduct.id}`}>
-                      <div className="aspect-square overflow-hidden">
+                      <div className="aspect-square overflow-hidden flex items-center justify-center p-4 bg-gray-800">
                       <img
                         src={relatedProduct.image}
                         alt={relatedProduct.name}
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                        className="max-w-full max-h-full object-contain hover:scale-110 transition-transform duration-500"
                       />
                       </div>
                     </Link>
