@@ -85,7 +85,12 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white">Email Us</h3>
-                      <p className="text-gray-400">titanevolvenutrition.care@gmail.com</p>
+                      <a 
+                        href="mailto:titanevolvenutrition.care@gmail.com" 
+                        className="text-gray-400 hover:text-purple-400 transition-colors"
+                      >
+                        titanevolvenutrition.care@gmail.com
+                      </a>
                     </div>
                   </div>
 
@@ -95,7 +100,14 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white">Call Us</h3>
-                      <p className="text-gray-400">+91 9211991181</p>
+                      <a 
+                        href="https://wa.me/919211991181" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-purple-400 transition-colors"
+                      >
+                        +91 9211991181
+                      </a>
                     </div>
                   </div>
 

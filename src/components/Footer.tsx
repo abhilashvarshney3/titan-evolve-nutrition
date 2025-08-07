@@ -95,11 +95,23 @@ const Footer = () => {
             <div className="space-y-4">
               <div className="flex items-center space-x-3 text-gray-400">
                 <Mail className="h-5 w-5" />
-                <span>titanevolvenutrition.care@gmail.com</span>
+                <a 
+                  href="mailto:titanevolvenutrition.care@gmail.com" 
+                  className="hover:text-purple-400 transition-colors"
+                >
+                  titanevolvenutrition.care@gmail.com
+                </a>
               </div>
               <div className="flex items-center space-x-3 text-gray-400">
                 <Phone className="h-5 w-5" />
-                <span>+91 9211991181</span>
+                <a 
+                  href="https://wa.me/919211991181" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-purple-400 transition-colors"
+                >
+                  +91 9211991181
+                </a>
               </div>
               <div className="flex items-start space-x-3 text-gray-400">
                 <MapPin className="h-5 w-5 mt-1 flex-shrink-0" />
