@@ -134,10 +134,17 @@ const Shop = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchQuery) params.set('search', searchQuery);
-    if (selectedCategory !== 'all') params.set('category', selectedCategory);
-    setSearchParams(params);
+    // Search is handled by filterProducts function, no need to update URL params
+  };
+
+  const resetFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('all');
+    setPriceRange('all');
+    setSelectedFlavor('all');
+    setSelectedWeight('all');
+    setSortBy('name');
+    setSearchParams(new URLSearchParams());
   };
 
   const handleQuickAdd = async (product: ProductData) => {
@@ -316,7 +323,7 @@ const Shop = () => {
               </form>
 
               {/* Filters */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 lg:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 lg:gap-4">
                 {/* Category Filter */}
                 <select
                   value={selectedCategory}
@@ -353,7 +360,7 @@ const Shop = () => {
                   <option value="all">All Flavors</option>
                   {availableFlavors.filter(f => f !== 'all').map((flavor) => (
                     <option key={flavor} value={flavor}>
-                      {flavor}
+                      {flavor.split(' - ')[0].replace(/[🍉🍬🍫]/g, '').trim()}
                     </option>
                   ))}
                 </select>
@@ -376,7 +383,7 @@ const Shop = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-2 py-2 text-sm col-span-2 sm:col-span-1"
+                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-2 py-2 text-sm"
                 >
                   {sortOptions.map((option) => (
                     <option key={option.id} value={option.id}>
@@ -384,6 +391,15 @@ const Shop = () => {
                     </option>
                   ))}
                 </select>
+
+                {/* Reset Filters Button */}
+                <Button
+                  onClick={resetFilters}
+                  variant="outline"
+                  className="border-purple-700 text-purple-400 hover:bg-purple-700 hover:text-white text-sm"
+                >
+                  Reset Filters
+                </Button>
               </div>
             </div>
           </div>
@@ -405,11 +421,11 @@ const Shop = () => {
                     className="group bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 border border-purple-800/20 animate-fade-in relative"
                   >
                     <Link to={`/product/${product.id}`}>
-                      <div className="relative aspect-square overflow-hidden bg-gray-800">
+                      <div className="relative h-48 overflow-hidden bg-gray-800 flex items-center justify-center">
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"
                         />
                         
                         {/* Badges */}

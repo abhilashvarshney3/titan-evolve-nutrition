@@ -89,13 +89,12 @@ const ProductCard = ({
   return (
     <div className="group relative bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
       {/* Image Container */}
-      <div className="relative aspect-square overflow-hidden bg-gray-800">
+      <div className="relative h-48 overflow-hidden bg-gray-800 flex items-center justify-center">
         <Link to={`/product/${id}`}>
           <img
             src={correctImage}
             alt={name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            style={{ maxHeight: '200px', objectFit: 'contain' }}
+            className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"
           />
         </Link>
         
