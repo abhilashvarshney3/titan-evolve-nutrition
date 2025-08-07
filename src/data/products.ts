@@ -4,7 +4,10 @@ export interface ProductData {
   description: string;
   price: number;
   originalPrice?: number;
+  mrp: number;
+  discount: number;
   image: string;
+  images?: string[];
   category: string;
   categoryId: string;
   stockQuantity: number;
@@ -12,13 +15,12 @@ export interface ProductData {
   isNew: boolean;
   sku: string;
   badge?: string;
-  rating?: number;
-  reviewCount?: number;
   details: {
     netWeight?: string;
     servings?: string;
     form?: string;
     flavor?: string;
+    weight?: string;
     keyBenefits: string[];
     usps: string[];
     howToUse: string[];
@@ -57,7 +59,13 @@ export const products: ProductData[] = [
     name: "Titan Evolve – Creatine Monohydrate (Unflavored)",
     description: "200 Mesh Ultra Micronized Powder for strength and explosive power",
     price: 1199,
+    mrp: 2999,
+    discount: 60.02,
     image: "/lovable-uploads/53024968-45ea-468d-8d9f-f24037b79f25.png",
+    images: [
+      "/lovable-uploads/53024968-45ea-468d-8d9f-f24037b79f25.png",
+      "/lovable-uploads/534d4161-7ade-4f7c-bfe9-debf0e569cc5.png"
+    ],
     category: "Creatine",
     categoryId: "550e8400-e29b-41d4-a716-446655440101",
     stockQuantity: 50,
@@ -65,13 +73,12 @@ export const products: ProductData[] = [
     isNew: false,
     sku: "TE-CREAT-180",
     badge: "Best Seller",
-    rating: 4.8,
-    reviewCount: 245,
     details: {
       netWeight: "180g",
       servings: "60 (3g per serving)",
       form: "200 Mesh Ultra Micronized Powder",
       flavor: "Unflavored",
+      weight: "180g",
       keyBenefits: [
         "Increases strength and explosive power",
         "Enhances muscle recovery and workout endurance", 
@@ -112,7 +119,13 @@ export const products: ProductData[] = [
     name: "Titan Evolve – Pre-Workout (Watermelon)",
     description: "Refreshing, juicy and slightly tangy pre-workout for explosive energy",
     price: 1750,
+    mrp: 3799,
+    discount: 53.94,
     image: "/lovable-uploads/0463eb82-5280-4ac1-bb44-988ac181e84e.png",
+    images: [
+      "/lovable-uploads/0463eb82-5280-4ac1-bb44-988ac181e84e.png",
+      "/lovable-uploads/746318e4-45e9-471f-a51f-473b614f8266.png"
+    ],
     category: "Pre-Workout",
     categoryId: "550e8400-e29b-41d4-a716-446655440102",
     stockQuantity: 30,
@@ -120,13 +133,12 @@ export const products: ProductData[] = [
     isNew: true,
     sku: "TE-PRE-WM-250",
     badge: "New",
-    rating: 4.7,
-    reviewCount: 189,
     details: {
       netWeight: "250g",
       servings: "25",
       form: "Flavored Nutraceutical Powder",
       flavor: "🍉 Watermelon - Refreshing, juicy and slightly tangy",
+      weight: "250g",
       keyBenefits: [
         "Explosive energy & peak performance",
         "Insane muscle pumps & vascularity",
@@ -171,7 +183,13 @@ export const products: ProductData[] = [
     name: "Titan Evolve – Pre-Workout (Bubblegum Burst)",
     description: "Sweet & nostalgic candy burst with zero aftertaste",
     price: 1750,
+    mrp: 3799,
+    discount: 53.94,
     image: "/lovable-uploads/fd697111-f859-4663-8f11-149724090d82.png",
+    images: [
+      "/lovable-uploads/fd697111-f859-4663-8f11-149724090d82.png",
+      "/lovable-uploads/729e363e-5733-4ed4-a128-36142849c19e.png"
+    ],
     category: "Pre-Workout",
     categoryId: "550e8400-e29b-41d4-a716-446655440102",
     stockQuantity: 25,
@@ -179,13 +197,12 @@ export const products: ProductData[] = [
     isNew: true,
     sku: "TE-PRE-BB-250",
     badge: "New",
-    rating: 4.6,
-    reviewCount: 156,
     details: {
       netWeight: "250g",
       servings: "25", 
       form: "Flavored Nutraceutical Powder",
       flavor: "🍬 Bubblegum Burst - Sweet & nostalgic candy burst with zero aftertaste",
+      weight: "250g",
       keyBenefits: [
         "Explosive energy & peak performance",
         "Insane muscle pumps & vascularity", 
@@ -230,7 +247,13 @@ export const products: ProductData[] = [
     name: "Titan Evolve – Mass Gainer (Double Rich Chocolate) 2.7kg",
     description: "Creamy, dense cocoa flavor — easy on the stomach",
     price: 2499,
+    mrp: 4499,
+    discount: 44.45,
     image: "/lovable-uploads/a651e1df-5241-402e-ba83-0b47d9206364.png",
+    images: [
+      "/lovable-uploads/a651e1df-5241-402e-ba83-0b47d9206364.png",
+      "/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png"
+    ],
     category: "Mass Gainer",
     categoryId: "550e8400-e29b-41d4-a716-446655440103",
     stockQuantity: 20,
@@ -238,13 +261,12 @@ export const products: ProductData[] = [
     isNew: false,
     sku: "TE-MG-DRC-2.7",
     badge: "Popular",
-    rating: 4.5,
-    reviewCount: 298,
     details: {
       netWeight: "2.7kg",
       servings: "27",
       form: "Flavored Mass Gainer Powder",
       flavor: "🍫 Double Rich Chocolate - Creamy, dense cocoa flavor — easy on the stomach",
+      weight: "2.7kg",
       keyBenefits: [
         "Supports clean bulking with quality calories",
         "Provides steady energy release via complex carbs",
@@ -288,20 +310,25 @@ export const products: ProductData[] = [
     name: "Titan Evolve – Mass Gainer (Double Rich Chocolate) 4.5kg",
     description: "Creamy, dense cocoa flavor — easy on the stomach",
     price: 3499,
+    mrp: 7499,
+    discount: 53.34,
     image: "/lovable-uploads/a651e1df-5241-402e-ba83-0b47d9206364.png",
+    images: [
+      "/lovable-uploads/a651e1df-5241-402e-ba83-0b47d9206364.png",
+      "/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png"
+    ],
     category: "Mass Gainer",
     categoryId: "550e8400-e29b-41d4-a716-446655440103",
     stockQuantity: 15,
     isFeatured: false,
     isNew: false,
     sku: "TE-MG-DRC-4.5",
-    rating: 4.5,
-    reviewCount: 198,
     details: {
       netWeight: "4.5kg",
       servings: "45",
       form: "Flavored Mass Gainer Powder",
       flavor: "🍫 Double Rich Chocolate - Creamy, dense cocoa flavor — easy on the stomach",
+      weight: "4.5kg",
       keyBenefits: [
         "Supports clean bulking with quality calories",
         "Provides steady energy release via complex carbs",
@@ -353,13 +380,14 @@ export const products: ProductData[] = [
     isNew: true,
     sku: "TE-MG-KPD-2.7",
     badge: "New",
-    rating: 4.7,
-    reviewCount: 89,
+    mrp: 4499,
+    discount: 44.45,
     details: {
       netWeight: "2.7kg",
       servings: "27",
       form: "Flavored Mass Gainer Powder",
       flavor: "Kesar Pista Delight - A royal fusion of saffron and pistachio with warm, aromatic undertones — rich, smooth, and unforgettable",
+      weight: "2.7kg",
       keyBenefits: [
         "Supports clean bulking with quality calories",
         "Provides steady energy release via complex carbs",
@@ -411,13 +439,14 @@ export const products: ProductData[] = [
     isNew: true,
     sku: "TE-MG-KPD-4.5",
     badge: "New",
-    rating: 4.7,
-    reviewCount: 67,
+    mrp: 7499,
+    discount: 53.34,
     details: {
       netWeight: "4.5kg",
       servings: "45",
       form: "Flavored Mass Gainer Powder",
       flavor: "Kesar Pista Delight - A royal fusion of saffron and pistachio with warm, aromatic undertones — rich, smooth, and unforgettable",
+      weight: "4.5kg",
       keyBenefits: [
         "Supports clean bulking with quality calories",
         "Provides steady energy release via complex carbs",
@@ -461,7 +490,14 @@ export const products: ProductData[] = [
     name: "Titan Evolve – Lean Whey Protein (Double Rich Chocolate)",
     description: "Deep, rich cocoa with a clean finish - 25g protein per serving",
     price: 4999,
+    mrp: 7999,
+    discount: 37.5,
     image: "/lovable-uploads/9840db8e-f064-47aa-aae6-a4febe854970.png",
+    images: [
+      "/lovable-uploads/9840db8e-f064-47aa-aae6-a4febe854970.png",
+      "/lovable-uploads/e04aff8e-bea5-4f62-916d-a8a50dbd8955.png",
+      "/lovable-uploads/d012ea81-fb2d-44ba-806d-f1fd364e61d1.png"
+    ],
     category: "Whey Protein",
     categoryId: "550e8400-e29b-41d4-a716-446655440104",
     stockQuantity: 35,
@@ -469,13 +505,12 @@ export const products: ProductData[] = [
     isNew: false,
     sku: "TE-WP-DRC-2KG",
     badge: "Premium",
-    rating: 4.9,
-    reviewCount: 412,
     details: {
       netWeight: "2kg",
       servings: "66",
       form: "Flavoured Whey Protein Blend",
       flavor: "🍫 Double Rich Chocolate - Deep, rich cocoa with a clean finish",
+      weight: "2kg",
       keyBenefits: [
         "Provides 25g of high-quality protein per serving",
         "Promotes lean muscle growth & faster recovery",
@@ -529,13 +564,14 @@ export const products: ProductData[] = [
     isNew: true,
     sku: "TE-WP-AIC-2KG",
     badge: "New",
-    rating: 4.8,
-    reviewCount: 187,
+    mrp: 7999,
+    discount: 37.5,
     details: {
       netWeight: "2kg",
       servings: "66",
       form: "Flavoured Whey Protein Blend",
       flavor: "American Ice Cream - Creamy, dessert-like experience with a vanilla-caramel blend",
+      weight: "2kg",
       keyBenefits: [
         "Provides 25g of high-quality protein per serving",
         "Promotes lean muscle growth & faster recovery",

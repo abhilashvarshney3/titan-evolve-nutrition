@@ -77,11 +77,19 @@ const AdminDashboard = () => {
     name: '',
     description: '',
     price: '',
+    mrp: '',
     stock_quantity: '',
     is_featured: false,
     is_new: false,
     image_url: '',
-    sku: ''
+    additional_images: '',
+    sku: '',
+    flavor: '',
+    weight: '',
+    key_benefits: '',
+    how_to_use: '',
+    certifications: '',
+    storage_warnings: ''
   });
 
   const [testimonialForm, setTestimonialForm] = useState({
@@ -320,11 +328,19 @@ const AdminDashboard = () => {
       name: '',
       description: '',
       price: '',
+      mrp: '',
       stock_quantity: '',
       is_featured: false,
       is_new: false,
       image_url: '',
-      sku: ''
+      additional_images: '',
+      sku: '',
+      flavor: '',
+      weight: '',
+      key_benefits: '',
+      how_to_use: '',
+      certifications: '',
+      storage_warnings: ''
     });
   };
 
@@ -356,11 +372,19 @@ const AdminDashboard = () => {
       name: product.name,
       description: product.description || '',
       price: product.price.toString(),
+      mrp: '0',
       stock_quantity: product.stock_quantity.toString(),
       is_featured: product.is_featured,
       is_new: product.is_new,
       image_url: product.image_url || '',
-      sku: product.sku || ''
+      additional_images: '',
+      sku: product.sku || '',
+      flavor: '',
+      weight: '',
+      key_benefits: '',
+      how_to_use: '',
+      certifications: '',
+      storage_warnings: ''
     });
     setIsProductDialogOpen(true);
   };
@@ -491,7 +515,7 @@ const AdminDashboard = () => {
                       {selectedItem ? 'Edit Product' : 'Add New Product'}
                     </DialogTitle>
                   </DialogHeader>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                     <div>
                       <Label htmlFor="name">Product Name</Label>
                       <Input
@@ -511,12 +535,22 @@ const AdminDashboard = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="price">Price</Label>
+                      <Label htmlFor="price">Website Price</Label>
                       <Input
                         id="price"
                         type="number"
                         value={productForm.price}
                         onChange={(e) => setProductForm({...productForm, price: e.target.value})}
+                        className="bg-gray-800 border-gray-700"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="mrp">MRP</Label>
+                      <Input
+                        id="mrp"
+                        type="number"
+                        value={productForm.mrp}
+                        onChange={(e) => setProductForm({...productForm, mrp: e.target.value})}
                         className="bg-gray-800 border-gray-700"
                       />
                     </div>
@@ -530,6 +564,24 @@ const AdminDashboard = () => {
                         className="bg-gray-800 border-gray-700"
                       />
                     </div>
+                    <div>
+                      <Label htmlFor="flavor">Flavor</Label>
+                      <Input
+                        id="flavor"
+                        value={productForm.flavor}
+                        onChange={(e) => setProductForm({...productForm, flavor: e.target.value})}
+                        className="bg-gray-800 border-gray-700"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="weight">Weight/Size</Label>
+                      <Input
+                        id="weight"
+                        value={productForm.weight}
+                        onChange={(e) => setProductForm({...productForm, weight: e.target.value})}
+                        className="bg-gray-800 border-gray-700"
+                      />
+                    </div>
                     <div className="col-span-2">
                       <Label htmlFor="description">Description</Label>
                       <Textarea
@@ -540,12 +592,62 @@ const AdminDashboard = () => {
                       />
                     </div>
                     <div className="col-span-2">
-                      <Label htmlFor="image_url">Image URL</Label>
+                      <Label htmlFor="image_url">Main Image URL</Label>
                       <Input
                         id="image_url"
                         value={productForm.image_url}
                         onChange={(e) => setProductForm({...productForm, image_url: e.target.value})}
                         className="bg-gray-800 border-gray-700"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label htmlFor="additional_images">Additional Images (comma-separated URLs)</Label>
+                      <Textarea
+                        id="additional_images"
+                        value={productForm.additional_images}
+                        onChange={(e) => setProductForm({...productForm, additional_images: e.target.value})}
+                        className="bg-gray-800 border-gray-700"
+                        placeholder="/lovable-uploads/image1.png, /lovable-uploads/image2.png"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label htmlFor="key_benefits">Key Benefits (one per line)</Label>
+                      <Textarea
+                        id="key_benefits"
+                        value={productForm.key_benefits}
+                        onChange={(e) => setProductForm({...productForm, key_benefits: e.target.value})}
+                        className="bg-gray-800 border-gray-700"
+                        placeholder="Increases strength&#10;Enhances recovery&#10;Boosts performance"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label htmlFor="how_to_use">How to Use (one per line)</Label>
+                      <Textarea
+                        id="how_to_use"
+                        value={productForm.how_to_use}
+                        onChange={(e) => setProductForm({...productForm, how_to_use: e.target.value})}
+                        className="bg-gray-800 border-gray-700"
+                        placeholder="Mix 1 scoop with water&#10;Take before workout&#10;Stay hydrated"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label htmlFor="certifications">Certifications (one per line)</Label>
+                      <Textarea
+                        id="certifications"
+                        value={productForm.certifications}
+                        onChange={(e) => setProductForm({...productForm, certifications: e.target.value})}
+                        className="bg-gray-800 border-gray-700"
+                        placeholder="Lab-tested&#10;GMP certified&#10;Vegetarian friendly"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label htmlFor="storage_warnings">Storage & Warnings (one per line)</Label>
+                      <Textarea
+                        id="storage_warnings"
+                        value={productForm.storage_warnings}
+                        onChange={(e) => setProductForm({...productForm, storage_warnings: e.target.value})}
+                        className="bg-gray-800 border-gray-700"
+                        placeholder="Store in cool, dry place&#10;Not for children&#10;Consult doctor if pregnant"
                       />
                     </div>
                     <div className="flex items-center space-x-2">

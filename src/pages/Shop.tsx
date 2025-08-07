@@ -27,6 +27,8 @@ const Shop = () => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [priceRange, setPriceRange] = useState('all');
+  const [selectedFlavor, setSelectedFlavor] = useState('all');
+  const [selectedWeight, setSelectedWeight] = useState('all');
   const [sortBy, setSortBy] = useState('name');
   const { user } = useAuth();
   const { toast } = useToast();
@@ -46,6 +48,10 @@ const Shop = () => {
     { id: 'price-high', name: 'Price: High to Low' },
     { id: 'featured', name: 'Featured' }
   ];
+
+  // Extract unique flavors and weights from products
+  const availableFlavors = ['all', ...new Set(products.map(p => p.details.flavor).filter(Boolean))];
+  const availableWeights = ['all', ...new Set(products.map(p => p.details.weight).filter(Boolean))];
 
   useEffect(() => {
     loadCategoriesAndProducts();
@@ -93,6 +99,20 @@ const Shop = () => {
         if (max === undefined || max === Infinity) return product.price >= min;
         return product.price >= min && product.price <= max;
       });
+    }
+
+    // Flavor filter
+    if (selectedFlavor !== 'all') {
+      filtered = filtered.filter(product => 
+        product.details.flavor === selectedFlavor
+      );
+    }
+
+    // Weight filter
+    if (selectedWeight !== 'all') {
+      filtered = filtered.filter(product => 
+        product.details.weight === selectedWeight
+      );
     }
 
     // Sort
@@ -296,12 +316,12 @@ const Shop = () => {
               </form>
 
               {/* Filters */}
-              <div className="flex flex-wrap gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 lg:gap-4">
                 {/* Category Filter */}
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-3 py-2"
+                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-2 py-2 text-sm"
                 >
                   <option value="all">All Categories</option>
                   {categories.map((category) => (
@@ -315,7 +335,7 @@ const Shop = () => {
                 <select
                   value={priceRange}
                   onChange={(e) => setPriceRange(e.target.value)}
-                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-3 py-2"
+                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-2 py-2 text-sm"
                 >
                   {priceRanges.map((range) => (
                     <option key={range.id} value={range.id}>
@@ -324,11 +344,39 @@ const Shop = () => {
                   ))}
                 </select>
 
+                {/* Flavor Filter */}
+                <select
+                  value={selectedFlavor}
+                  onChange={(e) => setSelectedFlavor(e.target.value)}
+                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-2 py-2 text-sm"
+                >
+                  <option value="all">All Flavors</option>
+                  {availableFlavors.filter(f => f !== 'all').map((flavor) => (
+                    <option key={flavor} value={flavor}>
+                      {flavor}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Weight Filter */}
+                <select
+                  value={selectedWeight}
+                  onChange={(e) => setSelectedWeight(e.target.value)}
+                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-2 py-2 text-sm"
+                >
+                  <option value="all">All Weights</option>
+                  {availableWeights.filter(w => w !== 'all').map((weight) => (
+                    <option key={weight} value={weight}>
+                      {weight}
+                    </option>
+                  ))}
+                </select>
+
                 {/* Sort Filter */}
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-3 py-2"
+                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-2 py-2 text-sm col-span-2 sm:col-span-1"
                 >
                   {sortOptions.map((option) => (
                     <option key={option.id} value={option.id}>
@@ -414,22 +462,6 @@ const Shop = () => {
                         </h3>
                       </Link>
 
-                      {/* Rating */}
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-3 w-3 ${
-                                i < 4
-                                  ? 'text-yellow-400 fill-current'
-                                  : 'text-gray-600'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-gray-400 text-xs">({product.reviewCount || 247})</span>
-                      </div>
 
                       {/* Description */}
                       <p className="text-gray-400 text-sm line-clamp-2">
@@ -438,9 +470,23 @@ const Shop = () => {
 
                       {/* Price and Buttons */}
                       <div className="flex flex-col gap-3 pt-2">
-                        <span className="text-white text-xl font-bold">
-                          ₹{product.price.toFixed(0)}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white text-xl font-bold">
+                              ₹{product.price.toFixed(0)}
+                            </span>
+                            {product.mrp && (
+                              <span className="text-gray-500 text-sm line-through">
+                                ₹{product.mrp.toFixed(0)}
+                              </span>
+                            )}
+                          </div>
+                          {product.discount && (
+                            <span className="text-green-400 text-xs font-bold">
+                              {product.discount}% OFF
+                            </span>
+                          )}
+                        </div>
                         
                         {/* Cart quantity controls */}
                         <CartButtons productId={product.id} productName={product.name} />

@@ -305,7 +305,7 @@ const ProductDetail = () => {
                       />
                     ))}
                   </div>
-                  <span className="text-gray-400">({product.reviewCount || 247} reviews)</span>
+                  <span className="text-gray-400">(Premium Quality Product)</span>
                 </div>
 
                 {/* Price */}

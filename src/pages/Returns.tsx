@@ -21,7 +21,7 @@ const Returns = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
               <div className="text-center">
                 <RotateCcw className="h-12 w-12 text-purple-400 mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">30-Day Returns</h3>
+                <h3 className="text-xl font-bold mb-2">7-Day Returns</h3>
                 <p className="text-gray-400">Hassle-free returns</p>
               </div>
               <div className="text-center">
@@ -80,7 +80,7 @@ const Returns = () => {
                   <ul className="space-y-3 text-gray-300">
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2"></span>
-                      Must report the issue within 24 hours of delivery
+                      Must report the issue within 7 days of delivery
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 mt-2"></span>
@@ -105,7 +105,7 @@ const Returns = () => {
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>
-                      Return requests after 24 hours
+                      Return requests after 7 days
                     </li>
                     <li className="flex items-start">
                       <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 mt-2"></span>

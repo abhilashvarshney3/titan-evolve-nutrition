@@ -112,9 +112,9 @@ const ProductShowcase = () => {
                   category={product.category}
                   price={product.price}
                   originalPrice={product.originalPrice}
+                  mrp={product.mrp}
+                  discount={product.discount}
                   image={product.image}
-                  rating={product.rating}
-                  reviewCount={product.reviewCount}
                   badge={product.badge}
                   description={product.description}
                 />

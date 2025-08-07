@@ -15,9 +15,9 @@ interface ProductCardProps {
   category: string;
   price: number;
   originalPrice?: number;
+  mrp?: number;
+  discount?: number;
   image: string;
-  rating?: number;
-  reviewCount?: number;
   badge?: string;
   description: string;
 }
@@ -28,9 +28,9 @@ const ProductCard = ({
   category,
   price,
   originalPrice,
+  mrp,
+  discount,
   image,
-  rating = 4.8,
-  reviewCount = 247,
   badge,
   description
 }: ProductCardProps) => {
@@ -94,7 +94,8 @@ const ProductCard = ({
           <img
             src={correctImage}
             alt={name}
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            style={{ maxHeight: '200px', objectFit: 'contain' }}
           />
         </Link>
         
@@ -139,22 +140,6 @@ const ProductCard = ({
           </h3>
         </Link>
 
-        {/* Rating */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`h-3 w-3 ${
-                  i < Math.floor(rating)
-                    ? 'text-yellow-400 fill-current'
-                    : 'text-gray-600'
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-gray-400 text-xs">({reviewCount})</span>
-        </div>
 
         {/* Description */}
         <p className="text-gray-400 text-sm line-clamp-2">
@@ -162,13 +147,20 @@ const ProductCard = ({
         </p>
 
         {/* Price */}
-        <div className="flex items-center gap-2">
-          <span className="text-white text-xl font-bold">
-            ₹{price.toFixed(0)}
-          </span>
-          {originalPrice && (
-            <span className="text-gray-500 text-sm line-through">
-              ₹{originalPrice.toFixed(0)}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-white text-xl font-bold">
+              ₹{price.toFixed(0)}
+            </span>
+            {mrp && (
+              <span className="text-gray-500 text-sm line-through">
+                ₹{mrp.toFixed(0)}
+              </span>
+            )}
+          </div>
+          {discount && (
+            <span className="text-green-400 text-xs font-bold">
+              {discount}% OFF
             </span>
           )}
         </div>
