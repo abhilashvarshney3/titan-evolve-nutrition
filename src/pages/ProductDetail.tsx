@@ -10,7 +10,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
 import { getProductById, getProductsByCategory, ProductData } from '@/data/products';
+import { useProductReviews } from '@/hooks/useProductReviews';
 import ReviewSection from '@/components/ReviewSection';
+import ReviewStars from '@/components/ReviewStars';
 
 // Using centralized ProductData interface
 
@@ -37,6 +39,7 @@ const ProductDetail = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { stats: reviewStats, loading: reviewsLoading } = useProductReviews(id || '');
 
   useEffect(() => {
     if (id) {
@@ -294,19 +297,16 @@ const ProductDetail = () => {
 
                 {/* Rating */}
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-5 w-5 ${
-                          i < 4
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-600'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-gray-400">(Premium Quality Product)</span>
+                  {reviewStats && reviewStats.total_reviews > 0 ? (
+                    <ReviewStars 
+                      rating={reviewStats.average_rating} 
+                      totalReviews={reviewStats.total_reviews} 
+                      showText={true}
+                      size="md"
+                    />
+                  ) : (
+                    <span className="text-gray-400 text-sm">No reviews yet</span>
+                  )}
                 </div>
 
                 {/* Price */}
