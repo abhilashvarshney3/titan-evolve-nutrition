@@ -189,7 +189,6 @@ const Cart = () => {
     const subtotal = cartItems.reduce((sum, item) => sum + (item.products.price * item.quantity), 0);
     
     message += `Subtotal: ₹${subtotal.toFixed(0)}\n`;
-    message += `Shipping: To be calculated at delivery\n`;
     message += `Total Amount: ₹${subtotal.toFixed(0)} (+ shipping)\n\n`;
     message += "Payment Method: [ ] Prepaid [ ] Cash on Delivery (+₹199)\n\n";
     message += "Please confirm the order and provide delivery details.";
