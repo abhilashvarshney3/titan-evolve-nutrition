@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
 import { getProductById, getProductsByCategory, ProductData } from '@/data/products';
+import ReviewSection from '@/components/ReviewSection';
 
 // Using centralized ProductData interface
 
@@ -440,6 +441,9 @@ const ProductDetail = () => {
             </div>
           </div>
         </section>
+
+        {/* Reviews Section */}
+        <ReviewSection productId={product.id} />
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
