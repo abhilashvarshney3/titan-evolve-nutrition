@@ -478,6 +478,32 @@ const Shop = () => {
                         </h3>
                       </Link>
 
+                      {/* Weight Display */}
+                      {(() => {
+                        const categoryLower = product.category.toLowerCase();
+                        let weightDisplay = '';
+                        
+                        if (categoryLower.includes('mass gainer') || categoryLower.includes('gainer')) {
+                          // For gainers, extract weight from name (6lbs or 10lbs)
+                          const weightMatch = product.name.match(/(\d+)lbs/);
+                          weightDisplay = weightMatch ? `${weightMatch[1]}lbs` : '';
+                        } else if (categoryLower.includes('protein') || categoryLower.includes('whey')) {
+                          // For protein, show in kgs
+                          weightDisplay = product.details.weight || '2kg';
+                        } else if (categoryLower.includes('pre-workout') || categoryLower.includes('creatine')) {
+                          // For pre-workout and creatine, show servings
+                          weightDisplay = product.details.servings || '';
+                        } else {
+                          weightDisplay = product.details.weight || '';
+                        }
+                        
+                        return weightDisplay ? (
+                          <div className="text-gray-300 text-sm font-medium">
+                            {weightDisplay}
+                          </div>
+                        ) : null;
+                      })()}
+
 
                       {/* Description */}
                       <p className="text-gray-400 text-sm line-clamp-2">
