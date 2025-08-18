@@ -381,6 +381,56 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          helpful_count: number | null
+          id: string
+          is_approved: boolean | null
+          is_verified_purchase: boolean | null
+          product_id: string
+          rating: number
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          is_approved?: boolean | null
+          is_verified_purchase?: boolean | null
+          product_id: string
+          rating: number
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          is_approved?: boolean | null
+          is_verified_purchase?: boolean | null
+          product_id?: string
+          rating?: number
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       testimonials: {
         Row: {
           company: string | null
@@ -492,7 +542,82 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_update_review_status: {
+        Args: { is_approved_param: boolean; review_id: string }
+        Returns: boolean
+      }
+      create_review: {
+        Args: {
+          comment_param: string
+          product_id_param: string
+          rating_param: number
+          title_param: string
+          user_id_param: string
+        }
+        Returns: string
+      }
+      delete_review: {
+        Args: { review_id: string }
+        Returns: boolean
+      }
+      get_all_reviews: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          comment: string
+          created_at: string
+          first_name: string
+          helpful_count: number
+          id: string
+          is_approved: boolean
+          is_verified_purchase: boolean
+          last_name: string
+          product_id: string
+          product_name: string
+          rating: number
+          title: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
+      get_product_review_stats: {
+        Args: { product_id_param: string }
+        Returns: {
+          average_rating: number
+          rating_1: number
+          rating_2: number
+          rating_3: number
+          rating_4: number
+          rating_5: number
+          total_reviews: number
+        }[]
+      }
+      get_reviews: {
+        Args: { product_id_param: string }
+        Returns: {
+          comment: string
+          created_at: string
+          first_name: string
+          helpful_count: number
+          id: string
+          is_approved: boolean
+          is_verified_purchase: boolean
+          last_name: string
+          product_id: string
+          rating: number
+          title: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
+      update_review: {
+        Args: {
+          new_comment: string
+          new_rating: number
+          new_title: string
+          review_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       order_status:
