@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import heroBackground from '@/assets/hero-background.jpg';
 
 const Hero = () => {
   return (
@@ -10,8 +11,8 @@ const Hero = () => {
       {/* Full-bleed background image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/lovable-uploads/729e363e-5733-4ed4-a128-36142849c19e.png"
-          alt="Titan Evolve Products"
+          src={heroBackground}
+          alt="Fitness gym background"
           className="w-full h-full object-cover opacity-40"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/80"></div>
