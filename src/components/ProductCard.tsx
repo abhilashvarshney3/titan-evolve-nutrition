@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +45,27 @@ const ProductCard = ({
   const productData = products.find(p => p.id === id);
   const correctImage = productData?.image || image;
 
+  // Function to get weight display based on category
+  const getWeightDisplay = () => {
+    if (!productData) return '';
+    
+    const categoryLower = category.toLowerCase();
+    
+    if (categoryLower.includes('mass gainer') || categoryLower.includes('gainer')) {
+      // For gainers, extract weight from name (6lbs or 10lbs)
+      const weightMatch = name.match(/(\d+)lbs/);
+      return weightMatch ? `${weightMatch[1]}lbs` : '';
+    } else if (categoryLower.includes('protein') || categoryLower.includes('whey')) {
+      // For protein, show in kgs
+      return productData.details.weight || '2kg';
+    } else if (categoryLower.includes('pre-workout') || categoryLower.includes('creatine')) {
+      // For pre-workout and creatine, show servings
+      return productData.details.servings || '';
+    }
+    
+    return productData.details.weight || '';
+  };
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -85,6 +107,8 @@ const ProductCard = ({
     const whatsappUrl = `https://wa.me/919211991181?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
+
+  const weightDisplay = getWeightDisplay();
 
   return (
     <div className="group relative bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
@@ -139,6 +163,12 @@ const ProductCard = ({
           </h3>
         </Link>
 
+        {/* Weight Display */}
+        {weightDisplay && (
+          <div className="text-gray-300 text-sm font-medium">
+            {weightDisplay}
+          </div>
+        )}
 
         {/* Description */}
         <p className="text-gray-400 text-sm line-clamp-2">
