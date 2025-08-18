@@ -53,7 +53,7 @@ const NewProductsSection = () => {
             </h2>
           </div>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Discover our latest cutting-edge supplements, fresh from the lab
+            Explore our most advanced supplements, freshly engineered for hardcore results
           </p>
         </div>
 
