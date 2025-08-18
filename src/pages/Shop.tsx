@@ -12,7 +12,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useCartQuantity } from '@/hooks/useCartQuantity';
+import { useProductReviews } from '@/hooks/useProductReviews';
 import { products as centralizedProducts, getAllCategories, ProductData } from '@/data/products';
+import ReviewStars from '@/components/ReviewStars';
 
 // Using centralized ProductData interface and categories
 
@@ -213,6 +215,22 @@ const Shop = () => {
   };
 
   
+  // ReviewStars component that uses the hook
+  const ReviewStarsWithHook = ({ productId }: { productId: string }) => {
+    const { stats } = useProductReviews(productId);
+    
+    return stats && stats.total_reviews > 0 ? (
+      <ReviewStars 
+        rating={stats.average_rating} 
+        totalReviews={stats.total_reviews} 
+        showText={true}
+        size="sm"
+      />
+    ) : (
+      <span className="text-gray-500 text-xs">No reviews yet</span>
+    );
+  };
+
   // CartButtons component for shop page
   const CartButtons = ({ productId, productName }: { productId: string; productName: string }) => {
     const { quantity, loading, incrementQuantity, decrementQuantity, addToCart } = useCartQuantity(productId);
@@ -478,31 +496,34 @@ const Shop = () => {
                         </h3>
                       </Link>
 
-                      {/* Weight Display */}
-                      {(() => {
-                        const categoryLower = product.category.toLowerCase();
-                        let weightDisplay = '';
-                        
-                        if (categoryLower.includes('mass gainer') || categoryLower.includes('gainer')) {
-                          // For gainers, extract weight from name (6lbs or 10lbs)
-                          const weightMatch = product.name.match(/(\d+)lbs/);
-                          weightDisplay = weightMatch ? `${weightMatch[1]}lbs` : '';
-                        } else if (categoryLower.includes('protein') || categoryLower.includes('whey')) {
-                          // For protein, show in kgs
-                          weightDisplay = product.details.weight || '2kg';
-                        } else if (categoryLower.includes('pre-workout') || categoryLower.includes('creatine')) {
-                          // For pre-workout and creatine, show servings
-                          weightDisplay = product.details.servings || '';
-                        } else {
-                          weightDisplay = product.details.weight || '';
-                        }
-                        
-                        return weightDisplay ? (
-                          <div className="text-gray-300 text-sm font-medium">
-                            {weightDisplay}
-                          </div>
-                        ) : null;
-                      })()}
+                       {/* Weight Display */}
+                       {(() => {
+                         const categoryLower = product.category.toLowerCase();
+                         let weightDisplay = '';
+                         
+                         if (categoryLower.includes('mass gainer') || categoryLower.includes('gainer')) {
+                           // For gainers, extract weight from name (6lbs or 10lbs)
+                           const weightMatch = product.name.match(/(\d+)lbs/);
+                           weightDisplay = weightMatch ? `${weightMatch[1]}lbs` : '';
+                         } else if (categoryLower.includes('protein') || categoryLower.includes('whey')) {
+                           // For protein, show in kgs
+                           weightDisplay = product.details.weight || '2kg';
+                         } else if (categoryLower.includes('pre-workout') || categoryLower.includes('creatine')) {
+                           // For pre-workout and creatine, show servings
+                           weightDisplay = product.details.servings || '';
+                         } else {
+                           weightDisplay = product.details.weight || '';
+                         }
+                         
+                         return weightDisplay ? (
+                           <div className="text-gray-300 text-sm font-medium">
+                             {weightDisplay}
+                           </div>
+                         ) : null;
+                       })()}
+
+                       {/* Reviews Component */}
+                       <ReviewStarsWithHook productId={product.id} />
 
 
                       {/* Description */}

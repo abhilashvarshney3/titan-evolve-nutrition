@@ -28,6 +28,7 @@ import {
   Upload
 } from 'lucide-react';
 import CodeUploadSection from '@/components/admin/CodeUploadSection';
+import ReviewManagement from '@/components/admin/ReviewManagement';
 
 interface Product {
   id: string;
@@ -487,6 +488,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="products" className="space-y-6">
           <TabsList className="bg-gray-900 p-1 rounded-xl">
             <TabsTrigger value="products" className="data-[state=active]:bg-red-600">Products</TabsTrigger>
+            <TabsTrigger value="reviews" className="data-[state=active]:bg-red-600">Reviews</TabsTrigger>
             <TabsTrigger value="content" className="data-[state=active]:bg-red-600">Content</TabsTrigger>
             <TabsTrigger value="testimonials" className="data-[state=active]:bg-red-600">Testimonials</TabsTrigger>
             <TabsTrigger value="codes" className="data-[state=active]:bg-red-600">Verification Codes</TabsTrigger>
@@ -728,6 +730,11 @@ const AdminDashboard = () => {
                 </table>
               </div>
             </div>
+          </TabsContent>
+
+          {/* Reviews Management */}
+          <TabsContent value="reviews">
+            <ReviewManagement />
           </TabsContent>
 
           <TabsContent value="codes">

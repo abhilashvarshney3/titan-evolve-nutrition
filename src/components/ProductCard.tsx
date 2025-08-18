@@ -8,7 +8,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useCartQuantity } from '@/hooks/useCartQuantity';
+import { useProductReviews } from '@/hooks/useProductReviews';
 import { products } from '@/data/products';
+import ReviewStars from '@/components/ReviewStars';
 
 interface ProductCardProps {
   id: string;
@@ -39,6 +41,7 @@ const ProductCard = ({
   const { toast } = useToast();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { quantity, loading, incrementQuantity, decrementQuantity, addToCart } = useCartQuantity(id);
+  const { stats: reviewStats } = useProductReviews(id);
   const isOnSale = originalPrice && originalPrice > price;
 
   // Get the correct image from products data
@@ -168,6 +171,18 @@ const ProductCard = ({
           <div className="text-gray-300 text-sm font-medium">
             {weightDisplay}
           </div>
+        )}
+
+        {/* Reviews */}
+        {reviewStats && reviewStats.total_reviews > 0 ? (
+          <ReviewStars 
+            rating={reviewStats.average_rating} 
+            totalReviews={reviewStats.total_reviews} 
+            showText={true}
+            size="sm"
+          />
+        ) : (
+          <span className="text-gray-500 text-xs">No reviews yet</span>
         )}
 
         {/* Description */}

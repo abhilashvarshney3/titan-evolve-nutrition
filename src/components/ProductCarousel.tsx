@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useProductReviews } from '@/hooks/useProductReviews';
+import ReviewStars from '@/components/ReviewStars';
 
 interface Product {
   id: string;
@@ -41,6 +43,22 @@ const productImageMap: { [key: string]: string } = {
   'protein-bar': '/lovable-uploads/ab7a6da8-9536-4097-8873-2667208ceef8.png',
   'glutamine': '/lovable-uploads/d012ea81-fb2d-44ba-806d-f1fd364e61d1.png',
   'fish-oil': '/lovable-uploads/e04aff8e-bea5-4f62-916d-a8a50dbd8955.png'
+};
+
+// Component to show reviews using the hook
+const ProductReviewStars = ({ productId }: { productId: string }) => {
+  const { stats } = useProductReviews(productId);
+  
+  return stats && stats.total_reviews > 0 ? (
+    <ReviewStars 
+      rating={stats.average_rating} 
+      totalReviews={stats.total_reviews} 
+      showText={true}
+      size="sm"
+    />
+  ) : (
+    <span className="text-gray-500 text-xs">No reviews yet</span>
+  );
 };
 
 const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
@@ -235,21 +253,7 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${
-                          i < 4
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-600'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-gray-400 text-sm">(247)</span>
-                </div>
+                <ProductReviewStars productId={product.id} />
                 
                 <Link to={`/product/${product.id}`}>
                   <h3 className="text-white text-xl font-bold group-hover:text-purple-400 transition-colors">
