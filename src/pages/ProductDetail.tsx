@@ -9,10 +9,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
-import { getProductById, getProductsByCategory, ProductData } from '@/data/products';
+import { getProductById, getProductsByCategory, CentralizedProduct, ProductVariant, getDefaultVariant } from '@/data/centralizedProducts';
 import { useProductReviews } from '@/hooks/useProductReviews';
 import ReviewSection from '@/components/ReviewSection';
 import ReviewStars from '@/components/ReviewStars';
+import VariantSelector from '@/components/VariantSelector';
 
 // Using centralized ProductData interface
 
@@ -32,9 +33,10 @@ const productImageMap: { [key: string]: string } = {
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState<ProductData | null>(null);
+  const [product, setProduct] = useState<CentralizedProduct | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [relatedProducts, setRelatedProducts] = useState<ProductData[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<CentralizedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -46,6 +48,12 @@ const ProductDetail = () => {
       loadProduct();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (product && product.variants.length > 0) {
+      setSelectedVariant(getDefaultVariant(product.id) || product.variants[0]);
+    }
+  }, [product]);
 
   const loadProduct = () => {
     if (!id) return;
@@ -91,7 +99,7 @@ const ProductDetail = () => {
       return;
     }
 
-    if (!product) return;
+    if (!product || !selectedVariant) return;
 
     try {
       // Check if item already exists in cart
@@ -100,6 +108,7 @@ const ProductDetail = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('product_id', product.id)
+        .eq('variant_id', selectedVariant.id)
         .single();
 
       if (existingItem) {
@@ -118,6 +127,7 @@ const ProductDetail = () => {
             {
               user_id: user.id,
               product_id: product.id,
+              variant_id: selectedVariant.id,
               quantity: quantity
             }
           ]);
@@ -127,7 +137,7 @@ const ProductDetail = () => {
 
       toast({
         title: "Added to Cart",
-        description: `${quantity} x ${product.name} added to your cart.`
+        description: `${quantity} x ${selectedVariant.variantName} added to your cart.`
       });
 
       // Trigger cart update event
@@ -142,7 +152,7 @@ const ProductDetail = () => {
     }
   };
 
-  const handleQuickAdd = async (productId: string, productName: string) => {
+  const handleQuickAdd = async (productId: string, productName: string, variantId: string) => {
     if (!user) {
       toast({
         title: "Please Sign In",
@@ -159,6 +169,7 @@ const ProductDetail = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('product_id', productId)
+        .eq('variant_id', variantId)
         .single();
 
       if (existingItem) {
@@ -177,6 +188,7 @@ const ProductDetail = () => {
             {
               user_id: user.id,
               product_id: productId,
+              variant_id: variantId,
               quantity: 1
             }
           ]);
@@ -309,9 +321,20 @@ const ProductDetail = () => {
                   )}
                 </div>
 
+                {/* Variant Selector */}
+                {product.variants.length > 1 && selectedVariant && (
+                  <VariantSelector
+                    variants={product.variants}
+                    selectedVariant={selectedVariant}
+                    onVariantChange={setSelectedVariant}
+                  />
+                )}
+
                 {/* Price */}
                 <div className="flex items-center gap-4">
-                  <span className="text-4xl font-bold text-white">₹{product.price.toFixed(0)}</span>
+                  <span className="text-4xl font-bold text-white">
+                    ₹{selectedVariant?.price.toFixed(0) || 0}
+                  </span>
                 </div>
 
                 {/* Description */}
@@ -319,8 +342,8 @@ const ProductDetail = () => {
 
                 {/* Stock Status */}
                 <div className="text-sm">
-                  {product.stockQuantity > 0 ? (
-                    <span className="text-green-400">✓ In Stock ({product.stockQuantity} available)</span>
+                  {selectedVariant && selectedVariant.stockQuantity > 0 ? (
+                    <span className="text-green-400">✓ In Stock ({selectedVariant.stockQuantity} available)</span>
                   ) : (
                     <span className="text-red-400">✗ Out of Stock</span>
                   )}
@@ -342,9 +365,9 @@ const ProductDetail = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setQuantity(Math.min(product.stockQuantity, quantity + 1))}
+                      onClick={() => setQuantity(Math.min(selectedVariant?.stockQuantity || 0, quantity + 1))}
                       className="text-white hover:bg-purple-600"
-                      disabled={quantity >= product.stockQuantity}
+                      disabled={quantity >= (selectedVariant?.stockQuantity || 0)}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
@@ -355,7 +378,7 @@ const ProductDetail = () => {
                 <div className="flex gap-4">
                   <Button
                     onClick={handleAddToCart}
-                    disabled={product.stockQuantity === 0}
+                    disabled={!selectedVariant || selectedVariant.stockQuantity === 0}
                     className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingCart className="mr-2 h-5 w-5" />
@@ -414,8 +437,9 @@ const ProductDetail = () => {
                     {product.details.netWeight && <p><strong>Net Weight:</strong> {product.details.netWeight}</p>}
                     {product.details.servings && <p><strong>Servings:</strong> {product.details.servings}</p>}
                     {product.details.form && <p><strong>Form:</strong> {product.details.form}</p>}
-                    {product.details.flavor && <p><strong>Flavor:</strong> {product.details.flavor}</p>}
-                    <p><strong>SKU:</strong> {product.sku}</p>
+                    {selectedVariant?.flavor && <p><strong>Flavor:</strong> {selectedVariant.flavor}</p>}
+                    {selectedVariant && <p><strong>Size:</strong> {selectedVariant.size}</p>}
+                    {selectedVariant && <p><strong>SKU:</strong> {selectedVariant.sku}</p>}
                   </div>
                 </div>
               </div>
@@ -466,7 +490,7 @@ const ProductDetail = () => {
                     {/* Quick Add Overlay */}
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                       <Button 
-                        onClick={() => handleQuickAdd(relatedProduct.id, relatedProduct.name)}
+                        onClick={() => handleQuickAdd(relatedProduct.id, relatedProduct.name, relatedProduct.variants[0]?.id || '')}
                         className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 transform hover:scale-105 transition-all duration-300"
                       >
                         <ShoppingCart className="h-4 w-4 mr-2" />
@@ -481,7 +505,7 @@ const ProductDetail = () => {
                         </h3>
                       </Link>
                       <p className="text-purple-400 text-sm mb-2">{relatedProduct.category}</p>
-                      <p className="text-white text-xl font-bold">₹{relatedProduct.price.toFixed(0)}</p>
+                      <p className="text-white text-xl font-bold">₹{relatedProduct.variants[0]?.price.toFixed(0) || 0}</p>
                     </div>
                   </div>
                 ))}
