@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useProducts, ProductWithVariantsAndImages } from '@/hooks/useProducts';
@@ -8,6 +8,7 @@ const ProductShowcase = () => {
   const { products, loading } = useProducts();
   const featuredProducts = products.filter(product => product.is_featured);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showNavigation, setShowNavigation] = useState(false);
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -20,6 +21,19 @@ const ProductShowcase = () => {
       scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
     }
   };
+
+  const checkScrollable = () => {
+    if (scrollContainerRef.current) {
+      const { scrollWidth, clientWidth } = scrollContainerRef.current;
+      setShowNavigation(scrollWidth > clientWidth);
+    }
+  };
+
+  useEffect(() => {
+    checkScrollable();
+    window.addEventListener('resize', checkScrollable);
+    return () => window.removeEventListener('resize', checkScrollable);
+  }, [featuredProducts]);
 
   if (loading) {
     return (
@@ -62,25 +76,27 @@ const ProductShowcase = () => {
 
         {/* Products Horizontal Scroll */}
         <div className="relative group">
-          {/* Desktop Navigation Arrows */}
-          <div className="hidden md:flex">
-            <Button
-              onClick={scrollLeft}
-              variant="outline"
-              size="icon"
-              className="absolute -left-6 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-purple-500 hover:bg-purple-600 hover:border-purple-400 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <ChevronLeft className="h-5 w-5 text-white" />
-            </Button>
-            <Button
-              onClick={scrollRight}
-              variant="outline"
-              size="icon"
-              className="absolute -right-6 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-purple-500 hover:bg-purple-600 hover:border-purple-400 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <ChevronRight className="h-5 w-5 text-white" />
-            </Button>
-          </div>
+          {/* Desktop Navigation Arrows - Only show if scrollable */}
+          {showNavigation && (
+            <div className="hidden md:flex">
+              <Button
+                onClick={scrollLeft}
+                variant="outline"
+                size="icon"
+                className="absolute -left-6 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-purple-500 hover:bg-purple-600 hover:border-purple-400 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ChevronLeft className="h-5 w-5 text-white" />
+              </Button>
+              <Button
+                onClick={scrollRight}
+                variant="outline"
+                size="icon"
+                className="absolute -right-6 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-purple-500 hover:bg-purple-600 hover:border-purple-400 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ChevronRight className="h-5 w-5 text-white" />
+              </Button>
+            </div>
+          )}
           
           {/* Products Grid */}
           <div
