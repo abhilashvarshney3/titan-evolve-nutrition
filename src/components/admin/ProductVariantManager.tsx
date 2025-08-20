@@ -554,7 +554,7 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
                   className="w-full"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Detail
+                  Add More Details
                 </Button>
               </div>
             </div>

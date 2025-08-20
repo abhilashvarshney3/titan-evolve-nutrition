@@ -134,7 +134,7 @@ const OrderManagement = () => {
     try {
       const { error } = await supabase
         .from('orders')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .update({ status: newStatus as any, updated_at: new Date().toISOString() })
         .eq('id', orderId);
 
       if (error) throw error;

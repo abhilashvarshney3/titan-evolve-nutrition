@@ -103,7 +103,7 @@ const UserManagement = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ role: newRole, updated_at: new Date().toISOString() })
+        .update({ role: newRole as any, updated_at: new Date().toISOString() })
         .eq('id', userId);
 
       if (error) throw error;

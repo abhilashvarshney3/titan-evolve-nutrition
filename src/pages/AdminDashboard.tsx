@@ -30,6 +30,13 @@ import {
 import CodeUploadSection from '@/components/admin/CodeUploadSection';
 import ReviewManagement from '@/components/admin/ReviewManagement';
 import IntegratedProductManager from '@/components/admin/IntegratedProductManager';
+import OrderManagement from '@/components/admin/OrderManagement';
+import UserManagement from '@/components/admin/UserManagement';
+import ContentManagement from '@/components/admin/ContentManagement';
+import TestimonialManagement from '@/components/admin/TestimonialManagement';
+import CouponManagement from '@/components/admin/CouponManagement';
+import AffiliateManagement from '@/components/admin/AffiliateManagement';
+import BannerManagement from '@/components/admin/BannerManagement';
 
 interface Product {
   id: string;
@@ -379,7 +386,7 @@ const AdminDashboard = () => {
 
         {/* Management Tabs */}
         <Tabs defaultValue="products" className="w-full">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
@@ -388,10 +395,21 @@ const AdminDashboard = () => {
             <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
             <TabsTrigger value="coupons">Coupons</TabsTrigger>
             <TabsTrigger value="affiliate">Affiliate</TabsTrigger>
+            <TabsTrigger value="banners">Banners</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products" className="space-y-6">
             <IntegratedProductManager />
+          </TabsContent>
+
+          {/* Orders Management */}
+          <TabsContent value="orders">
+            <OrderManagement />
+          </TabsContent>
+
+          {/* Users Management */}
+          <TabsContent value="users">
+            <UserManagement />
           </TabsContent>
 
           {/* Reviews Management */}
@@ -399,28 +417,29 @@ const AdminDashboard = () => {
             <ReviewManagement />
           </TabsContent>
 
-          {/* Content Management - keeping existing implementation */}
+          {/* Content Management */}
           <TabsContent value="content" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Content Management</h2>
-            </div>
-            <Card>
-              <CardContent className="p-6">
-                <p className="text-muted-foreground">Content management features coming soon...</p>
-              </CardContent>
-            </Card>
+            <ContentManagement />
           </TabsContent>
 
-          {/* Testimonials Management - keeping existing implementation */}
+          {/* Testimonials Management */}
           <TabsContent value="testimonials" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Testimonials Management</h2>
-            </div>
-            <Card>
-              <CardContent className="p-6">
-                <p className="text-muted-foreground">Testimonials management features coming soon...</p>
-              </CardContent>
-            </Card>
+            <TestimonialManagement />
+          </TabsContent>
+
+          {/* Coupons Management */}
+          <TabsContent value="coupons">
+            <CouponManagement />
+          </TabsContent>
+
+          {/* Affiliate Management */}
+          <TabsContent value="affiliate">
+            <AffiliateManagement />
+          </TabsContent>
+
+          {/* Banner Management */}
+          <TabsContent value="banners">
+            <BannerManagement />
           </TabsContent>
 
           {/* Verification Codes Management */}
