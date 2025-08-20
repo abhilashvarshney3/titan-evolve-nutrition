@@ -507,6 +507,7 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
             </div>
             <div>
               <Label>Product Details (Optional)</Label>
+              <p className="text-sm text-gray-500 mb-3">Add custom details that will be displayed on the product page (e.g., Protein: 25g per serving)</p>
               <div className="space-y-3">
                 {productDetails.map((detail, index) => (
                   <div key={index} className="flex gap-2 items-center">

@@ -68,6 +68,90 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_programs: {
+        Row: {
+          commission_rate: number
+          commission_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          commission_rate: number
+          commission_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          commission_rate?: number
+          commission_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      banners: {
+        Row: {
+          banner_type: string
+          button_text: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          end_date: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          link_url: string | null
+          position: string | null
+          start_date: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          banner_type: string
+          button_text?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          link_url?: string | null
+          position?: string | null
+          start_date?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          banner_type?: string
+          button_text?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          link_url?: string | null
+          position?: string | null
+          start_date?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cart: {
         Row: {
           created_at: string | null
@@ -197,6 +281,57 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean | null
+          maximum_discount_amount: number | null
+          minimum_order_amount: number | null
+          updated_at: string | null
+          usage_limit: number | null
+          used_count: number | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          id?: string
+          is_active?: boolean | null
+          maximum_discount_amount?: number | null
+          minimum_order_amount?: number | null
+          updated_at?: string | null
+          usage_limit?: number | null
+          used_count?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean | null
+          maximum_discount_amount?: number | null
+          minimum_order_amount?: number | null
+          updated_at?: string | null
+          usage_limit?: number | null
+          used_count?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string | null
@@ -245,6 +380,47 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_tracking: {
+        Row: {
+          carrier: string | null
+          created_at: string | null
+          estimated_delivery: string | null
+          id: string
+          message: string | null
+          order_id: string | null
+          status: string
+          tracking_number: string | null
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          message?: string | null
+          order_id?: string | null
+          status: string
+          tracking_number?: string | null
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          message?: string | null
+          order_id?: string | null
+          status?: string
+          tracking_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_tracking_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -457,6 +633,98 @@ export type Database = {
         }
         Relationships: []
       }
+      promoters: {
+        Row: {
+          affiliate_program_id: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          referral_code: string
+          total_earnings: number | null
+          total_referrals: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          affiliate_program_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          referral_code: string
+          total_earnings?: number | null
+          total_referrals?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          affiliate_program_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          referral_code?: string
+          total_earnings?: number | null
+          total_referrals?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promoters_affiliate_program_id_fkey"
+            columns: ["affiliate_program_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          commission_amount: number
+          created_at: string | null
+          id: string
+          order_id: string | null
+          promoter_id: string | null
+          referral_code: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          commission_amount: number
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          promoter_id?: string | null
+          referral_code: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          commission_amount?: number
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          promoter_id?: string | null
+          referral_code?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_promoter_id_fkey"
+            columns: ["promoter_id"]
+            isOneToOne: false
+            referencedRelation: "promoters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           comment: string
@@ -516,6 +784,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      site_settings: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          setting_key: string
+          setting_type: string
+          setting_value: Json
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          setting_key: string
+          setting_type: string
+          setting_value: Json
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          setting_key?: string
+          setting_type?: string
+          setting_value?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       testimonials: {
         Row: {
