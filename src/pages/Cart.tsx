@@ -8,7 +8,7 @@ import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { getProductById } from '@/data/products';
+import { getProductById } from '@/data/centralizedProducts';
 
 interface CartItem {
   id: string;
@@ -70,15 +70,16 @@ const Cart = () => {
       
       for (const item of data || []) {
         const product = getProductById(item.product_id);
-        if (product) {
+        if (product && product.variants.length > 0) {
+          const defaultVariant = product.variants[0];
           cartItemsWithProducts.push({
             ...item,
             products: {
               id: product.id,
               name: product.name,
-              price: product.price,
+              price: defaultVariant.price,
               image_url: product.image,
-              stock_quantity: product.stockQuantity
+              stock_quantity: defaultVariant.stockQuantity
             }
           });
         } else {

@@ -31,11 +31,11 @@ export interface CentralizedProduct {
   };
 }
 
-// Centralized product data with variants
+// Centralized product data with variants - Updated with correct UUIDs
 export const centralizedProducts: CentralizedProduct[] = [
   {
-    id: 'lean-whey-protein',
-    name: 'Lean Whey Protein',
+    id: '550e8400-e29b-41d4-a716-446655440008',
+    name: 'Titan Evolve – Lean Whey Protein',
     description: 'Premium quality whey protein for muscle building and recovery. Made from the finest ingredients to support your fitness goals.',
     category: 'Protein',
     categoryId: 'protein',
@@ -45,43 +45,23 @@ export const centralizedProducts: CentralizedProduct[] = [
     badge: 'BEST SELLER',
     variants: [
       {
-        id: 'lean-whey-2kg-chocolate',
-        variantName: '2KG - Double Rich Chocolate',
+        id: '550e8400-e29b-41d4-a716-446655440008-variant-1',
+        variantName: 'Double Rich Chocolate 2lbs',
         flavor: 'Double Rich Chocolate',
-        size: '2KG',
-        price: 2499,
-        stockQuantity: 50,
-        sku: 'LWP-2KG-CHOC',
+        size: '2lbs',
+        price: 4999,
+        stockQuantity: 35,
+        sku: 'TE-LWP-DRC-2LBS',
         isActive: true
       },
       {
-        id: 'lean-whey-4kg-chocolate',
-        variantName: '4KG - Double Rich Chocolate',
-        flavor: 'Double Rich Chocolate',
-        size: '4KG',
-        price: 4599,
-        stockQuantity: 30,
-        sku: 'LWP-4KG-CHOC',
-        isActive: true
-      },
-      {
-        id: 'lean-whey-2kg-icecream',
-        variantName: '2KG - American Ice Cream',
+        id: '550e8400-e29b-41d4-a716-446655440009-variant-1',
+        variantName: 'American Ice Cream 2lbs',
         flavor: 'American Ice Cream',
-        size: '2KG',
-        price: 2499,
-        stockQuantity: 45,
-        sku: 'LWP-2KG-ICE',
-        isActive: true
-      },
-      {
-        id: 'lean-whey-4kg-icecream',
-        variantName: '4KG - American Ice Cream',
-        flavor: 'American Ice Cream',
-        size: '4KG',
-        price: 4599,
-        stockQuantity: 25,
-        sku: 'LWP-4KG-ICE',
+        size: '2lbs',
+        price: 4999,
+        stockQuantity: 28,
+        sku: 'TE-LWP-AIC-2LBS',
         isActive: true
       }
     ],
@@ -106,58 +86,58 @@ export const centralizedProducts: CentralizedProduct[] = [
         "No Banned Substances"
       ],
       form: "Powder",
-      servings: "66 servings (2KG), 133 servings (4KG)"
+      servings: "66 servings (2lbs)"
     }
   },
   {
-    id: 'muscle-gainer',
-    name: 'Muscle Gainer',
+    id: '550e8400-e29b-41d4-a716-446655440004',
+    name: 'Titan Evolve – Mass Gainer',
     description: 'Advanced mass gainer formula with high-quality proteins and carbohydrates to support muscle growth and weight gain.',
     category: 'Mass Gainer',
     categoryId: 'mass-gainer',
-    image: '/lovable-uploads/6f21609e-a5cd-4cc0-a41a-82da539f5d0f.png',
+    image: '/lovable-uploads/a651e1df-5241-402e-ba83-0b47d9206364.png',
     isNew: false,
     isFeatured: true,
     badge: 'HIGH PROTEIN',
     variants: [
       {
-        id: 'muscle-gainer-6lbs-chocolate',
-        variantName: '6lbs - Double Rich Chocolate',
+        id: '550e8400-e29b-41d4-a716-446655440004-variant-1',
+        variantName: 'Double Rich Chocolate 6lbs',
         flavor: 'Double Rich Chocolate',
         size: '6lbs',
-        price: 3299,
-        stockQuantity: 40,
-        sku: 'MG-6LBS-CHOC',
-        isActive: true
-      },
-      {
-        id: 'muscle-gainer-10lbs-chocolate',
-        variantName: '10lbs - Double Rich Chocolate',
-        flavor: 'Double Rich Chocolate',
-        size: '10lbs',
-        price: 5199,
+        price: 3499,
         stockQuantity: 20,
-        sku: 'MG-10LBS-CHOC',
+        sku: 'TE-MG-DRC-6LBS',
         isActive: true
       },
       {
-        id: 'muscle-gainer-6lbs-kesar',
-        variantName: '6lbs - Kesar Pista',
-        flavor: 'Kesar Pista',
-        size: '6lbs',
-        price: 3299,
-        stockQuantity: 35,
-        sku: 'MG-6LBS-KESAR',
-        isActive: true
-      },
-      {
-        id: 'muscle-gainer-10lbs-kesar',
-        variantName: '10lbs - Kesar Pista',
-        flavor: 'Kesar Pista',
+        id: '550e8400-e29b-41d4-a716-446655440005-variant-1',
+        variantName: 'Double Rich Chocolate 10lbs',
+        flavor: 'Double Rich Chocolate',
         size: '10lbs',
-        price: 5199,
+        price: 4999,
         stockQuantity: 15,
-        sku: 'MG-10LBS-KESAR',
+        sku: 'TE-MG-DRC-10LBS',
+        isActive: true
+      },
+      {
+        id: '550e8400-e29b-41d4-a716-446655440006-variant-1',
+        variantName: 'Kesar Pista Delight 6lbs',
+        flavor: 'Kesar Pista Delight',
+        size: '6lbs',
+        price: 3499,
+        stockQuantity: 18,
+        sku: 'TE-MG-KPD-6LBS',
+        isActive: true
+      },
+      {
+        id: '550e8400-e29b-41d4-a716-446655440007-variant-1',
+        variantName: 'Kesar Pista Delight 10lbs',
+        flavor: 'Kesar Pista Delight',
+        size: '10lbs',
+        price: 4999,
+        stockQuantity: 12,
+        sku: 'TE-MG-KPD-10LBS',
         isActive: true
       }
     ],
@@ -186,54 +166,34 @@ export const centralizedProducts: CentralizedProduct[] = [
     }
   },
   {
-    id: 'pre-workout',
-    name: 'Pre-Workout',
+    id: '550e8400-e29b-41d4-a716-446655440002',
+    name: 'Titan Evolve – Pre-Workout',
     description: 'Explosive pre-workout formula designed to boost energy, focus, and performance during intense training sessions.',
     category: 'Pre-Workout',
     categoryId: 'pre-workout',
-    image: '/lovable-uploads/ff150af1-45f4-466a-a0f0-8c24b6de0207.png',
+    image: '/lovable-uploads/0463eb82-5280-4ac1-bb44-988ac181e84e.png',
     isNew: true,
-    isFeatured: false,
+    isFeatured: true,
     badge: 'ENERGY BOOST',
     variants: [
       {
-        id: 'pre-workout-30-watermelon',
-        variantName: '30 Servings - Watermelon',
+        id: '550e8400-e29b-41d4-a716-446655440002-variant-1',
+        variantName: 'Watermelon 250g',
         flavor: 'Watermelon',
-        size: '30 servings',
-        price: 1799,
-        stockQuantity: 60,
-        sku: 'PWO-30-WATER',
-        isActive: true
-      },
-      {
-        id: 'pre-workout-60-watermelon',
-        variantName: '60 Servings - Watermelon',
-        flavor: 'Watermelon',
-        size: '60 servings',
-        price: 3299,
-        stockQuantity: 35,
-        sku: 'PWO-60-WATER',
-        isActive: true
-      },
-      {
-        id: 'pre-workout-30-bubblegum',
-        variantName: '30 Servings - Bubblegum',
-        flavor: 'Bubblegum',
-        size: '30 servings',
-        price: 1799,
-        stockQuantity: 55,
-        sku: 'PWO-30-BUBBLE',
-        isActive: true
-      },
-      {
-        id: 'pre-workout-60-bubblegum',
-        variantName: '60 Servings - Bubblegum',
-        flavor: 'Bubblegum',
-        size: '60 servings',
-        price: 3299,
+        size: '250g',
+        price: 1750,
         stockQuantity: 30,
-        sku: 'PWO-60-BUBBLE',
+        sku: 'TE-PRE-WM-250',
+        isActive: true
+      },
+      {
+        id: '550e8400-e29b-41d4-a716-446655440003-variant-1',
+        variantName: 'Bubblegum Burst 250g',
+        flavor: 'Bubblegum Burst',
+        size: '250g',
+        price: 1750,
+        stockQuantity: 25,
+        sku: 'TE-PRE-BB-250',
         isActive: true
       }
     ],
@@ -261,39 +221,31 @@ export const centralizedProducts: CentralizedProduct[] = [
     }
   },
   {
-    id: 'creatine',
-    name: 'Creatine Monohydrate',
+    id: '550e8400-e29b-41d4-a716-446655440001',
+    name: 'Titan Evolve – Creatine Monohydrate',
     description: 'Pure creatine monohydrate powder for enhanced strength, power, and muscle volume. Unflavored and easily mixable.',
     category: 'Creatine',
     categoryId: 'creatine',
-    image: '/lovable-uploads/cc7b982a-2963-4aa1-a018-5a61326ddf2c.png',
+    image: '/lovable-uploads/53024968-45ea-468d-8d9f-f24037b79f25.png',
     isNew: false,
     isFeatured: true,
     badge: 'PURE FORMULA',
     variants: [
       {
-        id: 'creatine-180g',
-        variantName: '180g - Unflavored',
+        id: '550e8400-e29b-41d4-a716-446655440001-variant-1',
+        variantName: 'Unflavored 180g',
+        flavor: 'Unflavored',
         size: '180g',
-        price: 899,
-        stockQuantity: 80,
-        sku: 'CREAT-180G',
-        isActive: true
-      },
-      {
-        id: 'creatine-250g',
-        variantName: '250g - Unflavored',
-        size: '250g',
         price: 1199,
-        stockQuantity: 70,
-        sku: 'CREAT-250G',
+        stockQuantity: 50,
+        sku: 'TE-CREAT-180',
         isActive: true
       }
     ],
     details: {
       keyBenefits: [
         "Increases muscle strength and power",
-        "Enhances athletic performance", 
+        "Enhances athletic performance",
         "Supports muscle volume",
         "Fast muscle recovery",
         "Pure micronized formula"
@@ -311,7 +263,7 @@ export const centralizedProducts: CentralizedProduct[] = [
         "Pharmaceutical Grade"
       ],
       form: "Powder",
-      servings: "36 servings (180g), 50 servings (250g)"
+      servings: "36 servings (180g)"
     }
   }
 ];
