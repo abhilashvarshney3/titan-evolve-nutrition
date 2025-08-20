@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useProducts, ProductWithVariantsAndImages } from '@/hooks/useProducts';
-import ProductCardWithVariants from '@/components/ProductCardWithVariants';
+import ModernProductCard from '@/components/ModernProductCard';
 
 const NewProductsSection = () => {
   const { products, loading } = useProducts();
@@ -99,9 +99,8 @@ const NewProductsSection = () => {
           >
             {newProducts.map((product: ProductWithVariantsAndImages) => (
               <div key={product.id} className="flex-shrink-0 w-64 sm:w-72 md:w-80">
-                <ProductCardWithVariants
+                <ModernProductCard
                   product={product}
-                  showVariantSelector={false}
                 />
               </div>
             ))}

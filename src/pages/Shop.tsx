@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useProducts, ProductWithVariantsAndImages } from '@/hooks/useProducts';
-import ProductCardWithVariants from '@/components/ProductCardWithVariants';
+import ModernProductCard from '@/components/ModernProductCard';
 
 const Shop = () => {
   const { products, loading } = useProducts();
@@ -207,10 +207,9 @@ const Shop = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredProducts.map((product) => (
-                  <ProductCardWithVariants
+                  <ModernProductCard
                     key={product.id}
                     product={product}
-                    showVariantSelector={true}
                   />
                 ))}
               </div>

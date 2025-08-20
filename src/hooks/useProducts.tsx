@@ -23,6 +23,7 @@ export interface DatabaseProductVariant {
   flavor?: string;
   size: string;
   price: number;
+  original_price?: number;
   stock_quantity: number;
   sku?: string;
   is_active: boolean;
@@ -101,7 +102,8 @@ export const useProducts = () => {
             is_primary: img.is_primary,
             display_order: img.display_order,
             created_at: img.created_at
-          }))
+          })),
+          original_price: variant.original_price
         }))
       }));
 
@@ -202,7 +204,8 @@ export const useProduct = (productId: string) => {
               is_primary: img.is_primary,
               display_order: img.display_order,
               created_at: img.created_at
-            }))
+            })),
+            original_price: variant.original_price
           }))
         };
         console.log('Product fetched successfully:', transformedProduct);

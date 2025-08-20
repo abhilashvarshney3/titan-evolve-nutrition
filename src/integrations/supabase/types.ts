@@ -318,6 +318,7 @@ export type Database = {
           flavor: string | null
           id: string
           is_active: boolean | null
+          original_price: number | null
           price: number
           product_id: string
           size: string
@@ -331,6 +332,7 @@ export type Database = {
           flavor?: string | null
           id?: string
           is_active?: boolean | null
+          original_price?: number | null
           price: number
           product_id: string
           size: string
@@ -344,6 +346,7 @@ export type Database = {
           flavor?: string | null
           id?: string
           is_active?: boolean | null
+          original_price?: number | null
           price?: number
           product_id?: string
           size?: string

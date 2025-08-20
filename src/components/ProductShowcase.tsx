@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useProducts, ProductWithVariantsAndImages } from '@/hooks/useProducts';
-import ProductCardWithVariants from '@/components/ProductCardWithVariants';
+import ModernProductCard from './ModernProductCard';
 
 const ProductShowcase = () => {
   const { products, loading } = useProducts();
@@ -106,9 +106,8 @@ const ProductShowcase = () => {
           >
             {featuredProducts.map((product: ProductWithVariantsAndImages) => (
               <div key={product.id} className="flex-shrink-0 w-64 sm:w-72 md:w-80">
-                <ProductCardWithVariants
+                <ModernProductCard
                   product={product}
-                  showVariantSelector={false}
                 />
               </div>
             ))}

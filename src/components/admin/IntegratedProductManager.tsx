@@ -46,6 +46,7 @@ interface ProductVariant {
   flavor?: string;
   size: string;
   price: number;
+  original_price?: number;
   stock_quantity: number;
   sku?: string;
   is_active: boolean;
@@ -86,6 +87,7 @@ const IntegratedProductManager = () => {
     flavor: '',
     size: '',
     price: '',
+    original_price: '',
     stock_quantity: '',
     sku: '',
     is_active: true
@@ -177,6 +179,7 @@ const IntegratedProductManager = () => {
       flavor: '',
       size: '',
       price: '',
+      original_price: '',
       stock_quantity: '',
       sku: '',
       is_active: true
@@ -273,17 +276,18 @@ const IntegratedProductManager = () => {
   };
 
   const addVariant = () => {
-    const newVariant: ProductVariant = {
-      id: `temp-${Date.now()}`,
-      product_id: selectedProduct?.id || '',
-      variant_name: variantForm.variant_name,
-      flavor: variantForm.flavor,
-      size: variantForm.size,
-      price: parseFloat(variantForm.price),
-      stock_quantity: parseInt(variantForm.stock_quantity),
-      sku: variantForm.sku,
-      is_active: variantForm.is_active
-    };
+        const newVariant: ProductVariant = {
+          id: `temp-${Date.now()}`,
+          product_id: selectedProduct?.id || '',
+          variant_name: variantForm.variant_name,
+          flavor: variantForm.flavor,
+          size: variantForm.size,
+          price: parseFloat(variantForm.price),
+          original_price: variantForm.original_price ? parseFloat(variantForm.original_price) : undefined,
+          stock_quantity: parseInt(variantForm.stock_quantity),
+          sku: variantForm.sku,
+          is_active: variantForm.is_active
+        };
     
     setProductVariants([...productVariants, newVariant]);
     setVariantForm({
@@ -291,6 +295,7 @@ const IntegratedProductManager = () => {
       flavor: '',
       size: '',
       price: '',
+      original_price: '',
       stock_quantity: '',
       sku: '',
       is_active: true
@@ -631,7 +636,7 @@ const IntegratedProductManager = () => {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="variant-price">Price (₹)</Label>
                       <Input
@@ -639,7 +644,17 @@ const IntegratedProductManager = () => {
                         type="number"
                         value={variantForm.price}
                         onChange={(e) => setVariantForm({...variantForm, price: e.target.value})}
-                        placeholder="Enter price"
+                        placeholder="Enter discounted price"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="variant-original-price">Original Price (₹)</Label>
+                      <Input
+                        id="variant-original-price"
+                        type="number"
+                        value={variantForm.original_price || ''}
+                        onChange={(e) => setVariantForm({...variantForm, original_price: e.target.value})}
+                        placeholder="Enter original price (optional)"
                       />
                     </div>
                     <div className="space-y-2">
@@ -683,7 +698,9 @@ const IntegratedProductManager = () => {
                           <div className="font-medium">{variant.variant_name}</div>
                           <div className="text-sm text-muted-foreground">
                             {variant.flavor && `${variant.flavor} • `}
-                            {variant.size} • ₹{variant.price} • Stock: {variant.stock_quantity}
+                            {variant.size} • ₹{variant.price}
+                            {variant.original_price && ` (was ₹${variant.original_price})`}
+                            • Stock: {variant.stock_quantity}
                           </div>
                           {variant.sku && (
                             <div className="text-xs text-muted-foreground">SKU: {variant.sku}</div>

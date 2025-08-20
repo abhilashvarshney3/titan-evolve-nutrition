@@ -213,8 +213,18 @@ const ProductDetail = () => {
               <div className="relative">
                 <div className="aspect-square bg-gray-900 rounded-xl overflow-hidden relative flex items-center justify-center p-8">
                   <img
-                    src={product.image_url || '/placeholder.svg'}
-                    alt={product.name}
+                    src={(() => {
+                      if (selectedVariant) {
+                        const variant = product.variants.find(v => v.id === selectedVariant.id);
+                        const variantImages = variant?.images;
+                        if (variantImages && variantImages.length > 0) {
+                          const primaryImage = variantImages.find(img => img.is_primary);
+                          return primaryImage?.image_url || variantImages[0]?.image_url;
+                        }
+                      }
+                      return product.image_url || '/placeholder.svg';
+                    })()}
+                    alt={selectedVariant ? selectedVariant.variant_name : product.name}
                     className="max-w-full max-h-full object-contain"
                   />
                   <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -279,6 +289,16 @@ const ProductDetail = () => {
                   <span className="text-4xl font-bold text-white">
                     ₹{selectedVariant ? selectedVariant.price.toFixed(0) : product.price?.toFixed(0) || '0'}
                   </span>
+                  {selectedVariant?.original_price && selectedVariant.original_price > selectedVariant.price && (
+                    <>
+                      <span className="text-2xl text-gray-500 line-through">
+                        ₹{selectedVariant.original_price.toFixed(0)}
+                      </span>
+                      <span className="text-green-400 font-bold text-lg">
+                        {Math.round(((selectedVariant.original_price - selectedVariant.price) / selectedVariant.original_price) * 100)}% OFF
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 {/* Description */}
