@@ -16,6 +16,7 @@ interface ProductVariant {
   flavor?: string;
   size: string;
   price: number;
+  original_price?: number;
   stock_quantity: number;
   sku?: string;
   is_active: boolean;
@@ -49,6 +50,7 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
     flavor: '',
     size: '',
     price: '',
+    original_price: '',
     stock_quantity: '',
     sku: '',
     is_active: true
@@ -113,6 +115,7 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
       flavor: '',
       size: '',
       price: '',
+      original_price: '',
       stock_quantity: '',
       sku: '',
       is_active: true
@@ -127,6 +130,7 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
       flavor: variant.flavor || '',
       size: variant.size,
       price: variant.price.toString(),
+      original_price: variant.original_price?.toString() || '',
       stock_quantity: variant.stock_quantity.toString(),
       sku: variant.sku || '',
       is_active: variant.is_active
@@ -142,6 +146,7 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
         flavor: variantForm.flavor || null,
         size: variantForm.size,
         price: parseFloat(variantForm.price),
+        original_price: variantForm.original_price ? parseFloat(variantForm.original_price) : null,
         stock_quantity: parseInt(variantForm.stock_quantity),
         sku: variantForm.sku || null,
         is_active: variantForm.is_active
@@ -445,15 +450,25 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
                 />
               </div>
               <div>
-                <Label htmlFor="stock_quantity">Stock</Label>
+                <Label htmlFor="original_price">Original Price (₹)</Label>
                 <Input
-                  id="stock_quantity"
+                  id="original_price"
                   type="number"
-                  value={variantForm.stock_quantity}
-                  onChange={(e) => setVariantForm(prev => ({ ...prev, stock_quantity: e.target.value }))}
-                  placeholder="35"
+                  value={variantForm.original_price}
+                  onChange={(e) => setVariantForm(prev => ({ ...prev, original_price: e.target.value }))}
+                  placeholder="5999"
                 />
               </div>
+            </div>
+            <div>
+              <Label htmlFor="stock_quantity">Stock Quantity</Label>
+              <Input
+                id="stock_quantity"
+                type="number"
+                value={variantForm.stock_quantity}
+                onChange={(e) => setVariantForm(prev => ({ ...prev, stock_quantity: e.target.value }))}
+                placeholder="35"
+              />
             </div>
             <div>
               <Label htmlFor="sku">SKU (Optional)</Label>
@@ -464,7 +479,7 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
                 placeholder="TE-LWP-DRC-2KG"
               />
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>

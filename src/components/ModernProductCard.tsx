@@ -162,9 +162,9 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
   const discountPercentage = getDiscountPercentage();
 
   return (
-    <div className="group relative bg-muted/20 backdrop-blur-sm rounded-xl overflow-hidden hover:bg-muted/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-border/50">
+    <div className="group relative bg-card/80 backdrop-blur-sm rounded-xl overflow-hidden hover:bg-card/90 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl border border-border/30 shadow-lg">
       {/* Image Container */}
-      <div className="relative h-64 overflow-hidden bg-muted/10 flex items-center justify-center p-4">
+      <div className="relative h-64 overflow-hidden bg-muted/5 flex items-center justify-center p-4">
         <Link to={`/product/${product.id}`} className="h-full w-full flex items-center justify-center">
           <img
             src={getVariantImage()}
@@ -209,7 +209,7 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
       <div className="p-4 space-y-4">
         {/* Product Name */}
         <Link to={`/product/${product.id}`}>
-          <h3 className="text-foreground text-lg font-bold line-clamp-2 group-hover:text-primary transition-colors">
+          <h3 className="text-card-foreground text-lg font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight">
             {product.name}
           </h3>
         </Link>
@@ -223,30 +223,32 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
               showText={true}
               size="sm"
             />
-          ) : (
-            <span className="text-muted-foreground text-xs">No reviews yet</span>
-          )}
+           ) : (
+             <span className="text-muted-foreground/70 text-xs">No reviews yet</span>
+           )}
         </div>
 
         {/* Variant Selector */}
         {product.variants.length > 1 && (
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Select Variant</p>
+            <p className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">Variant</p>
             <Select value={selectedVariant.id} onValueChange={handleVariantChange}>
-              <SelectTrigger className="w-full h-8 text-xs bg-background/50 border-border/50">
+              <SelectTrigger className="w-full h-9 text-xs bg-muted/20 border-border/30 hover:bg-muted/30 transition-colors">
                 <SelectValue>
                   {selectedVariant.flavor ? `${selectedVariant.flavor} - ${selectedVariant.size}` : selectedVariant.size}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-background/95 backdrop-blur-md border-border/50">
+              <SelectContent className="bg-card/95 backdrop-blur-md border-border/30 shadow-xl">
                 {product.variants.map((variant) => (
                   <SelectItem 
                     key={variant.id} 
                     value={variant.id}
-                    className="text-xs hover:bg-muted/50"
+                    className="text-xs hover:bg-muted/30 focus:bg-muted/30"
                   >
-                    {variant.flavor ? `${variant.flavor} - ${variant.size}` : variant.size}
-                    <span className="ml-2 text-muted-foreground">₹{variant.price.toFixed(0)}</span>
+                    <div className="flex justify-between items-center w-full">
+                      <span>{variant.flavor ? `${variant.flavor} - ${variant.size}` : variant.size}</span>
+                      <span className="ml-2 text-muted-foreground font-medium">₹{variant.price.toFixed(0)}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -256,18 +258,23 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
 
         {/* Price */}
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-foreground text-xl font-bold">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-card-foreground text-xl font-bold">
               ₹{selectedVariant.price.toFixed(0)}
             </span>
             {selectedVariant?.original_price && selectedVariant.original_price > selectedVariant.price && (
-              <span className="text-muted-foreground text-sm line-through">
+              <span className="text-muted-foreground/70 text-sm line-through">
                 ₹{selectedVariant.original_price.toFixed(0)}
+              </span>
+            )}
+            {discountPercentage > 0 && (
+              <span className="text-green-400 text-xs font-semibold bg-green-400/10 px-2 py-1 rounded-full">
+                {discountPercentage}% OFF
               </span>
             )}
           </div>
           {selectedVariant.stock_quantity <= 10 && selectedVariant.stock_quantity > 0 && (
-            <p className="text-orange-400 text-xs">Only {selectedVariant.stock_quantity} left!</p>
+            <p className="text-orange-400 text-xs font-medium">Only {selectedVariant.stock_quantity} left!</p>
           )}
         </div>
 
@@ -300,7 +307,7 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
               size="sm"
               onClick={handleAddToCart}
               disabled={loading || selectedVariant.stock_quantity === 0}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-1 text-sm font-bold flex-1"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-2 text-sm font-bold flex-1 shadow-lg hover:shadow-xl transition-all"
             >
               <ShoppingCart className="h-3 w-3 mr-1" />
               ADD TO CART
@@ -311,7 +318,7 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
             size="sm"
             onClick={handleQuickBuy}
             variant="outline"
-            className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold"
+            className="border-green-500/70 text-green-500 hover:bg-green-500 hover:text-white px-3 py-2 text-sm font-bold hover:border-green-500 transition-all shadow-md hover:shadow-lg"
           >
             <MessageCircle className="h-3 w-3 mr-1" />
             BUY

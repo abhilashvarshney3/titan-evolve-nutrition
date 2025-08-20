@@ -15,7 +15,7 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
   onVariantChange,
   className
 }) => {
-  // Group variants by flavor if they exist
+  // Group variants by flavor to handle duplicate flavors properly
   const flavorGroups = variants.reduce((groups: { [key: string]: DatabaseProductVariant[] }, variant) => {
     const flavor = variant.flavor || 'Default';
     if (!groups[flavor]) {
@@ -25,8 +25,9 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
     return groups;
   }, {});
 
-  const flavors = Object.keys(flavorGroups);
-  const hasFlavors = flavors.length > 1 || (flavors.length === 1 && flavors[0] !== 'Default');
+  // Remove duplicates by keeping only unique flavor names
+  const uniqueFlavors = Object.keys(flavorGroups);
+  const hasFlavors = uniqueFlavors.length > 1 || (uniqueFlavors.length === 1 && uniqueFlavors[0] !== 'Default');
 
   const handleFlavorChange = (flavor: string): void => {
     const variantsInFlavor = flavorGroups[flavor];
@@ -52,21 +53,21 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
   const uniqueSizes = [...new Set(availableSizes)];
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`space-y-4 ${className}`}>
       {hasFlavors && (
         <div>
-          <label className="text-sm font-medium text-gray-300 block mb-1">Flavor</label>
+          <label className="text-sm font-medium text-muted-foreground block mb-2">Flavor</label>
           <Select
             value={selectedVariant.flavor || 'Default'}
             onValueChange={handleFlavorChange}
           >
-            <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+            <SelectTrigger className="bg-muted/20 border-border/50 text-foreground hover:bg-muted/30 transition-colors">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              {flavors.map(flavor => (
-                <SelectItem key={flavor} value={flavor}>
-                  {flavor}
+            <SelectContent className="bg-card/95 backdrop-blur-md border-border/50 shadow-xl">
+              {uniqueFlavors.map(flavor => (
+                <SelectItem key={flavor} value={flavor} className="hover:bg-muted/30 focus:bg-muted/30">
+                  {flavor === 'Default' ? 'Standard' : flavor}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -76,17 +77,17 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
 
       {uniqueSizes.length > 1 && (
         <div>
-          <label className="text-sm font-medium text-gray-300 block mb-1">Size</label>
+          <label className="text-sm font-medium text-muted-foreground block mb-2">Size</label>
           <Select
             value={selectedVariant.size}
             onValueChange={handleSizeChange}
           >
-            <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+            <SelectTrigger className="bg-muted/20 border-border/50 text-foreground hover:bg-muted/30 transition-colors">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-card/95 backdrop-blur-md border-border/50 shadow-xl">
               {uniqueSizes.map(size => (
-                <SelectItem key={size} value={size}>
+                <SelectItem key={size} value={size} className="hover:bg-muted/30 focus:bg-muted/30">
                   {size}
                 </SelectItem>
               ))}
@@ -95,7 +96,7 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
         </div>
       )}
 
-      <div className="text-xs text-gray-400 space-y-1">
+      <div className="text-xs text-muted-foreground/80 space-y-1 p-2 bg-muted/10 rounded-md">
         <div>Stock: {selectedVariant.stock_quantity} available</div>
         {selectedVariant.sku && <div>SKU: {selectedVariant.sku}</div>}
       </div>

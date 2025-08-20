@@ -27,13 +27,13 @@ const VariantImageSlider: React.FC<VariantImageSliderProps> = ({ images, classNa
   };
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative group ${className}`}>
       {/* Main Image */}
-      <div className="relative overflow-hidden rounded-lg bg-background">
+      <div className="relative overflow-hidden rounded-lg bg-muted/10">
         <img
           src={images[currentIndex]?.imageUrl}
           alt="Product variant"
-          className="w-full h-full object-cover transition-all duration-300"
+          className="w-full h-full object-contain transition-all duration-300"
         />
         
         {/* Navigation Arrows - only show if more than 1 image */}
@@ -41,14 +41,14 @@ const VariantImageSlider: React.FC<VariantImageSliderProps> = ({ images, classNa
           <>
             <button
               onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background text-foreground p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/90 hover:bg-background text-foreground p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
               aria-label="Previous image"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background text-foreground p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/90 hover:bg-background text-foreground p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
               aria-label="Next image"
             >
               <ChevronRight className="w-4 h-4" />

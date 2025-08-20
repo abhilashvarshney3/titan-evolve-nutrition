@@ -13,6 +13,7 @@ import { useProductReviews } from '@/hooks/useProductReviews';
 import ReviewSection from '@/components/ReviewSection';
 import ReviewStars from '@/components/ReviewStars';
 import VariantSelector from '@/components/VariantSelector';
+import VariantImageSlider from '@/components/VariantImageSlider';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -209,25 +210,41 @@ const ProductDetail = () => {
         <section className="py-12">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {/* Product Image */}
+              {/* Product Images */}
               <div className="relative">
-                <div className="aspect-square bg-gray-900 rounded-xl overflow-hidden relative flex items-center justify-center p-8">
-                  <img
-                    src={(() => {
-                      if (selectedVariant) {
-                        const variant = product.variants.find(v => v.id === selectedVariant.id);
-                        const variantImages = variant?.images;
-                        if (variantImages && variantImages.length > 0) {
-                          const primaryImage = variantImages.find(img => img.is_primary);
-                          return primaryImage?.image_url || variantImages[0]?.image_url;
-                        }
+                <div className="aspect-square bg-gray-900 rounded-xl overflow-hidden relative">
+                  {(() => {
+                    if (selectedVariant) {
+                      const variant = product.variants.find(v => v.id === selectedVariant.id);
+                      const variantImages = variant?.images;
+                      if (variantImages && variantImages.length > 0) {
+                        // Use VariantImageSlider for multiple images
+                        return (
+                          <VariantImageSlider 
+                            images={variantImages.map(img => ({ 
+                              id: img.id, 
+                              imageUrl: img.image_url,
+                              isPrimary: img.is_primary,
+                              displayOrder: img.display_order
+                            }))}
+                            className="w-full h-full"
+                          />
+                        );
                       }
-                      return product.image_url || '/placeholder.svg';
-                    })()}
-                    alt={selectedVariant ? selectedVariant.variant_name : product.name}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                  <div className="absolute top-4 left-4 flex flex-col gap-2">
+                    }
+                    // Fallback to single product image
+                    return (
+                      <div className="w-full h-full flex items-center justify-center p-8">
+                        <img
+                          src={product.image_url || '/placeholder.svg'}
+                          alt={product.name}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </div>
+                    );
+                  })()}
+                  
+                  <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
                     {product.is_new && (
                       <Badge className="bg-purple-600 text-white px-3 py-1 text-sm font-bold">
                         NEW
@@ -243,7 +260,7 @@ const ProductDetail = () => {
                   {/* Wishlist Button */}
                   <button 
                     onClick={() => toggleWishlist(product.id, product.name)}
-                    className={`absolute top-4 right-4 p-3 rounded-full transition-all duration-300 hover:scale-110 ${
+                    className={`absolute top-4 right-4 p-3 rounded-full transition-all duration-300 hover:scale-110 z-10 ${
                       isInWishlist(product.id)
                         ? 'bg-red-600 text-white'
                         : 'bg-black/50 text-white hover:bg-purple-600'
