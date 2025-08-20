@@ -52,6 +52,7 @@ export const useProducts = () => {
     try {
       setLoading(true);
       setError(null);
+      console.log('Fetching products...');
 
       // Fetch products with variants and images
       const { data: productsData, error: productsError } = await supabase
@@ -67,15 +68,44 @@ export const useProducts = () => {
 
       if (productsError) throw productsError;
 
-      // Transform the data to match our interface
+      // Transform the data to match our interface and avoid circular references
       const transformedProducts: ProductWithVariantsAndImages[] = (productsData || []).map(product => ({
-        ...product,
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        category_id: product.category_id,
+        stock_quantity: product.stock_quantity,
+        is_featured: product.is_featured,
+        is_new: product.is_new,
+        image_url: product.image_url,
+        sku: product.sku,
+        created_at: product.created_at,
+        updated_at: product.updated_at,
         variants: (product.product_variants || []).map((variant: any) => ({
-          ...variant,
-          images: variant.variant_images || []
+          id: variant.id,
+          product_id: variant.product_id,
+          variant_name: variant.variant_name,
+          flavor: variant.flavor,
+          size: variant.size,
+          price: variant.price,
+          stock_quantity: variant.stock_quantity,
+          sku: variant.sku,
+          is_active: variant.is_active,
+          created_at: variant.created_at,
+          updated_at: variant.updated_at,
+          images: (variant.variant_images || []).map((img: any) => ({
+            id: img.id,
+            variant_id: img.variant_id,
+            image_url: img.image_url,
+            is_primary: img.is_primary,
+            display_order: img.display_order,
+            created_at: img.created_at
+          }))
         }))
       }));
 
+      console.log('Products fetched successfully:', transformedProducts.length);
       setProducts(transformedProducts);
     } catch (err) {
       console.error('Error fetching products:', err);
@@ -90,6 +120,7 @@ export const useProducts = () => {
 
     // Listen for admin updates
     const handleProductsUpdated = () => {
+      console.log('Products updated event received - refetching...');
       fetchProducts();
     };
 
@@ -122,6 +153,7 @@ export const useProduct = (productId: string) => {
     try {
       setLoading(true);
       setError(null);
+      console.log('Fetching product:', productId);
 
       const { data: productData, error: productError } = await supabase
         .from('products')
@@ -139,12 +171,41 @@ export const useProduct = (productId: string) => {
 
       if (productData) {
         const transformedProduct: ProductWithVariantsAndImages = {
-          ...productData,
+          id: productData.id,
+          name: productData.name,
+          description: productData.description,
+          price: productData.price,
+          category_id: productData.category_id,
+          stock_quantity: productData.stock_quantity,
+          is_featured: productData.is_featured,
+          is_new: productData.is_new,
+          image_url: productData.image_url,
+          sku: productData.sku,
+          created_at: productData.created_at,
+          updated_at: productData.updated_at,
           variants: (productData.product_variants || []).map((variant: any) => ({
-            ...variant,
-            images: variant.variant_images || []
+            id: variant.id,
+            product_id: variant.product_id,
+            variant_name: variant.variant_name,
+            flavor: variant.flavor,
+            size: variant.size,
+            price: variant.price,
+            stock_quantity: variant.stock_quantity,
+            sku: variant.sku,
+            is_active: variant.is_active,
+            created_at: variant.created_at,
+            updated_at: variant.updated_at,
+            images: (variant.variant_images || []).map((img: any) => ({
+              id: img.id,
+              variant_id: img.variant_id,
+              image_url: img.image_url,
+              is_primary: img.is_primary,
+              display_order: img.display_order,
+              created_at: img.created_at
+            }))
           }))
         };
+        console.log('Product fetched successfully:', transformedProduct);
         setProduct(transformedProduct);
       }
     } catch (err) {
@@ -160,6 +221,7 @@ export const useProduct = (productId: string) => {
 
     // Listen for admin updates
     const handleProductsUpdated = () => {
+      console.log('Product updated event received - refetching...');
       fetchProduct();
     };
 

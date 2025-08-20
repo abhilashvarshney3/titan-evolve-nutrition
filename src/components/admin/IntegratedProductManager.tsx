@@ -96,6 +96,17 @@ const IntegratedProductManager = () => {
 
   useEffect(() => {
     loadData();
+
+    // Listen for admin updates
+    const handleProductsUpdated = () => {
+      console.log('Admin triggered refresh - reloading data');
+      loadData();
+    };
+
+    window.addEventListener('productsUpdated', handleProductsUpdated);
+    return () => {
+      window.removeEventListener('productsUpdated', handleProductsUpdated);
+    };
   }, []);
 
   const loadData = async () => {
@@ -298,6 +309,8 @@ const IntegratedProductManager = () => {
         if (error) throw error;
         setProductVariants(productVariants.filter(v => v.id !== variantId));
         toast({ title: "Success", description: "Variant deleted successfully" });
+        // Trigger global refresh
+        window.dispatchEvent(new CustomEvent('productsUpdated'));
       } catch (error) {
         console.error('Error deleting variant:', error);
         toast({
@@ -311,6 +324,16 @@ const IntegratedProductManager = () => {
 
   const handleAddVariantImage = async (variantId: string, imageUrl: string) => {
     try {
+      // Check if variant exists - if it's a temp variant, we can't add images yet
+      if (variantId.startsWith('temp-')) {
+        toast({
+          title: "Warning",
+          description: "Please save the product first before adding variant images.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const existingImages = variantImages.filter(img => img.variant_id === variantId);
       const displayOrder = existingImages.length;
       const isPrimary = existingImages.length === 0;
@@ -330,6 +353,9 @@ const IntegratedProductManager = () => {
 
       setVariantImages([...variantImages, data]);
       toast({ title: "Success", description: "Image added successfully" });
+      
+      // Trigger global refresh
+      window.dispatchEvent(new CustomEvent('productsUpdated'));
     } catch (error) {
       console.error('Error adding variant image:', error);
       toast({
@@ -351,6 +377,9 @@ const IntegratedProductManager = () => {
 
       setVariantImages(variantImages.filter(img => img.id !== imageId));
       toast({ title: "Success", description: "Image deleted successfully" });
+      
+      // Trigger global refresh
+      window.dispatchEvent(new CustomEvent('productsUpdated'));
     } catch (error) {
       console.error('Error deleting image:', error);
       toast({
