@@ -140,7 +140,7 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
     e.preventDefault();
     e.stopPropagation();
     const message = `Hi! I want to buy ${selectedVariant.variant_name} - ${product.name} for ₹${selectedVariant.price}`;
-    const whatsappUrl = `https://wa.me/919876543210?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/919211991181?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
