@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useProducts, DatabaseProduct } from '@/hooks/useProducts';
+import CouponSection from '@/components/CouponSection';
 
 interface CartItem {
   id: string;
@@ -42,6 +43,7 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [couponDiscount, setCouponDiscount] = useState(0);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -220,6 +222,7 @@ const Cart = () => {
     const price = item.variant?.price || item.product.price;
     return sum + (price * item.quantity);
   }, 0);
+  const finalTotal = Math.max(0, total - couponDiscount);
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   if (!user) {
@@ -428,14 +431,20 @@ const Cart = () => {
                         <span>₹{total.toFixed(0)}</span>
                       </div>
                       
+                      {/* Coupon Section */}
+                      <CouponSection onCouponApplied={setCouponDiscount} cartTotal={total} />
                       
                       <div className="border-t border-purple-800/30 pt-4">
                         <div className="flex justify-between text-xl font-bold text-white">
                           <span>Total</span>
-                          <span>₹{total.toFixed(0)}</span>
+                          <span>₹{finalTotal.toFixed(0)}</span>
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
-                          
+                          {couponDiscount > 0 && (
+                            <div className="text-green-400">
+                              Coupon discount: -₹{couponDiscount.toFixed(0)}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

@@ -4,49 +4,51 @@ import { Gift, Zap, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
-interface PromotionSettings {
-  enabled: boolean;
+interface Banner {
+  id: string;
   title: string;
-  subtitle: string;
-  buttonText: string;
-  backgroundColor?: string;
+  description?: string;
+  image_url?: string;
+  link_url?: string;
+  button_text?: string;
+  banner_type: string;
+  position: string;
+  is_active: boolean;
+  display_order: number;
+  start_date?: string;
+  end_date?: string;
 }
 
 const PromotionBanner = () => {
-  const [promotionSettings, setPromotionSettings] = useState<PromotionSettings>({
-    enabled: true,
-    title: "50% OFF",
-    subtitle: "Transform your fitness journey with premium supplements at unbeatable prices.",
-    buttonText: "SHOP NOW",
-    backgroundColor: "#7c3aed"
-  });
+  const [banner, setBanner] = useState<Banner | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadPromotionSettings();
+    loadPromotionBanner();
   }, []);
 
-  const loadPromotionSettings = async () => {
+  const loadPromotionBanner = async () => {
     try {
       const { data, error } = await supabase
-        .from('content_settings' as any)
+        .from('banners')
         .select('*')
-        .eq('key', 'promotion_banner')
+        .eq('banner_type', 'promotional')
+        .eq('is_active', true)
+        .eq('position', 'middle')
+        .order('display_order', { ascending: true })
+        .limit(1)
         .single();
 
-      if (error) throw error;
-      if (data && (data as any).value) {
-        setPromotionSettings((data as any).value);
-      }
+      if (error && error.code !== 'PGRST116') throw error;
+      setBanner(data || null);
     } catch (error) {
-      console.error('Error loading promotion settings:', error);
-      // Keep default settings if database fails
+      console.error('Error loading promotion banner:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading || !promotionSettings.enabled) {
+  if (loading || !banner) {
     return null;
   }
 
@@ -62,8 +64,8 @@ const PromotionBanner = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-center space-x-4 mb-6">
               <Gift className="h-12 w-12 text-white animate-bounce" />
-              <h2 className="text-6xl md:text-8xl font-black text-white tracking-tight">
-                {promotionSettings.title}
+            <h2 className="text-6xl md:text-8xl font-black text-white tracking-tight">
+                {banner.title}
               </h2>
               <Gift className="h-12 w-12 text-white animate-bounce" style={{ animationDelay: '0.5s' }} />
             </div>
@@ -73,7 +75,7 @@ const PromotionBanner = () => {
             </h3>
             
             <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-              {promotionSettings.subtitle}
+              {banner.description || "Transform your fitness journey with premium supplements at unbeatable prices."}
             </p>
           </div>
 
@@ -106,12 +108,12 @@ const PromotionBanner = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Link to="/shop">
+            <Link to={banner.link_url || "/shop"}>
               <Button 
                 size="lg" 
                 className="bg-white text-purple-800 hover:bg-gray-100 px-12 py-4 text-xl font-black shadow-2xl hover:scale-105 transition-all duration-300"
               >
-                {promotionSettings.buttonText}
+                {banner.button_text || "SHOP NOW"}
                 <Zap className="ml-2 h-6 w-6" />
               </Button>
             </Link>

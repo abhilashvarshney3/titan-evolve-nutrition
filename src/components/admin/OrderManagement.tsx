@@ -234,7 +234,7 @@ const OrderManagement = () => {
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-background text-foreground border-input">
             <SelectItem value="all">All Orders</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="confirmed">Confirmed</SelectItem>
@@ -296,7 +296,7 @@ const OrderManagement = () => {
                     <SelectTrigger className="w-full mt-1">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background text-foreground border-input">
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="confirmed">Confirmed</SelectItem>
                       <SelectItem value="shipped">Shipped</SelectItem>

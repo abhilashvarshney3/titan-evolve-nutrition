@@ -258,11 +258,11 @@ const UserManagement = () => {
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="customer">Customers</SelectItem>
-            <SelectItem value="admin">Admins</SelectItem>
-          </SelectContent>
+                  <SelectContent className="bg-background text-foreground border-input">
+                    <SelectItem value="all">All Roles</SelectItem>
+                    <SelectItem value="customer">Customers</SelectItem>
+                    <SelectItem value="admin">Admins</SelectItem>
+                  </SelectContent>
         </Select>
       </div>
 
@@ -315,7 +315,7 @@ const UserManagement = () => {
                     <SelectTrigger className="w-full mt-1">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background text-foreground border-input">
                       <SelectItem value="customer">Customer</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
@@ -379,7 +379,7 @@ const UserManagement = () => {
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background text-foreground border-input">
                   <SelectItem value="customer">Customer</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
