@@ -24,6 +24,22 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
   product,
   showVariantSelector = true 
 }) => {
+  // Add debugging
+  console.log('ProductCardWithVariants received product:', product);
+  
+  // Add safety checks for product and variants
+  if (!product) {
+    console.warn('ProductCardWithVariants: product is undefined');
+    return null;
+  }
+  
+  if (!product.variants || product.variants.length === 0) {
+    console.warn('ProductCardWithVariants: product has no variants:', product);
+    return null;
+  }
+
+  console.log('ProductCardWithVariants: product variants:', product.variants);
+
   const [selectedVariant, setSelectedVariant] = useState<DatabaseProductVariant>(
     product.variants[0]
   );
@@ -35,13 +51,22 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
   const { getQuantity, updateQuantity } = useCartQuantityWithVariants();
   const { stats: reviewStats } = useProductReviews(product.id);
 
-  const currentQuantity = getQuantity(product.id, selectedVariant.id);
+  const currentQuantity = selectedVariant ? getQuantity(product.id, selectedVariant.id) : 0;
 
   const handleAddToCart = async () => {
     if (!user) {
       toast({
         title: "Please Sign In",
         description: "You need to be logged in to add items to cart.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!selectedVariant) {
+      toast({
+        title: "Error",
+        description: "Please select a product variant.",
         variant: "destructive"
       });
       return;
@@ -54,7 +79,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
         .eq('user_id', user.id)
         .eq('product_id', product.id)
         .eq('variant_id', selectedVariant.id)
-        .single();
+        .maybeSingle();
 
       if (existingItem) {
         const { error } = await supabase
@@ -96,7 +121,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
   };
 
   const handleIncrementQuantity = async () => {
-    if (!user) return;
+    if (!user || !selectedVariant) return;
 
     try {
       const { data: existingItem } = await supabase
@@ -105,7 +130,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
         .eq('user_id', user.id)
         .eq('product_id', product.id)
         .eq('variant_id', selectedVariant.id)
-        .single();
+        .maybeSingle();
 
       if (existingItem) {
         const { error } = await supabase
@@ -123,7 +148,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
   };
 
   const handleDecrementQuantity = async () => {
-    if (!user || currentQuantity <= 0) return;
+    if (!user || !selectedVariant || currentQuantity <= 0) return;
 
     try {
       const { data: existingItem } = await supabase
@@ -132,7 +157,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
         .eq('user_id', user.id)
         .eq('product_id', product.id)
         .eq('variant_id', selectedVariant.id)
-        .single();
+        .maybeSingle();
 
       if (existingItem) {
         if (existingItem.quantity <= 1) {
@@ -160,6 +185,8 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
   };
 
   const handleQuickBuy = () => {
+    if (!selectedVariant) return;
+    
     const message = `Hi! I want to buy ${selectedVariant.variant_name} - ${product.name} for ₹${selectedVariant.price}`;
     const whatsappUrl = `https://wa.me/919876543210?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -256,10 +283,14 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
 
           {/* Selected Variant Info */}
           <div className="space-y-1">
-            <p className="text-purple-300 text-sm font-medium">{selectedVariant.variant_name}</p>
-            <p className="text-white text-xl font-bold">₹{selectedVariant.price.toFixed(0)}</p>
-            {selectedVariant.stock_quantity <= 10 && selectedVariant.stock_quantity > 0 && (
-              <p className="text-orange-400 text-xs">Only {selectedVariant.stock_quantity} left!</p>
+            {selectedVariant && (
+              <>
+                <p className="text-purple-300 text-sm font-medium">{selectedVariant.variant_name}</p>
+                <p className="text-white text-xl font-bold">₹{selectedVariant.price.toFixed(0)}</p>
+                {selectedVariant.stock_quantity <= 10 && selectedVariant.stock_quantity > 0 && (
+                  <p className="text-orange-400 text-xs">Only {selectedVariant.stock_quantity} left!</p>
+                )}
+              </>
             )}
           </div>
 
@@ -281,7 +312,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
                   size="sm"
                   onClick={handleIncrementQuantity}
                   className="text-white hover:bg-purple-700 px-2"
-                  disabled={currentQuantity >= selectedVariant.stock_quantity}
+                  disabled={!selectedVariant || currentQuantity >= selectedVariant.stock_quantity}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -289,7 +320,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
             ) : (
               <Button
                 onClick={handleAddToCart}
-                disabled={selectedVariant.stock_quantity === 0}
+                disabled={!selectedVariant || selectedVariant.stock_quantity === 0}
                 className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-2 disabled:opacity-50"
               >
                 <ShoppingCart className="mr-1 h-3 w-3" />
@@ -299,7 +330,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
             
             <Button
               onClick={handleQuickBuy}
-              disabled={selectedVariant.stock_quantity === 0}
+              disabled={!selectedVariant || selectedVariant.stock_quantity === 0}
               className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 text-xs disabled:opacity-50"
             >
               BUY
