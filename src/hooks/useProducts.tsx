@@ -29,6 +29,7 @@ export interface DatabaseProductVariant {
   is_active: boolean;
   created_at?: string;
   updated_at?: string;
+  product_details?: string;
 }
 
 export interface DatabaseVariantImage {
@@ -95,6 +96,7 @@ export const useProducts = () => {
           is_active: variant.is_active,
           created_at: variant.created_at,
           updated_at: variant.updated_at,
+          product_details: variant.product_details,
           images: (variant.variant_images || []).map((img: any) => ({
             id: img.id,
             variant_id: img.variant_id,
@@ -197,6 +199,7 @@ export const useProduct = (productId: string) => {
             is_active: variant.is_active,
             created_at: variant.created_at,
             updated_at: variant.updated_at,
+            product_details: variant.product_details,
             images: (variant.variant_images || []).map((img: any) => ({
               id: img.id,
               variant_id: img.variant_id,

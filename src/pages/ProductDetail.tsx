@@ -402,18 +402,19 @@ const ProductDetail = () => {
             <div className="bg-gray-900 rounded-xl p-8">
               <h3 className="text-2xl font-bold text-white mb-6">Product Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <h4 className="text-lg font-bold text-purple-400 mb-4">Product Information</h4>
-                  <div className="space-y-2 text-gray-300">
-                    {selectedVariant?.flavor && <p><strong>Flavor:</strong> {selectedVariant.flavor}</p>}
-                    {selectedVariant && <p><strong>Size:</strong> {selectedVariant.size}</p>}
-                    <p><strong>Stock Status:</strong> {
-                      (selectedVariant?.stock_quantity || product.stock_quantity || 0) > 0 
-                        ? <span className="text-green-400">In Stock</span>
-                        : <span className="text-red-400">Out of Stock</span>
-                    }</p>
-                  </div>
-                </div>
+                 <div>
+                   <h4 className="text-lg font-bold text-purple-400 mb-4">Product Information</h4>
+                   <div className="space-y-2 text-gray-300">
+                     {selectedVariant?.flavor && <p><strong>Flavor:</strong> {selectedVariant.flavor}</p>}
+                     {selectedVariant && <p><strong>Size:</strong> {selectedVariant.size}</p>}
+                     {selectedVariant?.product_details && <p><strong>Details:</strong> {selectedVariant.product_details}</p>}
+                     <p><strong>Stock Status:</strong> {
+                       (selectedVariant?.stock_quantity || product.stock_quantity || 0) > 0 
+                         ? <span className="text-green-400">In Stock</span>
+                         : <span className="text-red-400">Out of Stock</span>
+                     }</p>
+                   </div>
+                 </div>
                 <div>
                   <h4 className="text-lg font-bold text-purple-400 mb-4">Quality Assurance</h4>
                   <ul className="space-y-2 text-gray-300">

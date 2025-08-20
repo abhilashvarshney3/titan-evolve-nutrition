@@ -320,6 +320,7 @@ export type Database = {
           is_active: boolean | null
           original_price: number | null
           price: number
+          product_details: string | null
           product_id: string
           size: string
           sku: string | null
@@ -334,6 +335,7 @@ export type Database = {
           is_active?: boolean | null
           original_price?: number | null
           price: number
+          product_details?: string | null
           product_id: string
           size: string
           sku?: string | null
@@ -348,6 +350,7 @@ export type Database = {
           is_active?: boolean | null
           original_price?: number | null
           price?: number
+          product_details?: string | null
           product_id?: string
           size?: string
           sku?: string | null
