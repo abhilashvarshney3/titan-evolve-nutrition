@@ -7,6 +7,14 @@ export interface ProductVariant {
   stockQuantity: number;
   sku: string;
   isActive: boolean;
+  images?: VariantImage[];
+}
+
+export interface VariantImage {
+  id: string;
+  imageUrl: string;
+  isPrimary: boolean;
+  displayOrder: number;
 }
 
 export interface CentralizedProduct {
@@ -31,7 +39,7 @@ export interface CentralizedProduct {
   };
 }
 
-// Centralized product data with variants - Updated with correct UUIDs
+// Centralized product data with variants - Updated with correct specifications
 export const centralizedProducts: CentralizedProduct[] = [
   {
     id: '550e8400-e29b-41d4-a716-446655440008',
@@ -45,24 +53,48 @@ export const centralizedProducts: CentralizedProduct[] = [
     badge: 'BEST SELLER',
     variants: [
       {
-        id: '550e8400-e29b-41d4-a716-446655440008-variant-1',
-        variantName: 'Double Rich Chocolate 2lbs',
+        id: '550e8400-e29b-41d4-a716-446655440101',
+        variantName: 'Double Rich Chocolate 2KG',
         flavor: 'Double Rich Chocolate',
-        size: '2lbs',
+        size: '2KG',
         price: 4999,
         stockQuantity: 35,
-        sku: 'TE-LWP-DRC-2LBS',
-        isActive: true
+        sku: 'TE-LWP-DRC-2KG',
+        isActive: true,
+        images: [{ id: '1', imageUrl: '/lovable-uploads/e4203b92-71c2-4636-8682-1cc573310fbc.png', isPrimary: true, displayOrder: 0 }]
       },
       {
-        id: '550e8400-e29b-41d4-a716-446655440009-variant-1',
-        variantName: 'American Ice Cream 2lbs',
+        id: '550e8400-e29b-41d4-a716-446655440102',
+        variantName: 'Double Rich Chocolate 4KG',
+        flavor: 'Double Rich Chocolate',
+        size: '4KG',
+        price: 8999,
+        stockQuantity: 20,
+        sku: 'TE-LWP-DRC-4KG',
+        isActive: true,
+        images: [{ id: '2', imageUrl: '/lovable-uploads/e4203b92-71c2-4636-8682-1cc573310fbc.png', isPrimary: true, displayOrder: 0 }]
+      },
+      {
+        id: '550e8400-e29b-41d4-a716-446655440103',
+        variantName: 'American Ice Cream 2KG',
         flavor: 'American Ice Cream',
-        size: '2lbs',
+        size: '2KG',
         price: 4999,
         stockQuantity: 28,
-        sku: 'TE-LWP-AIC-2LBS',
-        isActive: true
+        sku: 'TE-LWP-AIC-2KG',
+        isActive: true,
+        images: [{ id: '3', imageUrl: '/lovable-uploads/e4203b92-71c2-4636-8682-1cc573310fbc.png', isPrimary: true, displayOrder: 0 }]
+      },
+      {
+        id: '550e8400-e29b-41d4-a716-446655440104',
+        variantName: 'American Ice Cream 4KG',
+        flavor: 'American Ice Cream',
+        size: '4KG',
+        price: 8999,
+        stockQuantity: 15,
+        sku: 'TE-LWP-AIC-4KG',
+        isActive: true,
+        images: [{ id: '4', imageUrl: '/lovable-uploads/e4203b92-71c2-4636-8682-1cc573310fbc.png', isPrimary: true, displayOrder: 0 }]
       }
     ],
     details: {
@@ -90,7 +122,7 @@ export const centralizedProducts: CentralizedProduct[] = [
     }
   },
   {
-    id: '550e8400-e29b-41d4-a716-446655440004',
+    id: '550e8400-e29b-41d4-a716-446655440001',
     name: 'Titan Evolve – Mass Gainer',
     description: 'Advanced mass gainer formula with high-quality proteins and carbohydrates to support muscle growth and weight gain.',
     category: 'Mass Gainer',
@@ -101,44 +133,48 @@ export const centralizedProducts: CentralizedProduct[] = [
     badge: 'HIGH PROTEIN',
     variants: [
       {
-        id: '550e8400-e29b-41d4-a716-446655440004-variant-1',
+        id: '550e8400-e29b-41d4-a716-446655440201',
         variantName: 'Double Rich Chocolate 6lbs',
         flavor: 'Double Rich Chocolate',
         size: '6lbs',
         price: 3499,
         stockQuantity: 20,
         sku: 'TE-MG-DRC-6LBS',
-        isActive: true
+        isActive: true,
+        images: [{ id: '5', imageUrl: '/lovable-uploads/a651e1df-5241-402e-ba83-0b47d9206364.png', isPrimary: true, displayOrder: 0 }]
       },
       {
-        id: '550e8400-e29b-41d4-a716-446655440005-variant-1',
+        id: '550e8400-e29b-41d4-a716-446655440202',
         variantName: 'Double Rich Chocolate 10lbs',
         flavor: 'Double Rich Chocolate',
         size: '10lbs',
         price: 4999,
         stockQuantity: 15,
         sku: 'TE-MG-DRC-10LBS',
-        isActive: true
+        isActive: true,
+        images: [{ id: '6', imageUrl: '/lovable-uploads/a651e1df-5241-402e-ba83-0b47d9206364.png', isPrimary: true, displayOrder: 0 }]
       },
       {
-        id: '550e8400-e29b-41d4-a716-446655440006-variant-1',
-        variantName: 'Kesar Pista Delight 6lbs',
-        flavor: 'Kesar Pista Delight',
+        id: '550e8400-e29b-41d4-a716-446655440203',
+        variantName: 'Kesar Pista 6lbs',
+        flavor: 'Kesar Pista',
         size: '6lbs',
         price: 3499,
         stockQuantity: 18,
-        sku: 'TE-MG-KPD-6LBS',
-        isActive: true
+        sku: 'TE-MG-KP-6LBS',
+        isActive: true,
+        images: [{ id: '7', imageUrl: '/lovable-uploads/a651e1df-5241-402e-ba83-0b47d9206364.png', isPrimary: true, displayOrder: 0 }]
       },
       {
-        id: '550e8400-e29b-41d4-a716-446655440007-variant-1',
-        variantName: 'Kesar Pista Delight 10lbs',
-        flavor: 'Kesar Pista Delight',
+        id: '550e8400-e29b-41d4-a716-446655440204',
+        variantName: 'Kesar Pista 10lbs',
+        flavor: 'Kesar Pista',
         size: '10lbs',
         price: 4999,
         stockQuantity: 12,
-        sku: 'TE-MG-KPD-10LBS',
-        isActive: true
+        sku: 'TE-MG-KP-10LBS',
+        isActive: true,
+        images: [{ id: '8', imageUrl: '/lovable-uploads/a651e1df-5241-402e-ba83-0b47d9206364.png', isPrimary: true, displayOrder: 0 }]
       }
     ],
     details: {
@@ -177,24 +213,48 @@ export const centralizedProducts: CentralizedProduct[] = [
     badge: 'ENERGY BOOST',
     variants: [
       {
-        id: '550e8400-e29b-41d4-a716-446655440002-variant-1',
-        variantName: 'Watermelon 250g',
+        id: '550e8400-e29b-41d4-a716-446655440301',
+        variantName: 'Watermelon 30 servings',
         flavor: 'Watermelon',
-        size: '250g',
+        size: '30 servings',
         price: 1750,
         stockQuantity: 30,
-        sku: 'TE-PRE-WM-250',
-        isActive: true
+        sku: 'TE-PRE-WM-30',
+        isActive: true,
+        images: [{ id: '9', imageUrl: '/lovable-uploads/0463eb82-5280-4ac1-bb44-988ac181e84e.png', isPrimary: true, displayOrder: 0 }]
       },
       {
-        id: '550e8400-e29b-41d4-a716-446655440003-variant-1',
-        variantName: 'Bubblegum Burst 250g',
-        flavor: 'Bubblegum Burst',
-        size: '250g',
+        id: '550e8400-e29b-41d4-a716-446655440302',
+        variantName: 'Watermelon 60 servings',
+        flavor: 'Watermelon',
+        size: '60 servings',
+        price: 2999,
+        stockQuantity: 20,
+        sku: 'TE-PRE-WM-60',
+        isActive: true,
+        images: [{ id: '10', imageUrl: '/lovable-uploads/0463eb82-5280-4ac1-bb44-988ac181e84e.png', isPrimary: true, displayOrder: 0 }]
+      },
+      {
+        id: '550e8400-e29b-41d4-a716-446655440303',
+        variantName: 'Bubblegum 30 servings',
+        flavor: 'Bubblegum',
+        size: '30 servings',
         price: 1750,
         stockQuantity: 25,
-        sku: 'TE-PRE-BB-250',
-        isActive: true
+        sku: 'TE-PRE-BB-30',
+        isActive: true,
+        images: [{ id: '11', imageUrl: '/lovable-uploads/0463eb82-5280-4ac1-bb44-988ac181e84e.png', isPrimary: true, displayOrder: 0 }]
+      },
+      {
+        id: '550e8400-e29b-41d4-a716-446655440304',
+        variantName: 'Bubblegum 60 servings',
+        flavor: 'Bubblegum',
+        size: '60 servings',
+        price: 2999,
+        stockQuantity: 18,
+        sku: 'TE-PRE-BB-60',
+        isActive: true,
+        images: [{ id: '12', imageUrl: '/lovable-uploads/0463eb82-5280-4ac1-bb44-988ac181e84e.png', isPrimary: true, displayOrder: 0 }]
       }
     ],
     details: {
@@ -221,7 +281,7 @@ export const centralizedProducts: CentralizedProduct[] = [
     }
   },
   {
-    id: '550e8400-e29b-41d4-a716-446655440001',
+    id: '550e8400-e29b-41d4-a716-446655440003',
     name: 'Titan Evolve – Creatine Monohydrate',
     description: 'Pure creatine monohydrate powder for enhanced strength, power, and muscle volume. Unflavored and easily mixable.',
     category: 'Creatine',
@@ -232,14 +292,26 @@ export const centralizedProducts: CentralizedProduct[] = [
     badge: 'PURE FORMULA',
     variants: [
       {
-        id: '550e8400-e29b-41d4-a716-446655440001-variant-1',
+        id: '550e8400-e29b-41d4-a716-446655440401',
         variantName: 'Unflavored 180g',
         flavor: 'Unflavored',
         size: '180g',
         price: 1199,
         stockQuantity: 50,
         sku: 'TE-CREAT-180',
-        isActive: true
+        isActive: true,
+        images: [{ id: '13', imageUrl: '/lovable-uploads/53024968-45ea-468d-8d9f-f24037b79f25.png', isPrimary: true, displayOrder: 0 }]
+      },
+      {
+        id: '550e8400-e29b-41d4-a716-446655440402',
+        variantName: 'Unflavored 250g',
+        flavor: 'Unflavored',
+        size: '250g',
+        price: 1599,
+        stockQuantity: 35,
+        sku: 'TE-CREAT-250',
+        isActive: true,
+        images: [{ id: '14', imageUrl: '/lovable-uploads/53024968-45ea-468d-8d9f-f24037b79f25.png', isPrimary: true, displayOrder: 0 }]
       }
     ],
     details: {

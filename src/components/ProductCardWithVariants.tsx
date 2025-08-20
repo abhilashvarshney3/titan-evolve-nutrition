@@ -13,6 +13,7 @@ import { useProductReviews } from '@/hooks/useProductReviews';
 import ReviewStars from '@/components/ReviewStars';
 import VariantSelector from '@/components/VariantSelector';
 import { CentralizedProduct, ProductVariant, getDefaultVariant } from '@/data/centralizedProducts';
+import VariantImageSlider from './VariantImageSlider';
 
 interface ProductCardWithVariantsProps {
   product: CentralizedProduct;
@@ -168,13 +169,20 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
     <Card className="group bg-gray-900 border-purple-800/30 hover:border-purple-600 transition-all duration-300 hover:scale-105 relative overflow-hidden">
       <CardContent className="p-0">
         {/* Image Section */}
-        <div className="relative aspect-square overflow-hidden bg-gray-800">
+        <div className="relative aspect-square overflow-hidden bg-gray-800 group">
           <Link to={`/product/${product.id}`}>
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-contain p-4 hover:scale-110 transition-transform duration-500"
-            />
+            {selectedVariant.images && selectedVariant.images.length > 0 ? (
+              <VariantImageSlider 
+                images={selectedVariant.images} 
+                className="h-full w-full"
+              />
+            ) : (
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-contain p-4 hover:scale-110 transition-transform duration-500"
+              />
+            )}
           </Link>
           
           {/* Badges */}

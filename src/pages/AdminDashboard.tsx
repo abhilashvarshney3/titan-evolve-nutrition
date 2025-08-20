@@ -30,6 +30,7 @@ import {
 import CodeUploadSection from '@/components/admin/CodeUploadSection';
 import ReviewManagement from '@/components/admin/ReviewManagement';
 import { getAllProducts, CentralizedProduct } from '@/data/centralizedProducts';
+import ProductVariantManager from '@/components/admin/ProductVariantManager';
 
 interface Product {
   id: string;
@@ -698,69 +699,41 @@ const AdminDashboard = () => {
               </Dialog>
             </div>
 
-            <Card className="bg-gray-900 border-gray-800">
-              <CardContent className="p-6">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-700">
-                        <th className="text-left p-2 text-gray-300">Name</th>
-                        <th className="text-left p-2 text-gray-300">Price</th>
-                        <th className="text-left p-2 text-gray-300">Stock</th>
-                        <th className="text-left p-2 text-gray-300">Status</th>
-                        <th className="text-left p-2 text-gray-300">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {products.map((product) => (
-                        <tr key={product.id} className="border-b border-gray-800">
-                          <td className="p-2">
-                            <div className="flex items-center space-x-3">
-                              <img 
-                                src={product.image_url || '/placeholder.svg'} 
-                                alt={product.name}
-                                className="w-10 h-10 rounded object-cover"
-                              />
-                              <div>
-                                <div className="text-white font-medium">{product.name}</div>
-                                <div className="text-sm text-gray-400">SKU: {product.sku}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="p-2 text-white">₹{product.price}</td>
-                          <td className="p-2 text-white">{product.stock_quantity}</td>
-                          <td className="p-2">
-                            <div className="flex space-x-1">
-                              {product.is_featured && <Badge variant="secondary">Featured</Badge>}
-                              {product.is_new && <Badge variant="outline">New</Badge>}
-                            </div>
-                          </td>
-                          <td className="p-2">
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => editProduct(product)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDeleteProduct(product.id)}
-                                className="text-red-400 hover:text-red-300"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Enhanced Product Management with Variant Support */}
+            <div className="space-y-6">
+              {products.map((product) => (
+                <Card key={product.id} className="bg-gray-900 border-gray-800">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-white">{product.name}</CardTitle>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => editProduct(product)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteProduct(product.id)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <ProductVariantManager 
+                      productId={product.id} 
+                      productName={product.name}
+                    />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Variants Management */}
