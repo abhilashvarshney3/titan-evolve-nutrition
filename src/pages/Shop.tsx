@@ -62,8 +62,16 @@ const Shop = () => {
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(product => {
         // Handle both category_id and name-based filtering
-        return product.category_id === selectedCategory || 
-               product.name.toLowerCase().includes(selectedCategory.replace('-', ' '));
+        const categoryMatch = product.category_id === selectedCategory || 
+               product.name.toLowerCase().includes(selectedCategory.replace('-', ' ').toLowerCase());
+        
+        // Also check if any variant matches the category (for pre-workout)
+        const variantMatch = product.variants.some(variant => 
+          variant.variant_name?.toLowerCase().includes(selectedCategory.replace('-', ' ').toLowerCase()) ||
+          variant.flavor?.toLowerCase().includes(selectedCategory.replace('-', ' ').toLowerCase())
+        );
+        
+        return categoryMatch || variantMatch;
       });
     }
 
@@ -148,7 +156,6 @@ const Shop = () => {
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="bg-gray-900 border border-purple-700 text-white rounded-lg px-2 py-2 text-sm"
                 >
-                  <option value="all">All Categories</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}

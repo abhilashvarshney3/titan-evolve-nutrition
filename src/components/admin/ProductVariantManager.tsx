@@ -486,11 +486,13 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
             </div>
             <div>
               <Label htmlFor="product_details">Product Details (Optional)</Label>
-              <Input
+              <textarea
                 id="product_details"
                 value={variantForm.product_details}
                 onChange={(e) => setVariantForm(prev => ({ ...prev, product_details: e.target.value }))}
-                placeholder="e.g., Whey Protein Isolate, No Added Sugar"
+                placeholder="e.g., Whey Protein Isolate, No Added Sugar, 25g Protein per serving"
+                className="w-full min-h-[80px] px-3 py-2 text-sm border border-input bg-background rounded-md resize-vertical"
+                rows={3}
               />
             </div>
             <div className="flex justify-end gap-2 pt-4">
