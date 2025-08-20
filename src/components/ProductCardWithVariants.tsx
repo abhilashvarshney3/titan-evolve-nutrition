@@ -12,11 +12,11 @@ import { useCartQuantityWithVariants } from '@/hooks/useCartQuantityWithVariants
 import { useProductReviews } from '@/hooks/useProductReviews';
 import ReviewStars from '@/components/ReviewStars';
 import VariantSelector from '@/components/VariantSelector';
-import { CentralizedProduct, ProductVariant, getDefaultVariant } from '@/data/centralizedProducts';
+import { ProductWithVariantsAndImages, DatabaseProductVariant } from '@/hooks/useProducts';
 import VariantImageSlider from './VariantImageSlider';
 
 interface ProductCardWithVariantsProps {
-  product: CentralizedProduct;
+  product: ProductWithVariantsAndImages;
   showVariantSelector?: boolean;
 }
 
@@ -24,8 +24,8 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
   product,
   showVariantSelector = true 
 }) => {
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
-    getDefaultVariant(product.id) || product.variants[0]
+  const [selectedVariant, setSelectedVariant] = useState<DatabaseProductVariant>(
+    product.variants[0]
   );
   const [showVariants, setShowVariants] = useState(false);
   
@@ -81,7 +81,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
       updateQuantity(product.id, selectedVariant.id, currentQuantity + 1);
       toast({
         title: "Added to Cart",
-        description: `${selectedVariant.variantName} added to your cart.`
+        description: `${selectedVariant.variant_name} added to your cart.`
       });
 
       window.dispatchEvent(new CustomEvent('cartUpdated'));
@@ -160,7 +160,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
   };
 
   const handleQuickBuy = () => {
-    const message = `Hi! I want to buy ${selectedVariant.variantName} - ${product.name} for ₹${selectedVariant.price}`;
+    const message = `Hi! I want to buy ${selectedVariant.variant_name} - ${product.name} for ₹${selectedVariant.price}`;
     const whatsappUrl = `https://wa.me/919876543210?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -171,14 +171,14 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
         {/* Image Section */}
         <div className="relative aspect-square overflow-hidden bg-gray-800 group">
           <Link to={`/product/${product.id}`}>
-            {selectedVariant.images && selectedVariant.images.length > 0 ? (
+            {selectedVariant && selectedVariant.images && selectedVariant.images.length > 0 ? (
               <VariantImageSlider 
-                images={selectedVariant.images} 
+                images={selectedVariant.images}
                 className="h-full w-full"
               />
             ) : (
               <img
-                src={product.image}
+                src={product.image_url || '/placeholder.svg'}
                 alt={product.name}
                 className="w-full h-full object-contain p-4 hover:scale-110 transition-transform duration-500"
               />
@@ -187,14 +187,11 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
           
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
-            {product.isNew && (
+            {product.is_new && (
               <Badge className="bg-purple-600 text-white text-xs px-2 py-1">NEW</Badge>
             )}
-            {product.isFeatured && (
+            {product.is_featured && (
               <Badge className="bg-yellow-600 text-black text-xs px-2 py-1">FEATURED</Badge>
-            )}
-            {product.badge && (
-              <Badge className="bg-red-600 text-white text-xs px-2 py-1">{product.badge}</Badge>
             )}
           </div>
 
@@ -219,7 +216,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
             </h3>
           </Link>
 
-          <p className="text-purple-400 text-sm uppercase tracking-wider">{product.category}</p>
+          <p className="text-purple-400 text-sm uppercase tracking-wider">Product</p>
 
           {/* Reviews */}
           {reviewStats && reviewStats.total_reviews > 0 ? (
@@ -258,10 +255,10 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
 
           {/* Selected Variant Info */}
           <div className="space-y-1">
-            <p className="text-purple-300 text-sm font-medium">{selectedVariant.variantName}</p>
+            <p className="text-purple-300 text-sm font-medium">{selectedVariant.variant_name}</p>
             <p className="text-white text-xl font-bold">₹{selectedVariant.price.toFixed(0)}</p>
-            {selectedVariant.stockQuantity <= 10 && selectedVariant.stockQuantity > 0 && (
-              <p className="text-orange-400 text-xs">Only {selectedVariant.stockQuantity} left!</p>
+            {selectedVariant.stock_quantity <= 10 && selectedVariant.stock_quantity > 0 && (
+              <p className="text-orange-400 text-xs">Only {selectedVariant.stock_quantity} left!</p>
             )}
           </div>
 
@@ -283,7 +280,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
                   size="sm"
                   onClick={handleIncrementQuantity}
                   className="text-white hover:bg-purple-700 px-2"
-                  disabled={currentQuantity >= selectedVariant.stockQuantity}
+                  disabled={currentQuantity >= selectedVariant.stock_quantity}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -291,7 +288,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
             ) : (
               <Button
                 onClick={handleAddToCart}
-                disabled={selectedVariant.stockQuantity === 0}
+                disabled={selectedVariant.stock_quantity === 0}
                 className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-2 disabled:opacity-50"
               >
                 <ShoppingCart className="mr-1 h-3 w-3" />
@@ -301,7 +298,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
             
             <Button
               onClick={handleQuickBuy}
-              disabled={selectedVariant.stockQuantity === 0}
+              disabled={selectedVariant.stock_quantity === 0}
               className="bg-green-600 hover:bg-green-700 text-white font-bold px-3 text-xs disabled:opacity-50"
             >
               BUY

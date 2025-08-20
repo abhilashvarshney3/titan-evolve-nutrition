@@ -8,19 +8,20 @@ import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { getProductById } from '@/data/centralizedProducts';
+import { useProducts, DatabaseProduct } from '@/hooks/useProducts';
 
 interface CartItem {
   id: string;
   product_id: string;
+  variant_id?: string;
   quantity: number;
-  products: {
+  product: DatabaseProduct;
+  variant: {
     id: string;
-    name: string;
+    variant_name: string;
     price: number;
-    image_url: string;
     stock_quantity: number;
-  };
+  } | null;
 }
 
 // Updated product images mapping
@@ -44,43 +45,53 @@ const Cart = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { products } = useProducts();
 
   useEffect(() => {
-    if (user) {
+    if (user && products.length > 0) {
       fetchCartItems();
-    } else {
+    } else if (!user) {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, products]);
 
   const fetchCartItems = async () => {
-    if (!user) return;
+    if (!user || products.length === 0) return;
 
     try {
       const { data, error } = await supabase
         .from('cart')
-        .select('*')
+        .select('*, product_variants(*)')
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      // Map cart items with centralized product data and clean up orphaned items
-      const cartItemsWithProducts = [];
+      // Map cart items with database product data and clean up orphaned items
+      const cartItemsWithProducts: CartItem[] = [];
       const orphanedItems = [];
       
       for (const item of data || []) {
-        const product = getProductById(item.product_id);
-        if (product && product.variants.length > 0) {
-          const defaultVariant = product.variants[0];
+        const product = products.find(p => p.id === item.product_id);
+        if (product) {
+          let variant = null;
+          if (item.variant_id) {
+            variant = product.variants.find(v => v.id === item.variant_id) || null;
+          }
+          
+          // If no variant found but product has variants, use first variant
+          if (!variant && product.variants.length > 0) {
+            variant = product.variants[0];
+          }
+
           cartItemsWithProducts.push({
             ...item,
-            products: {
-              id: product.id,
-              name: product.name,
-              price: defaultVariant.price,
-              image_url: product.image,
-              stock_quantity: defaultVariant.stockQuantity
-            }
+            product,
+            variant: variant ? {
+              id: variant.id,
+              variant_name: variant.variant_name,
+              price: variant.price,
+              stock_quantity: variant.stock_quantity
+            } : null
           });
         } else {
           orphanedItems.push(item.id);
@@ -98,7 +109,7 @@ const Cart = () => {
         window.dispatchEvent(new CustomEvent('cartUpdated'));
       }
 
-      setCartItems(cartItemsWithProducts as CartItem[]);
+      setCartItems(cartItemsWithProducts);
     } catch (error) {
       console.error('Error fetching cart items:', error);
       toast({
@@ -181,13 +192,18 @@ const Cart = () => {
     let message = "Hi! I want to place an order for the following items:\n\n";
     
     cartItems.forEach((item, index) => {
-      message += `${index + 1}. ${item.products.name}\n`;
+      const price = item.variant?.price || item.product.price;
+      const variantName = item.variant?.variant_name || 'Default';
+      message += `${index + 1}. ${item.product.name} (${variantName})\n`;
       message += `   Quantity: ${item.quantity}\n`;
-      message += `   Price: ₹${item.products.price.toFixed(0)} each\n`;
-      message += `   Subtotal: ₹${(item.products.price * item.quantity).toFixed(0)}\n\n`;
+      message += `   Price: ₹${price.toFixed(0)} each\n`;
+      message += `   Subtotal: ₹${(price * item.quantity).toFixed(0)}\n\n`;
     });
 
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.products.price * item.quantity), 0);
+    const subtotal = cartItems.reduce((sum, item) => {
+      const price = item.variant?.price || item.product.price;
+      return sum + (price * item.quantity);
+    }, 0);
     
     message += `Subtotal: ₹${subtotal.toFixed(0)}\n`;
     message += `Total Amount: ₹${subtotal.toFixed(0)} (+ shipping)\n\n`;
@@ -200,7 +216,10 @@ const Cart = () => {
     window.open(whatsappUrl, '_blank');
   };
 
-  const total = cartItems.reduce((sum, item) => sum + (item.products.price * item.quantity), 0);
+  const total = cartItems.reduce((sum, item) => {
+    const price = item.variant?.price || item.product.price;
+    return sum + (price * item.quantity);
+  }, 0);
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   if (!user) {
@@ -286,8 +305,8 @@ const Cart = () => {
                       <Link to={`/product/${item.product_id}`} className="flex-shrink-0">
                         <div className="w-full sm:w-24 md:w-32 h-32 sm:h-24 md:h-32 rounded-lg overflow-hidden bg-gray-800">
                           <img
-                            src={item.products.image_url || '/placeholder.svg'}
-                            alt={item.products.name}
+                            src={item.product.image_url || '/placeholder.svg'}
+                            alt={item.product.name}
                             className="w-full h-full object-contain hover:scale-105 transition-transform"
                           />
                         </div>
@@ -297,12 +316,16 @@ const Cart = () => {
                       <div className="flex-1 space-y-3 sm:space-y-2">
                         <Link to={`/product/${item.product_id}`} className="block">
                           <h3 className="text-lg md:text-xl font-bold text-white hover:text-purple-400 transition-colors line-clamp-2">
-                            {item.products.name}
+                            {item.product.name}
                           </h3>
                         </Link>
                         
+                        {item.variant && (
+                          <p className="text-gray-300 text-sm">{item.variant.variant_name}</p>
+                        )}
+                        
                         <p className="text-purple-400 text-xl md:text-2xl font-bold">
-                          ₹{item.products.price.toFixed(0)}
+                          ₹{(item.variant?.price || item.product.price).toFixed(0)}
                         </p>
 
                         {/* Mobile Quantity & Remove */}
@@ -324,7 +347,7 @@ const Cart = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              disabled={updating === item.id || item.quantity >= item.products.stock_quantity}
+                              disabled={updating === item.id || item.quantity >= (item.variant?.stock_quantity || item.product.stock_quantity)}
                               className="h-8 w-8 text-white hover:bg-purple-600"
                             >
                               <Plus className="h-4 w-4" />
@@ -345,7 +368,7 @@ const Cart = () => {
                         {/* Subtotal - Mobile */}
                         <div className="sm:hidden">
                           <p className="text-gray-400 text-sm">
-                            Subtotal: <span className="text-white font-bold">₹{(item.products.price * item.quantity).toFixed(0)}</span>
+                            Subtotal: <span className="text-white font-bold">₹{((item.variant?.price || item.product.price) * item.quantity).toFixed(0)}</span>
                           </p>
                         </div>
                       </div>
@@ -379,7 +402,7 @@ const Cart = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            disabled={updating === item.id || item.quantity >= item.products.stock_quantity}
+                            disabled={updating === item.id || item.quantity >= (item.variant?.stock_quantity || item.product.stock_quantity)}
                             className="h-8 w-8 text-white hover:bg-purple-600"
                           >
                             <Plus className="h-4 w-4" />
@@ -387,7 +410,7 @@ const Cart = () => {
                         </div>
 
                         <p className="text-xl font-bold text-white">
-                          ₹{(item.products.price * item.quantity).toFixed(0)}
+                          ₹{((item.variant?.price || item.product.price) * item.quantity).toFixed(0)}
                         </p>
                       </div>
                     </div>

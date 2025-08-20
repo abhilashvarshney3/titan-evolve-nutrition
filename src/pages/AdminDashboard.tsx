@@ -29,8 +29,8 @@ import {
 } from 'lucide-react';
 import CodeUploadSection from '@/components/admin/CodeUploadSection';
 import ReviewManagement from '@/components/admin/ReviewManagement';
-import { getAllProducts, CentralizedProduct } from '@/data/centralizedProducts';
 import ProductVariantManager from '@/components/admin/ProductVariantManager';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface Product {
   id: string;

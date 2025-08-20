@@ -1,11 +1,11 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ProductVariant } from '@/data/centralizedProducts';
+import { DatabaseProductVariant } from '@/hooks/useProducts';
 
 interface VariantSelectorProps {
-  variants: ProductVariant[];
-  selectedVariant: ProductVariant;
-  onVariantChange: (variant: ProductVariant) => void;
+  variants: DatabaseProductVariant[];
+  selectedVariant: DatabaseProductVariant;
+  onVariantChange: (variant: DatabaseProductVariant) => void;
   className?: string;
 }
 
@@ -13,46 +13,59 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
   variants,
   selectedVariant,
   onVariantChange,
-  className = ""
+  className
 }) => {
-  // Group variants by flavor if flavors exist
-  const hasMultipleFlavors = variants.some(v => v.flavor) && 
-    [...new Set(variants.map(v => v.flavor))].length > 1;
-  
-  const hasSizes = [...new Set(variants.map(v => v.size))].length > 1;
+  // Group variants by flavor if they exist
+  const flavorGroups = variants.reduce((groups: { [key: string]: DatabaseProductVariant[] }, variant) => {
+    const flavor = variant.flavor || 'Default';
+    if (!groups[flavor]) {
+      groups[flavor] = [];
+    }
+    groups[flavor].push(variant);
+    return groups;
+  }, {});
 
-  const flavors = hasMultipleFlavors ? [...new Set(variants.map(v => v.flavor).filter(Boolean))] : [];
-  const sizes = hasSizes ? [...new Set(variants.map(v => v.size))] : [];
+  const flavors = Object.keys(flavorGroups);
+  const hasFlavors = flavors.length > 1 || (flavors.length === 1 && flavors[0] !== 'Default');
 
-  const handleFlavorChange = (flavor: string) => {
-    const newVariant = variants.find(v => v.flavor === flavor && v.size === selectedVariant.size);
-    if (newVariant) {
-      onVariantChange(newVariant);
+  const handleFlavorChange = (flavor: string): void => {
+    const variantsInFlavor = flavorGroups[flavor];
+    if (variantsInFlavor && variantsInFlavor.length > 0) {
+      // Find variant with same size if possible, otherwise take first
+      const sameSize = variantsInFlavor.find(v => v.size === selectedVariant.size);
+      onVariantChange(sameSize || variantsInFlavor[0]);
     }
   };
 
-  const handleSizeChange = (size: string) => {
-    const newVariant = variants.find(v => v.size === size && 
-      (selectedVariant.flavor ? v.flavor === selectedVariant.flavor : true));
-    if (newVariant) {
-      onVariantChange(newVariant);
+  const handleSizeChange = (size: string): void => {
+    const currentFlavor = selectedVariant.flavor || 'Default';
+    const variantsInFlavor = flavorGroups[currentFlavor];
+    const variantWithSize = variantsInFlavor?.find(v => v.size === size);
+    if (variantWithSize) {
+      onVariantChange(variantWithSize);
     }
   };
+
+  // Get available sizes for current flavor
+  const currentFlavor = selectedVariant.flavor || 'Default';
+  const availableSizes = flavorGroups[currentFlavor]?.map(v => v.size) || [];
+  const uniqueSizes = [...new Set(availableSizes)];
 
   return (
     <div className={`space-y-3 ${className}`}>
-      {hasMultipleFlavors && (
+      {hasFlavors && (
         <div>
-          <label className="text-sm font-medium text-gray-300 mb-1 block">
-            Flavor
-          </label>
-          <Select value={selectedVariant.flavor || ''} onValueChange={handleFlavorChange}>
-            <SelectTrigger className="bg-gray-800 border-purple-600 text-white">
-              <SelectValue placeholder="Select flavor" />
+          <label className="text-sm font-medium text-gray-300 block mb-1">Flavor</label>
+          <Select
+            value={selectedVariant.flavor || 'Default'}
+            onValueChange={handleFlavorChange}
+          >
+            <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-purple-600">
-              {flavors.map((flavor) => (
-                <SelectItem key={flavor} value={flavor} className="text-white hover:bg-purple-600">
+            <SelectContent>
+              {flavors.map(flavor => (
+                <SelectItem key={flavor} value={flavor}>
                   {flavor}
                 </SelectItem>
               ))}
@@ -61,18 +74,19 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
         </div>
       )}
 
-      {hasSizes && (
+      {uniqueSizes.length > 1 && (
         <div>
-          <label className="text-sm font-medium text-gray-300 mb-1 block">
-            Size
-          </label>
-          <Select value={selectedVariant.size} onValueChange={handleSizeChange}>
-            <SelectTrigger className="bg-gray-800 border-purple-600 text-white">
-              <SelectValue placeholder="Select size" />
+          <label className="text-sm font-medium text-gray-300 block mb-1">Size</label>
+          <Select
+            value={selectedVariant.size}
+            onValueChange={handleSizeChange}
+          >
+            <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-purple-600">
-              {sizes.map((size) => (
-                <SelectItem key={size} value={size} className="text-white hover:bg-purple-600">
+            <SelectContent>
+              {uniqueSizes.map(size => (
+                <SelectItem key={size} value={size}>
                   {size}
                 </SelectItem>
               ))}
@@ -81,9 +95,9 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
         </div>
       )}
 
-      <div className="text-sm text-gray-400">
-        <p>Stock: {selectedVariant.stockQuantity} available</p>
-        <p>SKU: {selectedVariant.sku}</p>
+      <div className="text-xs text-gray-400 space-y-1">
+        <div>Stock: {selectedVariant.stock_quantity} available</div>
+        {selectedVariant.sku && <div>SKU: {selectedVariant.sku}</div>}
       </div>
     </div>
   );

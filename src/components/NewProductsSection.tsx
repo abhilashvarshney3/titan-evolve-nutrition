@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getNewProducts, CentralizedProduct } from '@/data/centralizedProducts';
+import { useProducts, ProductWithVariantsAndImages } from '@/hooks/useProducts';
 import ProductCardWithVariants from '@/components/ProductCardWithVariants';
 
 const NewProductsSection = () => {
@@ -84,14 +84,20 @@ const NewProductsSection = () => {
             className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-6"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {products.map((product) => (
-              <div key={product.id} className="flex-shrink-0 w-64 sm:w-72 md:w-80">
-                <ProductCardWithVariants
-                  product={product}
-                  showVariantSelector={false}
-                />
-              </div>
-            ))}
+            {loading ? (
+              <div className="text-center text-white">Loading...</div>
+            ) : newProducts.length === 0 ? (
+              <div className="text-center text-white">No new products available</div>
+            ) : (
+              newProducts.map((product) => (
+                <div key={product.id} className="flex-shrink-0 w-64 sm:w-72 md:w-80">
+                  <ProductCardWithVariants
+                    product={product}
+                    showVariantSelector={false}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </div>
 

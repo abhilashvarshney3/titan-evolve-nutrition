@@ -4,20 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import Layout from '@/components/Layout';
-import { getAllProducts, CentralizedProduct } from '@/data/centralizedProducts';
+import { useProducts, ProductWithVariantsAndImages } from '@/hooks/useProducts';
 import ProductCardWithVariants from '@/components/ProductCardWithVariants';
 
 const Shop = () => {
+  const { products, loading } = useProducts();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState<CentralizedProduct[]>([]);
-  const [categories] = useState([
-    { id: 'all', name: 'All Categories', description: 'All products' },
-    { id: 'protein', name: 'Protein', description: 'Protein supplements' },
-    { id: 'mass-gainer', name: 'Mass Gainer', description: 'Mass gaining supplements' },
-    { id: 'pre-workout', name: 'Pre-Workout', description: 'Pre-workout supplements' },
-    { id: 'creatine', name: 'Creatine', description: 'Creatine supplements' }
-  ]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [priceRange, setPriceRange] = useState('all');
@@ -38,21 +30,6 @@ const Shop = () => {
     { id: 'featured', name: 'Featured' }
   ];
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  const loadProducts = () => {
-    try {
-      const allProducts = getAllProducts();
-      setProducts(allProducts);
-    } catch (error) {
-      console.error('Error loading products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const filterProducts = () => {
     let filtered = [...products];
 
@@ -67,7 +44,7 @@ const Shop = () => {
     // Category filter
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(product =>
-        product.categoryId === selectedCategory
+        product.category_id === selectedCategory
       );
     }
 
@@ -75,7 +52,7 @@ const Shop = () => {
     if (priceRange !== 'all') {
       const [min, max] = priceRange.split('-').map(p => p === '+' ? Infinity : parseInt(p.replace('+', '')));
       filtered = filtered.filter(product => {
-        const defaultPrice = product.variants[0]?.price || 0;
+        const defaultPrice = product.variants[0]?.price || product.price || 0;
         if (max === undefined || max === Infinity) return defaultPrice >= min;
         return defaultPrice >= min && defaultPrice <= max;
       });
@@ -85,11 +62,11 @@ const Shop = () => {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'price-low':
-          return (a.variants[0]?.price || 0) - (b.variants[0]?.price || 0);
+          return (a.variants[0]?.price || a.price || 0) - (b.variants[0]?.price || b.price || 0);
         case 'price-high':
-          return (b.variants[0]?.price || 0) - (a.variants[0]?.price || 0);
+          return (b.variants[0]?.price || b.price || 0) - (a.variants[0]?.price || a.price || 0);
         case 'featured':
-          return b.isFeatured ? 1 : -1;
+          return b.is_featured ? 1 : -1;
         default:
           return a.name.localeCompare(b.name);
       }
@@ -207,19 +184,7 @@ const Shop = () => {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
                 <p className="mt-4 text-gray-400">Loading products...</p>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {filteredProducts.map((product) => (
-                  <ProductCardWithVariants
-                    key={product.id}
-                    product={product}
-                    showVariantSelector={true}
-                  />
-                ))}
-              </div>
-            )}
-
-            {!loading && filteredProducts.length === 0 && (
+            ) : filteredProducts.length === 0 ? (
               <div className="text-center py-20">
                 <h3 className="text-2xl font-bold text-white mb-4">No products found</h3>
                 <p className="text-gray-400 mb-8">Try adjusting your filters or search terms.</p>
@@ -229,6 +194,16 @@ const Shop = () => {
                 >
                   Reset Filters
                 </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {filteredProducts.map((product) => (
+                  <ProductCardWithVariants
+                    key={product.id}
+                    product={product}
+                    showVariantSelector={true}
+                  />
+                ))}
               </div>
             )}
           </div>
