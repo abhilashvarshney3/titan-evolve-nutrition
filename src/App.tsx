@@ -44,7 +44,9 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/auth" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin369369" element={<AdminDashboard />} />
             <Route path="/verification-success" element={<VerificationSuccess />} />
             <Route path="/faq" element={<FAQ />} />
