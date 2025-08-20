@@ -171,14 +171,15 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
         {/* Image Section */}
         <div className="relative aspect-square overflow-hidden bg-gray-800 group">
           <Link to={`/product/${product.id}`}>
-            {selectedVariant && selectedVariant.images && selectedVariant.images.length > 0 ? (
-              <VariantImageSlider 
-                images={selectedVariant.images}
-                className="h-full w-full"
+            {product.image_url ? (
+              <img
+                src={product.image_url}
+                alt={product.name}
+                className="w-full h-full object-contain p-4 hover:scale-110 transition-transform duration-500"
               />
             ) : (
               <img
-                src={product.image_url || '/placeholder.svg'}
+                src="/placeholder.svg"
                 alt={product.name}
                 className="w-full h-full object-contain p-4 hover:scale-110 transition-transform duration-500"
               />

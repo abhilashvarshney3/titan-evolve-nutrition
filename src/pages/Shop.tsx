@@ -15,6 +15,15 @@ const Shop = () => {
   const [priceRange, setPriceRange] = useState('all');
   const [sortBy, setSortBy] = useState('name');
 
+  // Define categories
+  const categories = [
+    { id: 'all', name: 'All Categories' },
+    { id: 'protein', name: 'Protein' },
+    { id: 'mass-gainer', name: 'Mass Gainer' },
+    { id: 'pre-workout', name: 'Pre-Workout' },
+    { id: 'creatine', name: 'Creatine' }
+  ];
+
   const priceRanges = [
     { id: 'all', name: 'All Prices' },
     { id: '0-2000', name: '₹0 - ₹2,000' },

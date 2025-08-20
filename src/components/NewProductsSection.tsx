@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -6,25 +6,9 @@ import { useProducts, ProductWithVariantsAndImages } from '@/hooks/useProducts';
 import ProductCardWithVariants from '@/components/ProductCardWithVariants';
 
 const NewProductsSection = () => {
-  const [products, setProducts] = useState<CentralizedProduct[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { products, loading } = useProducts();
+  const newProducts = products.filter(product => product.is_new);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    loadNewProducts();
-  }, []);
-
-  const loadNewProducts = async () => {
-    try {
-      // Get new products from centralized data
-      const newProducts = getNewProducts();
-      setProducts(newProducts);
-    } catch (error) {
-      console.error('Error loading new products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -38,7 +22,20 @@ const NewProductsSection = () => {
     }
   };
 
-  if (loading || products.length === 0) {
+  if (loading) {
+    return (
+      <section className="py-20 bg-gradient-to-b from-black to-purple-900/20">
+        <div className="container mx-auto px-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+            <p className="mt-4 text-gray-400">Loading new products...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (newProducts.length === 0) {
     return null;
   }
 
@@ -53,7 +50,7 @@ const NewProductsSection = () => {
             </h2>
           </div>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Explore our most advanced supplements, freshly engineered for hardcore results
+            Explore our most advanced supplements, freshly engineered for hardcore results
           </p>
         </div>
 
@@ -84,20 +81,14 @@ const NewProductsSection = () => {
             className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-6"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {loading ? (
-              <div className="text-center text-white">Loading...</div>
-            ) : newProducts.length === 0 ? (
-              <div className="text-center text-white">No new products available</div>
-            ) : (
-              newProducts.map((product) => (
-                <div key={product.id} className="flex-shrink-0 w-64 sm:w-72 md:w-80">
-                  <ProductCardWithVariants
-                    product={product}
-                    showVariantSelector={false}
-                  />
-                </div>
-              ))
-            )}
+            {newProducts.map((product: ProductWithVariantsAndImages) => (
+              <div key={product.id} className="flex-shrink-0 w-64 sm:w-72 md:w-80">
+                <ProductCardWithVariants
+                  product={product}
+                  showVariantSelector={false}
+                />
+              </div>
+            ))}
           </div>
         </div>
 

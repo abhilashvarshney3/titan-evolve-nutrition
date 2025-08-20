@@ -659,13 +659,14 @@ const AdminDashboard = () => {
                       />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="image" className="text-right text-gray-300">Image URL</Label>
-                      <Input
-                        id="image"
-                        value={productForm.image_url}
-                        onChange={(e) => setProductForm({...productForm, image_url: e.target.value})}
-                        className="col-span-3 bg-gray-800 border-gray-600 text-white"
-                      />
+                      <Label htmlFor="image" className="text-right text-gray-300">Product Image</Label>
+                      <div className="col-span-3">
+                        <ImageUpload
+                          currentImage={productForm.image_url}
+                          onImageUploaded={(url) => setProductForm({ ...productForm, image_url: url })}
+                          folder="products"
+                        />
+                      </div>
                     </div>
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-2">
