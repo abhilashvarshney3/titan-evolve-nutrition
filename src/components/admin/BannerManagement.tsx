@@ -200,65 +200,70 @@ const BannerManagement = () => {
               <DialogTitle>{selectedBanner ? 'Edit Banner' : 'Add New Banner'}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-1 gap-2">
-                <Label htmlFor="title">Title</Label>
+              <div>
+                <Label htmlFor="setting_key" className="text-foreground">Setting Key</Label>
                 <Input
-                  id="title"
+                  id="setting_key"
                   value={bannerForm.title}
                   onChange={(e) => setBannerForm(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Banner title"
+                  className="bg-background text-foreground border-input"
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-2">
-                <Label htmlFor="description">Description</Label>
+              <div>
+                <Label htmlFor="description" className="text-foreground">Description</Label>
                 <Textarea
                   id="description"
                   value={bannerForm.description}
                   onChange={(e) => setBannerForm(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Banner description"
+                  className="bg-background text-foreground border-input"
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-2">
-                <Label htmlFor="image_url">Image URL</Label>
+              <div>
+                <Label htmlFor="image_url" className="text-foreground">Image URL</Label>
                 <Input
                   id="image_url"
                   value={bannerForm.image_url}
                   onChange={(e) => setBannerForm(prev => ({ ...prev, image_url: e.target.value }))}
                   placeholder="https://example.com/image.jpg"
+                  className="bg-background text-foreground border-input"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="link_url">Link URL</Label>
+                <div>
+                  <Label htmlFor="link_url" className="text-foreground">Link URL</Label>
                   <Input
                     id="link_url"
                     value={bannerForm.link_url}
                     onChange={(e) => setBannerForm(prev => ({ ...prev, link_url: e.target.value }))}
                     placeholder="https://example.com"
+                    className="bg-background text-foreground border-input"
                   />
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="button_text">Button Text</Label>
+                <div>
+                  <Label htmlFor="button_text" className="text-foreground">Button Text</Label>
                   <Input
                     id="button_text"
                     value={bannerForm.button_text}
                     onChange={(e) => setBannerForm(prev => ({ ...prev, button_text: e.target.value }))}
                     placeholder="Learn More"
+                    className="bg-background text-foreground border-input"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="banner_type">Banner Type</Label>
+                <div>
+                  <Label htmlFor="banner_type" className="text-foreground">Banner Type</Label>
                   <Select value={bannerForm.banner_type} onValueChange={(value) => setBannerForm(prev => ({ ...prev, banner_type: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-background text-foreground border-input">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background text-foreground border-input">
                       <SelectItem value="promotional">Promotional</SelectItem>
                       <SelectItem value="hero">Hero</SelectItem>
                       <SelectItem value="announcement">Announcement</SelectItem>
@@ -267,13 +272,13 @@ const BannerManagement = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="position">Position</Label>
+                <div>
+                  <Label htmlFor="position" className="text-foreground">Position</Label>
                   <Select value={bannerForm.position} onValueChange={(value) => setBannerForm(prev => ({ ...prev, position: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-background text-foreground border-input">
                       <SelectValue placeholder="Select position" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background text-foreground border-input">
                       <SelectItem value="top">Top</SelectItem>
                       <SelectItem value="middle">Middle</SelectItem>
                       <SelectItem value="bottom">Bottom</SelectItem>
@@ -284,35 +289,38 @@ const BannerManagement = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="start_date">Start Date</Label>
+                <div>
+                  <Label htmlFor="start_date" className="text-foreground">Start Date</Label>
                   <Input
                     id="start_date"
                     type="date"
                     value={bannerForm.start_date}
                     onChange={(e) => setBannerForm(prev => ({ ...prev, start_date: e.target.value }))}
+                    className="bg-background text-foreground border-input"
                   />
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="end_date">End Date</Label>
+                <div>
+                  <Label htmlFor="end_date" className="text-foreground">End Date</Label>
                   <Input
                     id="end_date"
                     type="date"
                     value={bannerForm.end_date}
                     onChange={(e) => setBannerForm(prev => ({ ...prev, end_date: e.target.value }))}
+                    className="bg-background text-foreground border-input"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="display_order">Display Order</Label>
+                <div>
+                  <Label htmlFor="display_order" className="text-foreground">Display Order</Label>
                   <Input
                     id="display_order"
                     type="number"
                     value={bannerForm.display_order}
                     onChange={(e) => setBannerForm(prev => ({ ...prev, display_order: parseInt(e.target.value) || 0 }))}
                     placeholder="0"
+                    className="bg-background text-foreground border-input"
                   />
                 </div>
                 <div className="flex items-center space-x-2 mt-6">
@@ -321,7 +329,7 @@ const BannerManagement = () => {
                     checked={bannerForm.is_active}
                     onCheckedChange={(checked) => setBannerForm(prev => ({ ...prev, is_active: checked }))}
                   />
-                  <Label htmlFor="is_active">Active</Label>
+                  <Label htmlFor="is_active" className="text-foreground">Active</Label>
                 </div>
               </div>
             </div>

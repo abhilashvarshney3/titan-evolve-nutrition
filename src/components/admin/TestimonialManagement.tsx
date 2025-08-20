@@ -206,7 +206,7 @@ const TestimonialManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Testimonial Management</h2>
+        <h2 className="text-2xl font-bold text-foreground">Testimonial Management</h2>
         <Button onClick={createNewTestimonial}>
           <Plus className="w-4 h-4 mr-2" />
           Add Testimonial
@@ -215,7 +215,7 @@ const TestimonialManagement = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="bg-card text-foreground">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Testimonials</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
@@ -225,7 +225,7 @@ const TestimonialManagement = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card text-foreground">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
@@ -235,7 +235,7 @@ const TestimonialManagement = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card text-foreground">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
@@ -254,7 +254,7 @@ const TestimonialManagement = () => {
       {/* Testimonials List */}
       <div className="grid gap-4">
         {testimonials.map((testimonial) => (
-          <Card key={testimonial.id}>
+          <Card key={testimonial.id} className="bg-card text-foreground">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
@@ -267,9 +267,9 @@ const TestimonialManagement = () => {
                       />
                     )}
                     <div>
-                      <CardTitle className="text-base">{testimonial.name}</CardTitle>
+                      <CardTitle className="text-base text-foreground">{testimonial.name}</CardTitle>
                       {testimonial.role && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           {testimonial.role}
                           {testimonial.company && ` at ${testimonial.company}`}
                         </p>
@@ -309,8 +309,8 @@ const TestimonialManagement = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-700 italic">"{testimonial.content}"</p>
-              <div className="flex justify-between items-center mt-3 text-xs text-gray-500">
+              <p className="text-sm text-muted-foreground italic">"{testimonial.content}"</p>
+              <div className="flex justify-between items-center mt-3 text-xs text-muted-foreground">
                 <span>Display Order: {testimonial.display_order}</span>
                 <span>Added: {new Date(testimonial.created_at).toLocaleDateString()}</span>
               </div>
@@ -321,47 +321,50 @@ const TestimonialManagement = () => {
 
       {/* Testimonial Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-background text-foreground">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-foreground">
               {selectedTestimonial ? 'Edit Testimonial' : 'Create New Testimonial'}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name" className="text-foreground">Name *</Label>
               <Input
                 id="name"
                 value={testimonialForm.name}
                 onChange={(e) => setTestimonialForm({...testimonialForm, name: e.target.value})}
                 placeholder="Customer name"
                 required
+                className="bg-background text-foreground border-input"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role" className="text-foreground">Role</Label>
                 <Input
                   id="role"
                   value={testimonialForm.role}
                   onChange={(e) => setTestimonialForm({...testimonialForm, role: e.target.value})}
                   placeholder="Job title"
+                  className="bg-background text-foreground border-input"
                 />
               </div>
               <div>
-                <Label htmlFor="company">Company</Label>
+                <Label htmlFor="company" className="text-foreground">Company</Label>
                 <Input
                   id="company"
                   value={testimonialForm.company}
                   onChange={(e) => setTestimonialForm({...testimonialForm, company: e.target.value})}
                   placeholder="Company name"
+                  className="bg-background text-foreground border-input"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="content">Testimonial Content *</Label>
+              <Label htmlFor="content" className="text-foreground">Testimonial Content *</Label>
               <Textarea
                 id="content"
                 value={testimonialForm.content}
@@ -369,11 +372,12 @@ const TestimonialManagement = () => {
                 placeholder="The testimonial text..."
                 rows={4}
                 required
+                className="bg-background text-foreground border-input"
               />
             </div>
 
             <div>
-              <Label htmlFor="rating">Rating (1-5)</Label>
+              <Label htmlFor="rating" className="text-foreground">Rating (1-5)</Label>
               <Input
                 id="rating"
                 type="number"
@@ -382,27 +386,30 @@ const TestimonialManagement = () => {
                 value={testimonialForm.rating}
                 onChange={(e) => setTestimonialForm({...testimonialForm, rating: parseInt(e.target.value)})}
                 required
+                className="bg-background text-foreground border-input"
               />
             </div>
 
             <div>
-              <Label htmlFor="image_url">Image URL</Label>
+              <Label htmlFor="image_url" className="text-foreground">Image URL</Label>
               <Input
                 id="image_url"
                 value={testimonialForm.image_url}
                 onChange={(e) => setTestimonialForm({...testimonialForm, image_url: e.target.value})}
                 placeholder="https://example.com/image.jpg"
+                className="bg-background text-foreground border-input"
               />
             </div>
 
             <div>
-              <Label htmlFor="display_order">Display Order</Label>
+              <Label htmlFor="display_order" className="text-foreground">Display Order</Label>
               <Input
                 id="display_order"
                 type="number"
                 value={testimonialForm.display_order}
                 onChange={(e) => setTestimonialForm({...testimonialForm, display_order: parseInt(e.target.value)})}
                 placeholder="0"
+                className="bg-background text-foreground border-input"
               />
             </div>
 
@@ -412,7 +419,7 @@ const TestimonialManagement = () => {
                 checked={testimonialForm.is_active}
                 onCheckedChange={(checked) => setTestimonialForm({...testimonialForm, is_active: checked})}
               />
-              <Label htmlFor="is_active">Active</Label>
+              <Label htmlFor="is_active" className="text-foreground">Active</Label>
             </div>
 
             <div className="flex justify-end gap-2 pt-4">

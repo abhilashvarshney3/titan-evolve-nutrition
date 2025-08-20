@@ -5,11 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { FileText, Edit, Plus, Save } from 'lucide-react';
+import { Edit, Save, Plus, Trash2 } from 'lucide-react';
 
 interface SiteSetting {
   id: string;
@@ -26,6 +24,8 @@ const ContentManagement = () => {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedSetting, setSelectedSetting] = useState<SiteSetting | null>(null);
+  const { toast } = useToast();
+
   const [settingForm, setSettingForm] = useState({
     setting_key: '',
     setting_value: '',
@@ -34,44 +34,6 @@ const ContentManagement = () => {
     description: '',
     is_public: true
   });
-  const { toast } = useToast();
-
-  // Pre-defined content categories and their settings
-  const contentCategories = {
-    hero: [
-      { key: 'hero_title', label: 'Hero Title', type: 'text', description: 'Main title on homepage' },
-      { key: 'hero_subtitle', label: 'Hero Subtitle', type: 'text', description: 'Subtitle below main title' },
-      { key: 'hero_description', label: 'Hero Description', type: 'text', description: 'Description text on hero section' },
-      { key: 'hero_button_text', label: 'Button Text', type: 'text', description: 'Text for CTA button' },
-      { key: 'hero_background_image', label: 'Background Image', type: 'image', description: 'Hero background image URL' }
-    ],
-    about: [
-      { key: 'about_vision', label: 'Company Vision', type: 'text', description: 'Vision statement on about page' },
-      { key: 'about_mission', label: 'Company Mission', type: 'text', description: 'Mission statement' },
-      { key: 'about_story', label: 'Company Story', type: 'text', description: 'Company story/background' },
-      { key: 'about_values', label: 'Company Values', type: 'json', description: 'List of company values (JSON array)' }
-    ],
-    contact: [
-      { key: 'contact_email', label: 'Contact Email', type: 'text', description: 'Primary contact email' },
-      { key: 'contact_phone', label: 'Contact Phone', type: 'text', description: 'Primary contact phone' },
-      { key: 'contact_address', label: 'Contact Address', type: 'text', description: 'Physical address' },
-      { key: 'contact_hours', label: 'Business Hours', type: 'text', description: 'Business operating hours' },
-      { key: 'contact_map_url', label: 'Google Maps URL', type: 'url', description: 'Google Maps embed URL' }
-    ],
-    general: [
-      { key: 'site_name', label: 'Site Name', type: 'text', description: 'Website name' },
-      { key: 'site_tagline', label: 'Site Tagline', type: 'text', description: 'Website tagline' },
-      { key: 'shipping_info', label: 'Shipping Info', type: 'text', description: 'Shipping information text' },
-      { key: 'return_policy', label: 'Return Policy', type: 'text', description: 'Return policy text' },
-      { key: 'support_email', label: 'Support Email', type: 'text', description: 'Customer support email' }
-    ],
-    social: [
-      { key: 'facebook_url', label: 'Facebook URL', type: 'url', description: 'Facebook page URL' },
-      { key: 'instagram_url', label: 'Instagram URL', type: 'url', description: 'Instagram profile URL' },
-      { key: 'twitter_url', label: 'Twitter URL', type: 'url', description: 'Twitter profile URL' },
-      { key: 'youtube_url', label: 'YouTube URL', type: 'url', description: 'YouTube channel URL' }
-    ]
-  };
 
   useEffect(() => {
     fetchSettings();
@@ -80,20 +42,18 @@ const ContentManagement = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      
-      const { data: settingsData, error: settingsError } = await supabase
+      const { data, error } = await supabase
         .from('site_settings')
         .select('*')
         .order('category', { ascending: true });
 
-      if (settingsError) throw settingsError;
-      setSettings(settingsData || []);
-
+      if (error) throw error;
+      setSettings(data || []);
     } catch (error) {
       console.error('Error fetching settings:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch settings",
+        description: "Failed to fetch site settings",
         variant: "destructive"
       });
     } finally {
@@ -101,13 +61,16 @@ const ContentManagement = () => {
     }
   };
 
-  const saveSetting = async () => {
+  const handleSaveSetting = async () => {
     try {
       let value;
       try {
-        // Try to parse as JSON for complex values
         if (settingForm.setting_type === 'json') {
           value = JSON.parse(settingForm.setting_value);
+        } else if (settingForm.setting_type === 'number') {
+          value = parseFloat(settingForm.setting_value);
+        } else if (settingForm.setting_type === 'boolean') {
+          value = settingForm.setting_value === 'true';
         } else {
           value = settingForm.setting_value;
         }
@@ -117,20 +80,18 @@ const ContentManagement = () => {
 
       const settingData = {
         ...settingForm,
-        setting_value: JSON.stringify(value)
+        setting_value: value
       };
 
       if (selectedSetting) {
-        // Update existing setting
         const { error } = await supabase
           .from('site_settings')
-          .update(settingData)
+          .update({ ...settingData, updated_at: new Date().toISOString() })
           .eq('id', selectedSetting.id);
 
         if (error) throw error;
         toast({ title: "Success", description: "Setting updated successfully" });
       } else {
-        // Create new setting
         const { error } = await supabase
           .from('site_settings')
           .insert([settingData]);
@@ -141,7 +102,7 @@ const ContentManagement = () => {
 
       setIsDialogOpen(false);
       setSelectedSetting(null);
-      resetForm();
+      resetSettingForm();
       fetchSettings();
     } catch (error) {
       console.error('Error saving setting:', error);
@@ -153,13 +114,35 @@ const ContentManagement = () => {
     }
   };
 
+  const handleDeleteSetting = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this setting?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('site_settings')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast({ title: "Success", description: "Setting deleted successfully" });
+      fetchSettings();
+    } catch (error) {
+      console.error('Error deleting setting:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete setting",
+        variant: "destructive"
+      });
+    }
+  };
+
   const editSetting = (setting: SiteSetting) => {
     setSelectedSetting(setting);
     setSettingForm({
       setting_key: setting.setting_key,
-      setting_value: typeof setting.setting_value === 'string' ? 
-        setting.setting_value.replace(/^"|"$/g, '') : 
-        JSON.stringify(setting.setting_value, null, 2),
+      setting_value: typeof setting.setting_value === 'object' 
+        ? JSON.stringify(setting.setting_value, null, 2) 
+        : String(setting.setting_value),
       setting_type: setting.setting_type,
       category: setting.category,
       description: setting.description || '',
@@ -168,25 +151,7 @@ const ContentManagement = () => {
     setIsDialogOpen(true);
   };
 
-  const createNewSetting = (category: string, settingTemplate?: any) => {
-    setSelectedSetting(null);
-    if (settingTemplate) {
-      setSettingForm({
-        setting_key: settingTemplate.key,
-        setting_value: '',
-        setting_type: settingTemplate.type,
-        category: category,
-        description: settingTemplate.description,
-        is_public: true
-      });
-    } else {
-      resetForm();
-      setSettingForm(prev => ({ ...prev, category }));
-    }
-    setIsDialogOpen(true);
-  };
-
-  const resetForm = () => {
+  const resetSettingForm = () => {
     setSettingForm({
       setting_key: '',
       setting_value: '',
@@ -197,222 +162,231 @@ const ContentManagement = () => {
     });
   };
 
-  const getSettingsByCategory = (category: string) => {
-    return settings.filter(s => s.category === category);
+  const openAddDialog = () => {
+    setSelectedSetting(null);
+    resetSettingForm();
+    setIsDialogOpen(true);
   };
 
-  const renderCategoryContent = (category: string) => {
-    const categorySettings = getSettingsByCategory(category);
-    const templates = contentCategories[category as keyof typeof contentCategories] || [];
-
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold capitalize">{category} Settings</h3>
-          <Button onClick={() => createNewSetting(category)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Setting
-          </Button>
-        </div>
-        
-        {/* Quick create buttons for common settings */}
-        {templates.length > 0 && (
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-2">Quick create common settings:</p>
-            <div className="flex flex-wrap gap-2">
-              {templates.map((template) => {
-                const exists = categorySettings.some(s => s.setting_key === template.key);
-                if (exists) return null;
-                return (
-                  <Button
-                    key={template.key}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => createNewSetting(category, template)}
-                  >
-                    {template.label}
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        <div className="grid gap-4">
-          {categorySettings.map((setting) => (
-            <Card key={setting.id}>
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-base">{setting.setting_key}</CardTitle>
-                    <p className="text-sm text-gray-500">{setting.description}</p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => editSetting(setting)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm">
-                  <strong>Value:</strong> {
-                    typeof setting.setting_value === 'string' 
-                      ? setting.setting_value.length > 100 
-                        ? setting.setting_value.substring(0, 100) + '...' 
-                        : setting.setting_value
-                      : JSON.stringify(setting.setting_value)
-                  }
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Type: {setting.setting_type} | Public: {setting.is_public ? 'Yes' : 'No'}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  };
+  // Group settings by category
+  const groupedSettings = settings.reduce((acc, setting) => {
+    if (!acc[setting.category]) {
+      acc[setting.category] = [];
+    }
+    acc[setting.category].push(setting);
+    return acc;
+  }, {} as Record<string, SiteSetting[]>);
 
   if (loading) {
-    return <div className="text-center py-8">Loading content settings...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Content Management</h2>
-      </div>
+        <h2 className="text-2xl font-bold text-foreground">Content Management</h2>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={openAddDialog}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Setting
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl bg-background text-foreground">
+            <DialogHeader>
+              <DialogTitle className="text-foreground">{selectedSetting ? 'Edit Setting' : 'Add New Setting'}</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="setting_key" className="text-foreground">Setting Key</Label>
+                  <Input
+                    id="setting_key"
+                    value={settingForm.setting_key}
+                    onChange={(e) => setSettingForm(prev => ({ ...prev, setting_key: e.target.value }))}
+                    placeholder="hero_title"
+                    className="bg-background text-foreground border-input"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category" className="text-foreground">Category</Label>
+                  <select
+                    id="category"
+                    value={settingForm.category}
+                    onChange={(e) => setSettingForm(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    <option value="general">General</option>
+                    <option value="hero">Hero Section</option>
+                    <option value="about">About Page</option>
+                    <option value="contact">Contact Page</option>
+                    <option value="footer">Footer</option>
+                    <option value="header">Header</option>
+                    <option value="theme">Theme</option>
+                  </select>
+                </div>
+              </div>
 
-      <Tabs defaultValue="hero" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="hero">Hero</TabsTrigger>
-          <TabsTrigger value="about">About</TabsTrigger>
-          <TabsTrigger value="contact">Contact</TabsTrigger>
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="social">Social</TabsTrigger>
-        </TabsList>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="setting_type" className="text-foreground">Data Type</Label>
+                  <select
+                    id="setting_type"
+                    value={settingForm.setting_type}
+                    onChange={(e) => setSettingForm(prev => ({ ...prev, setting_type: e.target.value }))}
+                    className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    <option value="text">Text</option>
+                    <option value="textarea">Long Text</option>
+                    <option value="number">Number</option>
+                    <option value="boolean">Boolean</option>
+                    <option value="json">JSON</option>
+                    <option value="url">URL</option>
+                    <option value="color">Color</option>
+                  </select>
+                </div>
+                <div className="flex items-center space-x-2 mt-6">
+                  <input
+                    type="checkbox"
+                    id="is_public" 
+                    checked={settingForm.is_public}
+                    onChange={(e) => setSettingForm(prev => ({ ...prev, is_public: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <Label htmlFor="is_public" className="text-foreground">Public (visible on frontend)</Label>
+                </div>
+              </div>
 
-        <TabsContent value="hero" className="space-y-4">
-          {renderCategoryContent('hero')}
-        </TabsContent>
-
-        <TabsContent value="about" className="space-y-4">
-          {renderCategoryContent('about')}
-        </TabsContent>
-
-        <TabsContent value="contact" className="space-y-4">
-          {renderCategoryContent('contact')}
-        </TabsContent>
-
-        <TabsContent value="general" className="space-y-4">
-          {renderCategoryContent('general')}
-        </TabsContent>
-
-        <TabsContent value="social" className="space-y-4">
-          {renderCategoryContent('social')}
-        </TabsContent>
-      </Tabs>
-
-      {/* Setting Edit/Create Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedSetting ? 'Edit Setting' : 'Create New Setting'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="setting_key">Setting Key</Label>
-              <Input
-                id="setting_key"
-                value={settingForm.setting_key}
-                onChange={(e) => setSettingForm({...settingForm, setting_key: e.target.value})}
-                placeholder="e.g., hero_title"
-                disabled={!!selectedSetting}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="setting_value">Setting Value</Label>
-              {settingForm.setting_type === 'text' || settingForm.setting_type === 'url' ? (
-                <Textarea
-                  id="setting_value"
-                  value={settingForm.setting_value}
-                  onChange={(e) => setSettingForm({...settingForm, setting_value: e.target.value})}
-                  placeholder="Enter the value"
-                  rows={3}
+              <div>
+                <Label htmlFor="description" className="text-foreground">Description</Label>
+                <Input
+                  id="description"
+                  value={settingForm.description}
+                  onChange={(e) => setSettingForm(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Brief description of this setting"
+                  className="bg-background text-foreground border-input"
                 />
-              ) : (
-                <Textarea
-                  id="setting_value"
-                  value={settingForm.setting_value}
-                  onChange={(e) => setSettingForm({...settingForm, setting_value: e.target.value})}
-                  placeholder={settingForm.setting_type === 'json' ? '["value1", "value2"]' : 'Enter the value'}
-                  rows={4}
-                />
-              )}
-            </div>
+              </div>
 
-            <div>
-              <Label htmlFor="setting_type">Setting Type</Label>
-              <Select value={settingForm.setting_type} onValueChange={(value) => setSettingForm({...settingForm, setting_type: value})}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="text">Text</SelectItem>
-                  <SelectItem value="number">Number</SelectItem>
-                  <SelectItem value="boolean">Boolean</SelectItem>
-                  <SelectItem value="json">JSON</SelectItem>
-                  <SelectItem value="image">Image URL</SelectItem>
-                  <SelectItem value="url">URL</SelectItem>
-                </SelectContent>
-              </Select>
+              <div>
+                <Label htmlFor="setting_value" className="text-foreground">Value</Label>
+                {settingForm.setting_type === 'textarea' ? (
+                  <Textarea
+                    id="setting_value"
+                    value={settingForm.setting_value}
+                    onChange={(e) => setSettingForm(prev => ({ ...prev, setting_value: e.target.value }))}
+                    placeholder="Setting value"
+                    rows={4}
+                    className="bg-background text-foreground border-input"
+                  />
+                ) : settingForm.setting_type === 'json' ? (
+                  <Textarea
+                    id="setting_value"
+                    value={settingForm.setting_value}
+                    onChange={(e) => setSettingForm(prev => ({ ...prev, setting_value: e.target.value }))}
+                    placeholder='{"key": "value"}'
+                    rows={6}
+                    className="bg-background text-foreground border-input"
+                  />
+                ) : settingForm.setting_type === 'boolean' ? (
+                  <select
+                    id="setting_value"
+                    value={settingForm.setting_value}
+                    onChange={(e) => setSettingForm(prev => ({ ...prev, setting_value: e.target.value }))}
+                    className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                ) : (
+                  <Input
+                    id="setting_value"
+                    type={settingForm.setting_type === 'number' ? 'number' : 
+                          settingForm.setting_type === 'url' ? 'url' :
+                          settingForm.setting_type === 'color' ? 'color' : 'text'}
+                    value={settingForm.setting_value}
+                    onChange={(e) => setSettingForm(prev => ({ ...prev, setting_value: e.target.value }))}
+                    placeholder="Setting value"
+                    className="bg-background text-foreground border-input"
+                  />
+                )}
+              </div>
             </div>
-
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <Select value={settingForm.category} onValueChange={(value) => setSettingForm({...settingForm, category: value})}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hero">Hero</SelectItem>
-                  <SelectItem value="about">About</SelectItem>
-                  <SelectItem value="contact">Contact</SelectItem>
-                  <SelectItem value="general">General</SelectItem>
-                  <SelectItem value="social">Social</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                value={settingForm.description}
-                onChange={(e) => setSettingForm({...settingForm, description: e.target.value})}
-                placeholder="Brief description of this setting"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={saveSetting}>
+              <Button onClick={handleSaveSetting}>
                 <Save className="w-4 h-4 mr-2" />
                 {selectedSetting ? 'Update' : 'Create'} Setting
               </Button>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="space-y-6">
+        {Object.entries(groupedSettings).map(([category, categorySettings]) => (
+          <Card key={category} className="bg-card text-foreground">
+            <CardHeader>
+              <CardTitle className="capitalize text-foreground">{category} Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {categorySettings.map((setting) => (
+                  <div key={setting.id} className="flex items-center justify-between p-4 border rounded-lg bg-card">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-foreground">{setting.setting_key}</h4>
+                        {setting.is_public && (
+                          <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                            Public
+                          </span>
+                        )}
+                      </div>
+                      {setting.description && (
+                        <p className="text-sm text-muted-foreground mt-1">{setting.description}</p>
+                      )}
+                      <div className="mt-2">
+                        <span className="text-sm font-medium text-foreground">Current value: </span>
+                        <span className="text-sm text-foreground">
+                          {typeof setting.setting_value === 'object' 
+                            ? JSON.stringify(setting.setting_value) 
+                            : String(setting.setting_value)
+                          }
+                        </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        Type: {setting.setting_type} | Category: {setting.category}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => editSetting(setting)}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleDeleteSetting(setting.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        
+        {Object.keys(groupedSettings).length === 0 && (
+          <Card className="bg-card text-foreground">
+            <CardContent className="p-8 text-center">
+              <p className="text-muted-foreground">No content settings found. Create your first setting to get started.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };
