@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
 import { getProductById, getProductsByCategory, CentralizedProduct, ProductVariant, getDefaultVariant } from '@/data/centralizedProducts';
+import { useProductReviews } from '@/hooks/useProductReviews';
 import VariantImageSlider from '@/components/VariantImageSlider';
 import ReviewSection from '@/components/ReviewSection';
 import ReviewStars from '@/components/ReviewStars';
