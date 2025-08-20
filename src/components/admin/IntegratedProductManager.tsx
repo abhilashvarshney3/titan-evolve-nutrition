@@ -259,8 +259,20 @@ const IntegratedProductManager = () => {
     if (!confirm('Are you sure you want to delete this product and all its variants?')) return;
     
     try {
+      // First delete verification codes that reference this product
+      const { error: codesError } = await supabase
+        .from('verification_codes')
+        .delete()
+        .eq('product_id', id);
+      
+      if (codesError) {
+        console.warn('Error deleting verification codes:', codesError);
+      }
+
+      // Then delete the product (variants will be deleted automatically due to CASCADE)
       const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
+      
       toast({ title: "Success", description: "Product deleted successfully" });
       loadData();
       // Trigger global refresh for frontend components
@@ -269,10 +281,67 @@ const IntegratedProductManager = () => {
       console.error('Error deleting product:', error);
       toast({
         title: "Error",
-        description: "Failed to delete product",
+        description: "Failed to delete product. Please try again.",
         variant: "destructive"
       });
     }
+  };
+
+  const editVariant = (variant: ProductVariant) => {
+    setEditingVariant(variant);
+    setVariantForm({
+      variant_name: variant.variant_name,
+      flavor: variant.flavor || '',
+      size: variant.size,
+      price: variant.price.toString(),
+      original_price: variant.original_price?.toString() || '',
+      stock_quantity: variant.stock_quantity.toString(),
+      sku: variant.sku || '',
+      is_active: variant.is_active
+    });
+  };
+
+  const updateVariant = () => {
+    if (!editingVariant) return;
+
+    const updatedVariant: ProductVariant = {
+      ...editingVariant,
+      variant_name: variantForm.variant_name,
+      flavor: variantForm.flavor,
+      size: variantForm.size,
+      price: parseFloat(variantForm.price),
+      original_price: variantForm.original_price ? parseFloat(variantForm.original_price) : undefined,
+      stock_quantity: parseInt(variantForm.stock_quantity),
+      sku: variantForm.sku,
+      is_active: variantForm.is_active
+    };
+
+    setProductVariants(productVariants.map(v => v.id === editingVariant.id ? updatedVariant : v));
+    setVariantForm({
+      variant_name: '',
+      flavor: '',
+      size: '',
+      price: '',
+      original_price: '',
+      stock_quantity: '',
+      sku: '',
+      is_active: true
+    });
+    setEditingVariant(null);
+  };
+
+  const cancelEditVariant = () => {
+    setEditingVariant(null);
+    setVariantForm({
+      variant_name: '',
+      flavor: '',
+      size: '',
+      price: '',
+      original_price: '',
+      stock_quantity: '',
+      sku: '',
+      is_active: true
+    });
   };
 
   const addVariant = () => {
@@ -604,7 +673,9 @@ const IntegratedProductManager = () => {
             <TabsContent value="variants" className="space-y-4 mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Add New Variant</CardTitle>
+                  <CardTitle className="text-lg">
+                    {editingVariant ? 'Edit Variant' : 'Add New Variant'}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -677,14 +748,37 @@ const IntegratedProductManager = () => {
                       />
                     </div>
                   </div>
-                  <Button
-                    onClick={addVariant}
-                    disabled={!variantForm.variant_name || !variantForm.size || !variantForm.price}
-                    className="w-full sm:w-auto"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Variant
-                  </Button>
+                  <div className="flex gap-2">
+                    {editingVariant ? (
+                      <>
+                        <Button
+                          onClick={updateVariant}
+                          disabled={!variantForm.variant_name || !variantForm.size || !variantForm.price}
+                          className="w-full sm:w-auto"
+                        >
+                          <Save className="h-4 w-4 mr-2" />
+                          Update Variant
+                        </Button>
+                        <Button
+                          onClick={cancelEditVariant}
+                          variant="outline"
+                          className="w-full sm:w-auto"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={addVariant}
+                        disabled={!variantForm.variant_name || !variantForm.size || !variantForm.price}
+                        className="w-full sm:w-auto"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Variant
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -710,6 +804,14 @@ const IntegratedProductManager = () => {
                           <Badge variant={variant.is_active ? "default" : "secondary"}>
                             {variant.is_active ? "Active" : "Inactive"}
                           </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => editVariant(variant)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ShoppingCart, Heart, MessageCircle, Plus, Minus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -161,7 +162,7 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
   const discountPercentage = getDiscountPercentage();
 
   return (
-    <div className="group relative bg-card rounded-xl overflow-hidden hover:bg-card/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-border">
+    <div className="group relative bg-muted/20 backdrop-blur-sm rounded-xl overflow-hidden hover:bg-muted/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-border/50">
       {/* Image Container */}
       <div className="relative h-64 overflow-hidden bg-muted/10 flex items-center justify-center p-4">
         <Link to={`/product/${product.id}`} className="h-full w-full flex items-center justify-center">
@@ -227,34 +228,29 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
           )}
         </div>
 
-        {/* Variant Options */}
+        {/* Variant Selector */}
         {product.variants.length > 1 && (
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Variants</p>
-            <div className="flex flex-wrap gap-1">
-              {product.variants.slice(0, 4).map((variant) => (
-                <button
-                  key={variant.id}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleVariantChange(variant.id);
-                  }}
-                  className={`px-2 py-1 text-xs rounded-md border transition-colors ${
-                    selectedVariant.id === variant.id
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-background text-foreground border-border hover:bg-muted'
-                  }`}
-                >
-                  {variant.flavor ? `${variant.flavor} - ${variant.size}` : variant.size}
-                </button>
-              ))}
-              {product.variants.length > 4 && (
-                <Link to={`/product/${product.id}`} className="px-2 py-1 text-xs rounded-md border border-border hover:bg-muted text-primary">
-                  +{product.variants.length - 4} more
-                </Link>
-              )}
-            </div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Select Variant</p>
+            <Select value={selectedVariant.id} onValueChange={handleVariantChange}>
+              <SelectTrigger className="w-full h-8 text-xs bg-background/50 border-border/50">
+                <SelectValue>
+                  {selectedVariant.flavor ? `${selectedVariant.flavor} - ${selectedVariant.size}` : selectedVariant.size}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-background/95 backdrop-blur-md border-border/50">
+                {product.variants.map((variant) => (
+                  <SelectItem 
+                    key={variant.id} 
+                    value={variant.id}
+                    className="text-xs hover:bg-muted/50"
+                  >
+                    {variant.flavor ? `${variant.flavor} - ${variant.size}` : variant.size}
+                    <span className="ml-2 text-muted-foreground">₹{variant.price.toFixed(0)}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
 
