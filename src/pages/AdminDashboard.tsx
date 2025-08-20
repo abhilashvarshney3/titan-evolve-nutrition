@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,6 +34,7 @@ import ReviewManagement from '@/components/admin/ReviewManagement';
 import IntegratedProductManager from '@/components/admin/IntegratedProductManager';
 import OrderManagement from '@/components/admin/OrderManagement';
 import UserManagement from '@/components/admin/UserManagement';
+import EnhancedUserManagement from '@/components/admin/EnhancedUserManagement';
 import ContentManagement from '@/components/admin/ContentManagement';
 import TestimonialManagement from '@/components/admin/TestimonialManagement';
 import CouponManagement from '@/components/admin/CouponManagement';
@@ -83,11 +86,13 @@ interface Testimonial {
 }
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [contentSettings, setContentSettings] = useState<ContentSetting[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
   const [isContentDialogOpen, setIsContentDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -112,8 +117,32 @@ const AdminDashboard = () => {
   });
 
   useEffect(() => {
-    loadData();
-  }, []);
+    checkUserRole();
+  }, [user]);
+
+  useEffect(() => {
+    if (userRole === 'admin') {
+      loadData();
+    }
+  }, [userRole]);
+
+  const checkUserRole = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+      setUserRole(data?.role || 'customer');
+    } catch (error) {
+      console.error('Error checking user role:', error);
+      setUserRole('customer');
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -314,7 +343,25 @@ const AdminDashboard = () => {
     setIsContentDialogOpen(true);
   };
 
-  if (loading) {
+  // Redirect if not authenticated
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // Redirect if not admin
+  if (userRole && userRole !== 'admin') {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
+          <p className="text-gray-600">You don't have permission to access this page.</p>
+          <p className="text-sm text-gray-500 mt-2">Only administrators can access the admin dashboard.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading || !userRole) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -409,7 +456,7 @@ const AdminDashboard = () => {
 
           {/* Users Management */}
           <TabsContent value="users">
-            <UserManagement />
+            <EnhancedUserManagement />
           </TabsContent>
 
           {/* Reviews Management */}

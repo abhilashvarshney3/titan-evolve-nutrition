@@ -73,49 +73,67 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({ position, className = '' 
       {visibleBanners.map((banner) => (
         <div
           key={banner.id}
-          className={`relative w-full ${
+          className={`relative w-full overflow-hidden ${
             position === 'hero' 
-              ? 'bg-gradient-to-r from-primary/10 to-primary/5 py-16 px-6' 
+              ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-20 px-6' 
               : position === 'top'
-              ? 'bg-primary text-primary-foreground py-3 px-4'
-              : 'bg-muted py-6 px-4'
+              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 py-4 px-6 shadow-lg'
+              : 'bg-gradient-to-r from-slate-50 to-white border border-slate-200 py-8 px-6 shadow-sm'
           } ${banner.banner_type === 'announcement' ? 'animate-pulse' : ''}`}
         >
-          <div className="container mx-auto flex items-center justify-between">
+          {/* Decorative Elements */}
+          {position === 'hero' && (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20" />
+              <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
+              <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl" />
+            </>
+          )}
+          
+          <div className="container mx-auto flex items-center justify-between relative z-10">
             <div className="flex-1">
-              <div className={`${position === 'hero' ? 'text-center' : 'flex items-center gap-4'}`}>
+              <div className={`${position === 'hero' ? 'text-center' : 'flex items-center gap-6'}`}>
                 {banner.image_url && position !== 'top' && (
-                  <img 
-                    src={banner.image_url} 
-                    alt={banner.title}
-                    className={`${
-                      position === 'hero' 
-                        ? 'w-full max-w-md mx-auto mb-6 rounded-lg' 
-                        : 'w-16 h-16 object-cover rounded-lg'
-                    }`}
-                  />
+                  <div className={`${position === 'hero' ? 'mb-8' : 'flex-shrink-0'}`}>
+                    <img 
+                      src={banner.image_url} 
+                      alt={banner.title}
+                      className={`${
+                        position === 'hero' 
+                          ? 'w-full max-w-lg mx-auto rounded-2xl shadow-2xl ring-1 ring-white/10' 
+                          : 'w-20 h-20 object-cover rounded-xl shadow-lg ring-2 ring-white/20'
+                      }`}
+                    />
+                  </div>
                 )}
-                <div className={position === 'hero' ? 'space-y-4' : 'flex-1'}>
+                <div className={position === 'hero' ? 'space-y-6' : 'flex-1 space-y-3'}>
                   <h3 className={`font-bold ${
-                    position === 'hero' ? 'text-3xl md:text-4xl' : 
-                    position === 'top' ? 'text-sm' : 'text-lg'
+                    position === 'hero' ? 'text-4xl md:text-6xl text-white leading-tight' : 
+                    position === 'top' ? 'text-lg text-white drop-shadow-sm' : 'text-2xl text-slate-900'
                   }`}>
                     {banner.title}
                   </h3>
                   {banner.description && (
                     <p className={`${
-                      position === 'hero' ? 'text-lg text-muted-foreground max-w-2xl mx-auto' :
-                      position === 'top' ? 'text-xs' : 'text-sm text-muted-foreground'
+                      position === 'hero' ? 'text-xl text-slate-200 max-w-3xl mx-auto leading-relaxed' :
+                      position === 'top' ? 'text-sm text-white/90 drop-shadow-sm' : 'text-lg text-slate-600 leading-relaxed'
                     }`}>
                       {banner.description}
                     </p>
                   )}
                   {banner.link_url && banner.button_text && (
-                    <div className={position === 'hero' ? 'mt-6' : 'mt-2'}>
+                    <div className={position === 'hero' ? 'mt-8' : 'mt-4'}>
                       <Button
                         variant={position === 'top' ? 'secondary' : 'default'}
                         size={position === 'hero' ? 'lg' : position === 'top' ? 'sm' : 'default'}
                         onClick={() => window.open(banner.link_url, '_blank')}
+                        className={`${
+                          position === 'hero' 
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 border-0' 
+                            : position === 'top'
+                            ? 'bg-white text-purple-600 hover:bg-slate-50 font-semibold shadow-md hover:shadow-lg transition-all duration-200'
+                            : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200'
+                        }`}
                       >
                         {banner.button_text}
                       </Button>
@@ -129,10 +147,14 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({ position, className = '' 
               <Button
                 variant="ghost"
                 size="sm"
-                className="ml-4 opacity-70 hover:opacity-100"
+                className={`ml-6 ${
+                  position === 'top' 
+                    ? 'text-white/80 hover:text-white hover:bg-white/10' 
+                    : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                } transition-colors duration-200`}
                 onClick={() => dismissBanner(banner.id)}
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </Button>
             )}
           </div>
