@@ -195,9 +195,9 @@ const BannerManagement = () => {
               Add Banner
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-background text-foreground border-input">
             <DialogHeader>
-              <DialogTitle>{selectedBanner ? 'Edit Banner' : 'Add New Banner'}</DialogTitle>
+              <DialogTitle className="text-foreground">{selectedBanner ? 'Edit Banner' : 'Add New Banner'}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div>
@@ -334,10 +334,10 @@ const BannerManagement = () => {
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="text-foreground border-input hover:bg-muted">
                 Cancel
               </Button>
-              <Button onClick={handleSaveBanner}>
+              <Button onClick={handleSaveBanner} className="bg-primary text-primary-foreground hover:bg-primary/90">
                 {selectedBanner ? 'Update' : 'Create'} Banner
               </Button>
             </div>

@@ -231,10 +231,10 @@ const OrderManagement = () => {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-48 bg-background text-foreground border-input">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
-          <SelectContent className="bg-background text-foreground border-input">
+          <SelectContent className="bg-background text-foreground border-input z-50">
             <SelectItem value="all">All Orders</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="confirmed">Confirmed</SelectItem>
@@ -293,10 +293,10 @@ const OrderManagement = () => {
                     value={order.status} 
                     onValueChange={(value) => updateOrderStatus(order.id, value)}
                   >
-                    <SelectTrigger className="w-full mt-1">
+                    <SelectTrigger className="w-full mt-1 bg-background text-foreground border-input">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-background text-foreground border-input">
+                    <SelectContent className="bg-background text-foreground border-input z-50">
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="confirmed">Confirmed</SelectItem>
                       <SelectItem value="shipped">Shipped</SelectItem>
@@ -328,62 +328,67 @@ const OrderManagement = () => {
 
       {/* Order Tracking Dialog */}
       <Dialog open={isTrackingDialogOpen} onOpenChange={setIsTrackingDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-background text-foreground border-input">
           <DialogHeader>
-            <DialogTitle>Add Order Tracking</DialogTitle>
+            <DialogTitle className="text-foreground">Add Order Tracking</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status" className="text-foreground">Status</Label>
               <Input
                 id="status"
                 value={trackingForm.status}
                 onChange={(e) => setTrackingForm({...trackingForm, status: e.target.value})}
                 placeholder="e.g., Shipped, Out for delivery"
                 required
+                className="bg-background text-foreground border-input"
               />
             </div>
             <div>
-              <Label htmlFor="message">Message</Label>
+              <Label htmlFor="message" className="text-foreground">Message</Label>
               <Textarea
                 id="message"
                 value={trackingForm.message}
                 onChange={(e) => setTrackingForm({...trackingForm, message: e.target.value})}
                 placeholder="Tracking update message"
+                className="bg-background text-foreground border-input"
               />
             </div>
             <div>
-              <Label htmlFor="tracking_number">Tracking Number</Label>
+              <Label htmlFor="tracking_number" className="text-foreground">Tracking Number</Label>
               <Input
                 id="tracking_number"
                 value={trackingForm.tracking_number}
                 onChange={(e) => setTrackingForm({...trackingForm, tracking_number: e.target.value})}
                 placeholder="e.g., TRK123456789"
+                className="bg-background text-foreground border-input"
               />
             </div>
             <div>
-              <Label htmlFor="carrier">Carrier</Label>
+              <Label htmlFor="carrier" className="text-foreground">Carrier</Label>
               <Input
                 id="carrier"
                 value={trackingForm.carrier}
                 onChange={(e) => setTrackingForm({...trackingForm, carrier: e.target.value})}
                 placeholder="e.g., FedEx, Blue Dart"
+                className="bg-background text-foreground border-input"
               />
             </div>
             <div>
-              <Label htmlFor="estimated_delivery">Estimated Delivery</Label>
+              <Label htmlFor="estimated_delivery" className="text-foreground">Estimated Delivery</Label>
               <Input
                 id="estimated_delivery"
                 type="datetime-local"
                 value={trackingForm.estimated_delivery}
                 onChange={(e) => setTrackingForm({...trackingForm, estimated_delivery: e.target.value})}
+                className="bg-background text-foreground border-input"
               />
             </div>
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsTrackingDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsTrackingDialogOpen(false)} className="text-foreground border-input hover:bg-muted">
                 Cancel
               </Button>
-              <Button onClick={addOrderTracking}>
+              <Button onClick={addOrderTracking} className="bg-primary text-primary-foreground hover:bg-primary/90">
                 Add Tracking
               </Button>
             </div>

@@ -255,14 +255,14 @@ const UserManagement = () => {
           />
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-48 bg-background text-foreground border-input">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
-                  <SelectContent className="bg-background text-foreground border-input">
-                    <SelectItem value="all">All Roles</SelectItem>
-                    <SelectItem value="customer">Customers</SelectItem>
-                    <SelectItem value="admin">Admins</SelectItem>
-                  </SelectContent>
+          <SelectContent className="bg-background text-foreground border-input z-50">
+            <SelectItem value="all">All Roles</SelectItem>
+            <SelectItem value="customer">Customers</SelectItem>
+            <SelectItem value="admin">Admins</SelectItem>
+          </SelectContent>
         </Select>
       </div>
 
@@ -312,10 +312,10 @@ const UserManagement = () => {
                     value={user.role} 
                     onValueChange={(value) => updateUserRole(user.id, value)}
                   >
-                    <SelectTrigger className="w-full mt-1">
+                    <SelectTrigger className="w-full mt-1 bg-background text-foreground border-input">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-background text-foreground border-input">
+                    <SelectContent className="bg-background text-foreground border-input z-50">
                       <SelectItem value="customer">Customer</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
@@ -329,54 +329,58 @@ const UserManagement = () => {
 
       {/* Edit User Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-background text-foreground border-input">
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
+            <DialogTitle className="text-foreground">Edit User</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="first_name">First Name</Label>
+                <Label htmlFor="first_name" className="text-foreground">First Name</Label>
                 <Input
                   id="first_name"
                   value={userForm.first_name}
                   onChange={(e) => setUserForm({...userForm, first_name: e.target.value})}
                   placeholder="First Name"
+                  className="bg-background text-foreground border-input"
                 />
               </div>
               <div>
-                <Label htmlFor="last_name">Last Name</Label>
+                <Label htmlFor="last_name" className="text-foreground">Last Name</Label>
                 <Input
                   id="last_name"
                   value={userForm.last_name}
                   onChange={(e) => setUserForm({...userForm, last_name: e.target.value})}
                   placeholder="Last Name"
+                  className="bg-background text-foreground border-input"
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-foreground">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={userForm.email}
                 onChange={(e) => setUserForm({...userForm, email: e.target.value})}
                 placeholder="Email"
+                className="bg-background text-foreground border-input"
               />
             </div>
             <div>
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone" className="text-foreground">Phone</Label>
               <Input
                 id="phone"
                 value={userForm.phone}
                 onChange={(e) => setUserForm({...userForm, phone: e.target.value})}
                 placeholder="Phone Number"
+                className="bg-background text-foreground border-input"
               />
             </div>
             <div>
-              <Label htmlFor="role">Role</Label>
+              <Label htmlFor="role" className="text-foreground">Role</Label>
               <Select value={userForm.role} onValueChange={(value) => setUserForm({...userForm, role: value})}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-background text-foreground border-input">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background text-foreground border-input">
@@ -386,10 +390,10 @@ const UserManagement = () => {
               </Select>
             </div>
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="text-foreground border-input hover:bg-muted">
                 Cancel
               </Button>
-              <Button onClick={updateUser}>
+              <Button onClick={updateUser} className="bg-primary text-primary-foreground hover:bg-primary/90">
                 Update User
               </Button>
             </div>

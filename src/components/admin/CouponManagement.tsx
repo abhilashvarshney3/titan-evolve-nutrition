@@ -534,10 +534,10 @@ const CouponManagement = () => {
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="text-foreground border-input hover:bg-muted">
                 Cancel
               </Button>
-              <Button onClick={saveCoupon}>
+              <Button onClick={saveCoupon} className="bg-primary text-primary-foreground hover:bg-primary/90">
                 {selectedCoupon ? 'Update' : 'Create'} Coupon
               </Button>
             </div>
