@@ -15,8 +15,14 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
   onVariantChange,
   className
 }) => {
-  // Create unique flavor and size combinations
-  const flavorGroups = variants.reduce((groups: { [key: string]: DatabaseProductVariant[] }, variant) => {
+  // Clean and normalize flavors to prevent duplicates
+  const normalizedVariants = variants.map(variant => ({
+    ...variant,
+    flavor: variant.flavor?.trim() || 'Default'
+  }));
+
+  // Create unique flavor groups
+  const flavorGroups = normalizedVariants.reduce((groups: { [key: string]: DatabaseProductVariant[] }, variant) => {
     const flavor = variant.flavor || 'Default';
     if (!groups[flavor]) {
       groups[flavor] = [];
@@ -25,9 +31,16 @@ const VariantSelector: React.FC<VariantSelectorProps> = ({
     return groups;
   }, {});
 
-  // Get unique flavors (remove duplicates properly)
-  const uniqueFlavors = [...new Set(variants.map(v => v.flavor || 'Default'))];
+  // Get truly unique flavors
+  const uniqueFlavors = Object.keys(flavorGroups).sort();
   const hasFlavors = uniqueFlavors.length > 1 || (uniqueFlavors.length === 1 && uniqueFlavors[0] !== 'Default');
+
+  console.log('VariantSelector Debug:', {
+    variants: normalizedVariants,
+    flavorGroups,
+    uniqueFlavors,
+    selectedVariant
+  });
 
   const handleFlavorChange = (flavor: string): void => {
     const variantsInFlavor = flavorGroups[flavor];
