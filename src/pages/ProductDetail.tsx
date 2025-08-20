@@ -228,6 +228,8 @@ const ProductDetail = () => {
                               displayOrder: img.display_order
                             }))}
                             className="w-full h-full"
+                            autoPlay={true}
+                            autoPlayInterval={5000}
                           />
                         );
                       }
@@ -321,14 +323,6 @@ const ProductDetail = () => {
                 {/* Description */}
                 <p className="text-gray-300 text-lg leading-relaxed">{product.description}</p>
 
-                {/* Stock Status */}
-                <div className="text-sm">
-                  {selectedVariant && selectedVariant.stock_quantity > 0 ? (
-                    <span className="text-green-400">✓ In Stock</span>
-                  ) : (
-                    <span className="text-red-400">✗ Out of Stock</span>
-                  )}
-                </div>
 
                 {/* Quantity Selector */}
                 <div className="flex items-center gap-4">

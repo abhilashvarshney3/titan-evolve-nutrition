@@ -58,12 +58,79 @@ export const useCartQuantityWithVariants = () => {
     return cartItems[key] || 0;
   };
 
-  const updateQuantity = (productId: string, variantId: string, newQuantity: number) => {
-    const key = `${productId}-${variantId}`;
-    setCartItems(prev => ({
-      ...prev,
-      [key]: newQuantity
-    }));
+  const updateQuantity = async (productId: string, variantId: string, newQuantity: number) => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const key = `${productId}-${variantId}`;
+      
+      if (newQuantity <= 0) {
+        // Remove from cart
+        const { error } = await supabase
+          .from('cart')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('product_id', productId)
+          .eq('variant_id', variantId);
+          
+        if (error) throw error;
+        
+        setCartItems(prev => {
+          const updated = { ...prev };
+          delete updated[key];
+          return updated;
+        });
+      } else {
+        // Check if item exists
+        const { data: existingItem } = await supabase
+          .from('cart')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('product_id', productId)
+          .eq('variant_id', variantId)
+          .maybeSingle();
+
+        if (existingItem) {
+          // Update existing item
+          const { error } = await supabase
+            .from('cart')
+            .update({ quantity: newQuantity })
+            .eq('id', existingItem.id);
+            
+          if (error) throw error;
+        } else {
+          // Insert new item
+          const { error } = await supabase
+            .from('cart')
+            .insert([{
+              user_id: user.id,
+              product_id: productId,
+              variant_id: variantId,
+              quantity: newQuantity
+            }]);
+            
+          if (error) throw error;
+        }
+        
+        setCartItems(prev => ({
+          ...prev,
+          [key]: newQuantity
+        }));
+      }
+      
+      // Trigger cart update event
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+    } catch (error) {
+      console.error('Error updating cart quantity:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update cart quantity.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {

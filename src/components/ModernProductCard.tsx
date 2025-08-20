@@ -39,14 +39,6 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
   const { getQuantity, updateQuantity, loading } = useCartQuantityWithVariants();
   
   const quantity = getQuantity(product.id, selectedVariant.id);
-  
-  const incrementQuantity = () => {
-    updateQuantity(product.id, selectedVariant.id, quantity + 1);
-  };
-  
-  const decrementQuantity = () => {
-    updateQuantity(product.id, selectedVariant.id, Math.max(0, quantity - 1));
-  };
   const { stats: reviewStats } = useProductReviews(product.id);
 
   // Get variant image or fallback to product image
@@ -126,16 +118,16 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
     }
   };
 
-  const handleIncrementQuantity = (e: React.MouseEvent) => {
+  const handleIncrementQuantity = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    incrementQuantity();
+    await updateQuantity(product.id, selectedVariant.id, quantity + 1);
   };
 
-  const handleDecrementQuantity = (e: React.MouseEvent) => {
+  const handleDecrementQuantity = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    decrementQuantity();
+    await updateQuantity(product.id, selectedVariant.id, Math.max(0, quantity - 1));
   };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
@@ -281,23 +273,23 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
           {quantity > 0 ? (
-            <div className="flex items-center bg-primary rounded-lg overflow-hidden flex-1">
+            <div className="flex items-center bg-purple-600 rounded-lg overflow-hidden flex-1 h-9">
               <Button
                 size="sm"
                 onClick={handleDecrementQuantity}
                 disabled={loading}
-                className="bg-primary/80 hover:bg-primary text-primary-foreground px-2 py-1 rounded-none h-8 min-w-8"
+                className="bg-purple-700 hover:bg-purple-800 text-white px-3 py-2 rounded-none h-full flex-shrink-0 border-r border-purple-500"
               >
                 <Minus className="h-3 w-3" />
               </Button>
-              <span className="bg-primary text-primary-foreground px-2 py-1 text-sm font-bold min-w-8 text-center flex items-center justify-center h-8">
+              <div className="bg-purple-600 text-white px-3 py-2 text-sm font-bold flex-1 text-center flex items-center justify-center h-full">
                 {quantity}
-              </span>
+              </div>
               <Button
                 size="sm"
                 onClick={handleIncrementQuantity}
                 disabled={loading || quantity >= selectedVariant.stock_quantity}
-                className="bg-primary/80 hover:bg-primary text-primary-foreground px-2 py-1 rounded-none h-8 min-w-8"
+                className="bg-purple-700 hover:bg-purple-800 text-white px-3 py-2 rounded-none h-full flex-shrink-0 border-l border-purple-500"
               >
                 <Plus className="h-3 w-3" />
               </Button>
