@@ -229,6 +229,8 @@ const IntegratedProductManager = () => {
 
       setIsDialogOpen(false);
       loadData();
+      // Trigger global refresh for frontend components
+      window.dispatchEvent(new CustomEvent('productsUpdated'));
     } catch (error) {
       console.error('Error saving product:', error);
       toast({
@@ -247,6 +249,8 @@ const IntegratedProductManager = () => {
       if (error) throw error;
       toast({ title: "Success", description: "Product deleted successfully" });
       loadData();
+      // Trigger global refresh for frontend components
+      window.dispatchEvent(new CustomEvent('productsUpdated'));
     } catch (error) {
       console.error('Error deleting product:', error);
       toast({
@@ -302,6 +306,58 @@ const IntegratedProductManager = () => {
           variant: "destructive"
         });
       }
+    }
+  };
+
+  const handleAddVariantImage = async (variantId: string, imageUrl: string) => {
+    try {
+      const existingImages = variantImages.filter(img => img.variant_id === variantId);
+      const displayOrder = existingImages.length;
+      const isPrimary = existingImages.length === 0;
+
+      const { data, error } = await supabase
+        .from('variant_images')
+        .insert([{
+          variant_id: variantId,
+          image_url: imageUrl,
+          is_primary: isPrimary,
+          display_order: displayOrder
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setVariantImages([...variantImages, data]);
+      toast({ title: "Success", description: "Image added successfully" });
+    } catch (error) {
+      console.error('Error adding variant image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add image",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteVariantImage = async (imageId: string) => {
+    try {
+      const { error } = await supabase
+        .from('variant_images')
+        .delete()
+        .eq('id', imageId);
+
+      if (error) throw error;
+
+      setVariantImages(variantImages.filter(img => img.id !== imageId));
+      toast({ title: "Success", description: "Image deleted successfully" });
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete image",
+        variant: "destructive"
+      });
     }
   };
 
@@ -402,9 +458,9 @@ const IntegratedProductManager = () => {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card text-card-foreground">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-foreground">
               <Package className="h-5 w-5" />
               {selectedProduct ? 'Edit Product' : 'Add Product'}
             </DialogTitle>
@@ -630,10 +686,63 @@ const IntegratedProductManager = () => {
             </TabsContent>
 
             <TabsContent value="images" className="space-y-4 mt-6">
-              <div className="text-center py-8 text-muted-foreground">
-                <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Variant image management coming soon...</p>
-                <p className="text-sm mt-2">Upload product images in the Overview tab for now.</p>
+              <div className="space-y-4">
+                <h4 className="font-semibold text-foreground">Variant Images</h4>
+                {productVariants.map((variant) => (
+                  <Card key={variant.id}>
+                    <CardHeader>
+                      <CardTitle className="text-lg">{variant.variant_name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Current Images</Label>
+                          <div className="flex flex-wrap gap-2">
+                            {variantImages
+                              .filter(img => img.variant_id === variant.id)
+                              .sort((a, b) => a.display_order - b.display_order)
+                              .map((image) => (
+                                <div key={image.id} className="relative group">
+                                  <img
+                                    src={image.image_url}
+                                    alt="Variant"
+                                    className="w-20 h-20 object-cover rounded border"
+                                  />
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => handleDeleteVariantImage(image.id)}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                  {image.is_primary && (
+                                    <Badge className="absolute bottom-0 left-0 text-xs" variant="secondary">
+                                      Primary
+                                    </Badge>
+                                  )}
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Add Image</Label>
+                          <ImageUpload
+                            onImageUploaded={(url) => handleAddVariantImage(variant.id, url)}
+                            folder="variants"
+                            key={`variant-${variant.id}`}
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+                {productVariants.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No variants available. Add variants first to manage their images.</p>
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>

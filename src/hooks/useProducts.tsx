@@ -87,6 +87,16 @@ export const useProducts = () => {
 
   useEffect(() => {
     fetchProducts();
+
+    // Listen for admin updates
+    const handleProductsUpdated = () => {
+      fetchProducts();
+    };
+
+    window.addEventListener('productsUpdated', handleProductsUpdated);
+    return () => {
+      window.removeEventListener('productsUpdated', handleProductsUpdated);
+    };
   }, []);
 
   const refetch = () => {
@@ -147,6 +157,16 @@ export const useProduct = (productId: string) => {
 
   useEffect(() => {
     fetchProduct();
+
+    // Listen for admin updates
+    const handleProductsUpdated = () => {
+      fetchProduct();
+    };
+
+    window.addEventListener('productsUpdated', handleProductsUpdated);
+    return () => {
+      window.removeEventListener('productsUpdated', handleProductsUpdated);
+    };
   }, [productId]);
 
   const refetch = () => {

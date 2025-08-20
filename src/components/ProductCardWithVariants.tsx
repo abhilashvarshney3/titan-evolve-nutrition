@@ -12,7 +12,7 @@ import { useCartQuantityWithVariants } from '@/hooks/useCartQuantityWithVariants
 import { useProductReviews } from '@/hooks/useProductReviews';
 import ReviewStars from '@/components/ReviewStars';
 import VariantSelector from '@/components/VariantSelector';
-import { ProductWithVariantsAndImages, DatabaseProductVariant } from '@/hooks/useProducts';
+import { ProductWithVariantsAndImages, DatabaseProductVariant, DatabaseVariantImage } from '@/hooks/useProducts';
 import VariantImageSlider from './VariantImageSlider';
 
 interface ProductCardWithVariantsProps {
@@ -40,10 +40,19 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
 
   console.log('ProductCardWithVariants: product variants:', product.variants);
 
-  const [selectedVariant, setSelectedVariant] = useState<DatabaseProductVariant>(
+  const [selectedVariant, setSelectedVariant] = useState<(DatabaseProductVariant & { images: DatabaseVariantImage[] })>(
     product.variants[0]
   );
   const [showVariants, setShowVariants] = useState(false);
+
+  // Function to handle variant change and update image
+  const handleVariantChange = (variant: DatabaseProductVariant) => {
+    // Find the full variant with images from product.variants
+    const fullVariant = product.variants.find(v => v.id === variant.id);
+    if (fullVariant) {
+      setSelectedVariant(fullVariant);
+    }
+  };
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -198,7 +207,13 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
         {/* Image Section */}
         <div className="relative aspect-square overflow-hidden bg-gray-800 group">
           <Link to={`/product/${product.id}`}>
-            {product.image_url ? (
+            {selectedVariant?.images && selectedVariant.images.length > 0 ? (
+              <img
+                src={selectedVariant.images.find(img => img.is_primary)?.image_url || selectedVariant.images[0]?.image_url}
+                alt={selectedVariant.variant_name}
+                className="w-full h-full object-contain p-4 hover:scale-110 transition-transform duration-500"
+              />
+            ) : product.image_url ? (
               <img
                 src={product.image_url}
                 alt={product.name}
@@ -274,7 +289,7 @@ const ProductCardWithVariants: React.FC<ProductCardWithVariantsProps> = ({
                 <VariantSelector
                   variants={product.variants}
                   selectedVariant={selectedVariant}
-                  onVariantChange={setSelectedVariant}
+                  onVariantChange={handleVariantChange}
                   className="text-xs"
                 />
               )}
