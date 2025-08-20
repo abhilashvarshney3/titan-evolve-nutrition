@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { products as centralizedProducts, ProductData } from '@/data/products';
-import ProductCard from '@/components/ProductCard';
+import { getNewProducts, CentralizedProduct } from '@/data/centralizedProducts';
+import ProductCardWithVariants from '@/components/ProductCardWithVariants';
 
 const NewProductsSection = () => {
-  const [products, setProducts] = useState<ProductData[]>([]);
+  const [products, setProducts] = useState<CentralizedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -17,7 +17,7 @@ const NewProductsSection = () => {
   const loadNewProducts = async () => {
     try {
       // Get new products from centralized data
-      const newProducts = centralizedProducts.filter(product => product.isNew);
+      const newProducts = getNewProducts();
       setProducts(newProducts);
     } catch (error) {
       console.error('Error loading new products:', error);
@@ -86,17 +86,9 @@ const NewProductsSection = () => {
           >
             {products.map((product) => (
               <div key={product.id} className="flex-shrink-0 w-64 sm:w-72 md:w-80">
-                <ProductCard
-                  id={product.id}
-                  name={product.name}
-                  category={product.category}
-                  price={product.price}
-                  originalPrice={product.originalPrice}
-                  mrp={product.mrp}
-                  discount={product.discount}
-                  image={product.image}
-                  badge={product.badge}
-                  description={product.description}
+                <ProductCardWithVariants
+                  product={product}
+                  showVariantSelector={false}
                 />
               </div>
             ))}

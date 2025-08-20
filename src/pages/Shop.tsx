@@ -1,47 +1,34 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Search, Star, ShoppingCart, Heart, MessageCircle, Plus, Minus } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Search } from 'lucide-react';
 import Layout from '@/components/Layout';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { useWishlist } from '@/hooks/useWishlist';
-import { useCartQuantity } from '@/hooks/useCartQuantity';
-import { useProductReviews } from '@/hooks/useProductReviews';
-import { products as centralizedProducts, getAllCategories, ProductData } from '@/data/products';
-import ReviewStars from '@/components/ReviewStars';
-
-// Using centralized ProductData interface and categories
-
-// Use centralized products data directly instead of mapping
-// Shop will now use the centralized product data with correct images
+import { getAllProducts, CentralizedProduct } from '@/data/centralizedProducts';
+import ProductCardWithVariants from '@/components/ProductCardWithVariants';
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState<ProductData[]>([]);
-  const [categories, setCategories] = useState<{id: string, name: string, description: string}[]>([]);
+  const [products, setProducts] = useState<CentralizedProduct[]>([]);
+  const [categories] = useState([
+    { id: 'all', name: 'All Categories', description: 'All products' },
+    { id: 'protein', name: 'Protein', description: 'Protein supplements' },
+    { id: 'mass-gainer', name: 'Mass Gainer', description: 'Mass gaining supplements' },
+    { id: 'pre-workout', name: 'Pre-Workout', description: 'Pre-workout supplements' },
+    { id: 'creatine', name: 'Creatine', description: 'Creatine supplements' }
+  ]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [priceRange, setPriceRange] = useState('all');
-  const [selectedFlavor, setSelectedFlavor] = useState('all');
-  const [selectedWeight, setSelectedWeight] = useState('all');
   const [sortBy, setSortBy] = useState('name');
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const { isInWishlist, toggleWishlist } = useWishlist();
 
   const priceRanges = [
     { id: 'all', name: 'All Prices' },
-    { id: '0-3000', name: '₹0 - ₹3,000' },
-    { id: '3000-4500', name: '₹3,000 - ₹4,500' },
-    { id: '4500-6000', name: '₹4,500 - ₹6,000' },
-    { id: '6000+', name: '₹6,000+' }
+    { id: '0-2000', name: '₹0 - ₹2,000' },
+    { id: '2000-3500', name: '₹2,000 - ₹3,500' },
+    { id: '3500-5000', name: '₹3,500 - ₹5,000' },
+    { id: '5000+', name: '₹5,000+' }
   ];
 
   const sortOptions = [
@@ -51,26 +38,16 @@ const Shop = () => {
     { id: 'featured', name: 'Featured' }
   ];
 
-  // Extract unique flavors and weights from products
-  const availableFlavors = ['all', ...new Set(products.map(p => p.details.flavor).filter(Boolean))];
-  const availableWeights = ['all', ...new Set(products.map(p => p.details.weight).filter(Boolean))];
-
   useEffect(() => {
-    loadCategoriesAndProducts();
+    loadProducts();
   }, []);
 
-  const loadCategoriesAndProducts = () => {
+  const loadProducts = () => {
     try {
-      const allCategories = getAllCategories();
-      setCategories(Object.values(allCategories));
-      setProducts(centralizedProducts);
+      const allProducts = getAllProducts();
+      setProducts(allProducts);
     } catch (error) {
       console.error('Error loading products:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load products.",
-        variant: "destructive"
-      });
     } finally {
       setLoading(false);
     }
@@ -90,40 +67,27 @@ const Shop = () => {
     // Category filter
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(product =>
-        product.category.toLowerCase() === selectedCategory.toLowerCase()
+        product.categoryId === selectedCategory
       );
     }
 
-    // Price filter
+    // Price filter - using default variant price
     if (priceRange !== 'all') {
       const [min, max] = priceRange.split('-').map(p => p === '+' ? Infinity : parseInt(p.replace('+', '')));
       filtered = filtered.filter(product => {
-        if (max === undefined || max === Infinity) return product.price >= min;
-        return product.price >= min && product.price <= max;
+        const defaultPrice = product.variants[0]?.price || 0;
+        if (max === undefined || max === Infinity) return defaultPrice >= min;
+        return defaultPrice >= min && defaultPrice <= max;
       });
-    }
-
-    // Flavor filter
-    if (selectedFlavor !== 'all') {
-      filtered = filtered.filter(product => 
-        product.details.flavor === selectedFlavor
-      );
-    }
-
-    // Weight filter
-    if (selectedWeight !== 'all') {
-      filtered = filtered.filter(product => 
-        product.details.weight === selectedWeight
-      );
     }
 
     // Sort
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'price-low':
-          return a.price - b.price;
+          return (a.variants[0]?.price || 0) - (b.variants[0]?.price || 0);
         case 'price-high':
-          return b.price - a.price;
+          return (b.variants[0]?.price || 0) - (a.variants[0]?.price || 0);
         case 'featured':
           return b.isFeatured ? 1 : -1;
         default:
@@ -143,168 +107,8 @@ const Shop = () => {
     setSearchQuery('');
     setSelectedCategory('all');
     setPriceRange('all');
-    setSelectedFlavor('all');
-    setSelectedWeight('all');
     setSortBy('name');
     setSearchParams(new URLSearchParams());
-  };
-
-  const handleQuickAdd = async (product: ProductData) => {
-    if (!user) {
-      toast({
-        title: "Please Sign In",
-        description: "You need to be logged in to add items to cart.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      // Check if item already exists in cart
-      const { data: existingItem } = await supabase
-        .from('cart')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('product_id', product.id)
-        .single();
-
-      if (existingItem) {
-        // Update quantity
-        const { error } = await supabase
-          .from('cart')
-          .update({ quantity: existingItem.quantity + 1 })
-          .eq('id', existingItem.id);
-
-        if (error) throw error;
-      } else {
-        // Add new item
-        const { error } = await supabase
-          .from('cart')
-          .insert([
-            {
-              user_id: user.id,
-              product_id: product.id,
-              quantity: 1
-            }
-          ]);
-
-        if (error) throw error;
-      }
-
-      toast({
-        title: "Added to Cart",
-        description: `${product.name} has been added to your cart.`
-      });
-
-      // Trigger cart update event
-      window.dispatchEvent(new CustomEvent('cartUpdated'));
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add item to cart.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleQuickBuy = (product: ProductData) => {
-    const message = `Hi! I'm interested in purchasing ${product.name} (₹${product.price}). Can you help me with the order?`;
-    const whatsappUrl = `https://wa.me/919211991181?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
-  
-  // ReviewStars component that uses the hook
-  const ReviewStarsWithHook = ({ productId }: { productId: string }) => {
-    const { stats } = useProductReviews(productId);
-    
-    return stats && stats.total_reviews > 0 ? (
-      <ReviewStars 
-        rating={stats.average_rating} 
-        totalReviews={stats.total_reviews} 
-        showText={true}
-        size="sm"
-      />
-    ) : (
-      <span className="text-gray-500 text-xs">No reviews yet</span>
-    );
-  };
-
-  // CartButtons component for shop page
-  const CartButtons = ({ productId, productName }: { productId: string; productName: string }) => {
-    const { quantity, loading, incrementQuantity, decrementQuantity, addToCart } = useCartQuantity(productId);
-    const { user } = useAuth();
-    const { toast } = useToast();
-
-    const handleAddToCart = () => {
-      if (!user) {
-        toast({
-          title: "Please Sign In",
-          description: "You need to be logged in to add items to cart.",
-          variant: "destructive"
-        });
-        return;
-      }
-      addToCart(productName);
-    };
-
-    const handleQuickBuy = () => {
-      const message = `Hi! I'm interested in purchasing ${productName}. Can you help me with the order?`;
-      const whatsappUrl = `https://wa.me/919211991181?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-    };
-
-    return (
-      <div className="flex gap-2">
-        {quantity > 0 ? (
-          // Quantity Controls - Compact and responsive
-          <div className="flex items-center bg-purple-600 rounded-lg overflow-hidden">
-            <Button
-              size="sm"
-              onClick={() => decrementQuantity(productName)}
-              disabled={loading}
-              className="bg-purple-700 hover:bg-purple-800 text-white px-2 py-1 rounded-none h-8 min-w-8"
-            >
-              <Minus className="h-3 w-3" />
-            </Button>
-            <span className="bg-purple-600 text-white px-2 py-1 text-sm font-bold min-w-8 text-center flex items-center justify-center h-8">
-              {quantity}
-            </span>
-            <Button
-              size="sm"
-              onClick={() => incrementQuantity(productName)}
-              disabled={loading}
-              className="bg-purple-700 hover:bg-purple-800 text-white px-2 py-1 rounded-none h-8 min-w-8"
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
-          </div>
-        ) : (
-          // Add to Cart Button - Purple theme
-          <Button
-            size="sm"
-            onClick={handleAddToCart}
-            disabled={loading}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 text-sm font-bold"
-          >
-            <ShoppingCart className="h-3 w-3 mr-1" />
-            ADD TO CART
-          </Button>
-        )}
-        
-        {/* Quick Buy Button */}
-        <Button
-          size="sm"
-          onClick={handleQuickBuy}
-          variant="outline"
-          className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold"
-        >
-          <MessageCircle className="h-3 w-3 mr-1" />
-          BUY
-        </Button>
-      </div>
-    );
   };
 
   const filteredProducts = filterProducts();
@@ -341,7 +145,7 @@ const Shop = () => {
               </form>
 
               {/* Filters */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 lg:gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-3">
                 {/* Category Filter */}
                 <select
                   value={selectedCategory}
@@ -350,7 +154,7 @@ const Shop = () => {
                 >
                   <option value="all">All Categories</option>
                   {categories.map((category) => (
-                    <option key={category.id} value={category.name.toLowerCase()}>
+                    <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
                   ))}
@@ -365,34 +169,6 @@ const Shop = () => {
                   {priceRanges.map((range) => (
                     <option key={range.id} value={range.id}>
                       {range.name}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Flavor Filter */}
-                <select
-                  value={selectedFlavor}
-                  onChange={(e) => setSelectedFlavor(e.target.value)}
-                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-2 py-2 text-sm"
-                >
-                  <option value="all">All Flavors</option>
-                  {availableFlavors.filter(f => f !== 'all').map((flavor) => (
-                    <option key={flavor} value={flavor}>
-                      {flavor.split(' - ')[0].replace(/[🍉🍬🍫]/g, '').trim()}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Weight Filter */}
-                <select
-                  value={selectedWeight}
-                  onChange={(e) => setSelectedWeight(e.target.value)}
-                  className="bg-gray-900 border border-purple-700 text-white rounded-lg px-2 py-2 text-sm"
-                >
-                  <option value="all">All Weights</option>
-                  {availableWeights.filter(w => w !== 'all').map((weight) => (
-                    <option key={weight} value={weight}>
-                      {weight}
                     </option>
                   ))}
                 </select>
@@ -434,145 +210,25 @@ const Shop = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredProducts.map((product) => (
-                  <div
+                  <ProductCardWithVariants
                     key={product.id}
-                    className="group bg-gray-900 rounded-xl overflow-hidden hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 border border-purple-800/20 animate-fade-in relative"
-                  >
-                    <Link to={`/product/${product.id}`}>
-                      <div className="relative h-48 overflow-hidden bg-gray-800 flex items-center justify-center">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                        />
-                        
-                        {/* Badges */}
-                        <div className="absolute top-3 left-3 flex flex-col gap-2">
-                          {product.isNew && (
-                            <Badge className="bg-purple-600 text-white px-2 py-1 text-xs font-bold">
-                              NEW
-                            </Badge>
-                          )}
-                          {product.isFeatured && (
-                            <Badge className="bg-yellow-600 text-black px-2 py-1 text-xs font-bold">
-                              FEATURED
-                            </Badge>
-                          )}
-                          {product.badge && (
-                            <Badge className="bg-red-600 text-white px-2 py-1 text-xs font-bold">
-                              {product.badge}
-                            </Badge>
-                          )}
-                        </div>
-
-                        {/* Wishlist Button */}
-                        <button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            toggleWishlist(product.id, product.name);
-                          }}
-                          className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                            isInWishlist(product.id)
-                              ? 'bg-red-600 text-white'
-                              : 'bg-black/50 text-white hover:bg-purple-600'
-                          }`}
-                        >
-                          <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
-                        </button>
-                      </div>
-                    </Link>
-
-                    {/* Content */}
-                    <div className="p-6 space-y-4">
-                      {/* Category */}
-                      <span className="text-purple-400 text-xs font-bold tracking-wider uppercase">
-                        {product.category}
-                      </span>
-                      
-                      {/* Title */}
-                      <Link to={`/product/${product.id}`}>
-                        <h3 className="text-white text-lg font-bold line-clamp-2 group-hover:text-purple-400 transition-colors">
-                          {product.name}
-                        </h3>
-                      </Link>
-
-                       {/* Weight Display */}
-                       {(() => {
-                         const categoryLower = product.category.toLowerCase();
-                         let weightDisplay = '';
-                         
-                         if (categoryLower.includes('mass gainer') || categoryLower.includes('gainer')) {
-                           // For gainers, extract weight from name (6lbs or 10lbs)
-                           const weightMatch = product.name.match(/(\d+)lbs/);
-                           weightDisplay = weightMatch ? `${weightMatch[1]}lbs` : '';
-                         } else if (categoryLower.includes('protein') || categoryLower.includes('whey')) {
-                           // For protein, show in kgs
-                           weightDisplay = product.details.weight || '2kg';
-                         } else if (categoryLower.includes('pre-workout') || categoryLower.includes('creatine')) {
-                           // For pre-workout and creatine, show servings
-                           weightDisplay = product.details.servings || '';
-                         } else {
-                           weightDisplay = product.details.weight || '';
-                         }
-                         
-                         return weightDisplay ? (
-                           <div className="text-gray-300 text-sm font-medium">
-                             {weightDisplay}
-                           </div>
-                         ) : null;
-                       })()}
-
-                       {/* Reviews Component */}
-                       <ReviewStarsWithHook productId={product.id} />
-
-
-                      {/* Description */}
-                      <p className="text-gray-400 text-sm line-clamp-2">
-                        {product.description}
-                      </p>
-
-                      {/* Price and Buttons */}
-                      <div className="flex flex-col gap-3 pt-2">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-white text-xl font-bold">
-                              ₹{product.price.toFixed(0)}
-                            </span>
-                            {product.mrp && (
-                              <span className="text-gray-500 text-sm line-through">
-                                ₹{product.mrp.toFixed(0)}
-                              </span>
-                            )}
-                          </div>
-                          {product.discount && (
-                            <span className="text-green-400 text-xs font-bold">
-                              {product.discount}% OFF
-                            </span>
-                          )}
-                        </div>
-                        
-                        {/* Cart quantity controls */}
-                        <CartButtons productId={product.id} productName={product.name} />
-                      </div>
-
-                      {/* Stock Status */}
-                      <div className="text-xs">
-                        {product.stockQuantity > 0 ? (
-                          <span className="text-green-400">✓ In Stock ({product.stockQuantity})</span>
-                        ) : (
-                          <span className="text-red-400">✗ Out of Stock</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                    product={product}
+                    showVariantSelector={true}
+                  />
                 ))}
               </div>
             )}
 
             {!loading && filteredProducts.length === 0 && (
               <div className="text-center py-20">
-                <h3 className="text-2xl font-bold text-gray-400 mb-4">No products found</h3>
-                <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+                <h3 className="text-2xl font-bold text-white mb-4">No products found</h3>
+                <p className="text-gray-400 mb-8">Try adjusting your filters or search terms.</p>
+                <Button
+                  onClick={resetFilters}
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  Reset Filters
+                </Button>
               </div>
             )}
           </div>

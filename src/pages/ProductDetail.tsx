@@ -109,7 +109,7 @@ const ProductDetail = () => {
         .eq('user_id', user.id)
         .eq('product_id', product.id)
         .eq('variant_id', selectedVariant.id)
-        .single();
+        .maybeSingle();
 
       if (existingItem) {
         // Update quantity
@@ -170,7 +170,7 @@ const ProductDetail = () => {
         .eq('user_id', user.id)
         .eq('product_id', productId)
         .eq('variant_id', variantId)
-        .single();
+        .maybeSingle();
 
       if (existingItem) {
         // Update quantity
@@ -333,7 +333,7 @@ const ProductDetail = () => {
                 {/* Price */}
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-bold text-white">
-                    ₹{selectedVariant?.price.toFixed(0) || 0}
+                    ₹{selectedVariant ? selectedVariant.price.toFixed(0) : '0'}
                   </span>
                 </div>
 

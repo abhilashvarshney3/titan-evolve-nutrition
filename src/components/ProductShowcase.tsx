@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { products as centralizedProducts, ProductData } from '@/data/products';
-import ProductCard from '@/components/ProductCard';
+import { getFeaturedProducts, CentralizedProduct } from '@/data/centralizedProducts';
+import ProductCardWithVariants from '@/components/ProductCardWithVariants';
 
 const ProductShowcase = () => {
-  const [products, setProducts] = useState<ProductData[]>([]);
+  const [products, setProducts] = useState<CentralizedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -16,7 +16,7 @@ const ProductShowcase = () => {
   const loadFeaturedProducts = async () => {
     try {
       // Get featured products from centralized data
-      const featuredProducts = centralizedProducts.filter(product => product.isFeatured);
+      const featuredProducts = getFeaturedProducts();
       setProducts(featuredProducts);
     } catch (error) {
       console.error('Error loading featured products:', error);
@@ -106,17 +106,9 @@ const ProductShowcase = () => {
           >
             {products.map((product) => (
               <div key={product.id} className="flex-shrink-0 w-64 sm:w-72 md:w-80">
-                <ProductCard
-                  id={product.id}
-                  name={product.name}
-                  category={product.category}
-                  price={product.price}
-                  originalPrice={product.originalPrice}
-                  mrp={product.mrp}
-                  discount={product.discount}
-                  image={product.image}
-                  badge={product.badge}
-                  description={product.description}
+                <ProductCardWithVariants
+                  product={product}
+                  showVariantSelector={false}
                 />
               </div>
             ))}
