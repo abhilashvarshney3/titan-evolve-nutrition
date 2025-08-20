@@ -20,6 +20,7 @@ interface ProductVariant {
   stock_quantity: number;
   sku?: string;
   is_active: boolean;
+  product_details?: string;
 }
 
 interface VariantImage {
@@ -53,7 +54,8 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
     original_price: '',
     stock_quantity: '',
     sku: '',
-    is_active: true
+    is_active: true,
+    product_details: ''
   });
 
   const [newImageUrl, setNewImageUrl] = useState('');
@@ -118,7 +120,8 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
       original_price: '',
       stock_quantity: '',
       sku: '',
-      is_active: true
+      is_active: true,
+      product_details: ''
     });
     setIsDialogOpen(true);
   };
@@ -133,7 +136,8 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
       original_price: variant.original_price?.toString() || '',
       stock_quantity: variant.stock_quantity.toString(),
       sku: variant.sku || '',
-      is_active: variant.is_active
+      is_active: variant.is_active,
+      product_details: variant.product_details || ''
     });
     setIsDialogOpen(true);
   };
@@ -149,7 +153,8 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
         original_price: variantForm.original_price ? parseFloat(variantForm.original_price) : null,
         stock_quantity: parseInt(variantForm.stock_quantity),
         sku: variantForm.sku || null,
-        is_active: variantForm.is_active
+        is_active: variantForm.is_active,
+        product_details: variantForm.product_details || null
       };
 
       if (selectedVariant) {
@@ -477,6 +482,15 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
                 value={variantForm.sku}
                 onChange={(e) => setVariantForm(prev => ({ ...prev, sku: e.target.value }))}
                 placeholder="TE-LWP-DRC-2KG"
+              />
+            </div>
+            <div>
+              <Label htmlFor="product_details">Product Details (Optional)</Label>
+              <Input
+                id="product_details"
+                value={variantForm.product_details}
+                onChange={(e) => setVariantForm(prev => ({ ...prev, product_details: e.target.value }))}
+                placeholder="e.g., Whey Protein Isolate, No Added Sugar"
               />
             </div>
             <div className="flex justify-end gap-2 pt-4">

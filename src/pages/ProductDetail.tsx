@@ -228,8 +228,6 @@ const ProductDetail = () => {
                               displayOrder: img.display_order
                             }))}
                             className="w-full h-full"
-                            autoPlay={true}
-                            autoPlayInterval={5000}
                           />
                         );
                       }

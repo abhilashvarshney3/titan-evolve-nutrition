@@ -42,19 +42,29 @@ const Shop = () => {
   const filterProducts = () => {
     let filtered = [...products];
 
-    // Search filter
+    // Search filter - includes product name, description, and variant flavors
     if (searchQuery) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      filtered = filtered.filter(product => {
+        const matchesProduct = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        const matchesVariantFlavor = product.variants.some(variant => 
+          variant.flavor?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          variant.size?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          variant.variant_name?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        
+        return matchesProduct || matchesVariantFlavor;
+      });
     }
 
     // Category filter
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(product =>
-        product.category_id === selectedCategory
-      );
+      filtered = filtered.filter(product => {
+        // Handle both category_id and name-based filtering
+        return product.category_id === selectedCategory || 
+               product.name.toLowerCase().includes(selectedCategory.replace('-', ' '));
+      });
     }
 
     // Price filter - using default variant price
