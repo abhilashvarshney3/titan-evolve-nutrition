@@ -23,6 +23,11 @@ interface ProductVariant {
   product_details?: string;
 }
 
+interface ProductDetail {
+  title: string;
+  value: string;
+}
+
 interface VariantImage {
   id: string;
   variant_id: string;
@@ -57,6 +62,8 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
     is_active: true,
     product_details: ''
   });
+
+  const [productDetails, setProductDetails] = useState<ProductDetail[]>([{ title: '', value: '' }]);
 
   const [newImageUrl, setNewImageUrl] = useState('');
 
@@ -123,6 +130,7 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
       is_active: true,
       product_details: ''
     });
+    setProductDetails([{ title: '', value: '' }]);
     setIsDialogOpen(true);
   };
 
@@ -139,6 +147,19 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
       is_active: variant.is_active,
       product_details: variant.product_details || ''
     });
+    
+    // Parse existing product details
+    try {
+      const existingDetails = variant.product_details ? JSON.parse(variant.product_details) : [];
+      if (Array.isArray(existingDetails) && existingDetails.length > 0) {
+        setProductDetails(existingDetails);
+      } else {
+        setProductDetails([{ title: '', value: '' }]);
+      }
+    } catch {
+      setProductDetails([{ title: '', value: '' }]);
+    }
+    
     setIsDialogOpen(true);
   };
 
@@ -154,7 +175,7 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
         stock_quantity: parseInt(variantForm.stock_quantity),
         sku: variantForm.sku || null,
         is_active: variantForm.is_active,
-        product_details: variantForm.product_details || null
+        product_details: JSON.stringify(productDetails.filter(detail => detail.title && detail.value)) || null
       };
 
       if (selectedVariant) {
@@ -485,15 +506,56 @@ const ProductVariantManager: React.FC<ProductVariantManagerProps> = ({ productId
               />
             </div>
             <div>
-              <Label htmlFor="product_details">Product Details (Optional)</Label>
-              <textarea
-                id="product_details"
-                value={variantForm.product_details}
-                onChange={(e) => setVariantForm(prev => ({ ...prev, product_details: e.target.value }))}
-                placeholder="e.g., Whey Protein Isolate, No Added Sugar, 25g Protein per serving"
-                className="w-full min-h-[80px] px-3 py-2 text-sm border border-input bg-background rounded-md resize-vertical"
-                rows={3}
-              />
+              <Label>Product Details (Optional)</Label>
+              <div className="space-y-3">
+                {productDetails.map((detail, index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <Input
+                      placeholder="Detail title (e.g., Protein)"
+                      value={detail.title}
+                      onChange={(e) => {
+                        const newDetails = [...productDetails];
+                        newDetails[index] = { ...newDetails[index], title: e.target.value };
+                        setProductDetails(newDetails);
+                      }}
+                      className="flex-1"
+                    />
+                    <Input
+                      placeholder="Detail value (e.g., 25g per serving)"
+                      value={detail.value}
+                      onChange={(e) => {
+                        const newDetails = [...productDetails];
+                        newDetails[index] = { ...newDetails[index], value: e.target.value };
+                        setProductDetails(newDetails);
+                      }}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (productDetails.length > 1) {
+                          setProductDetails(productDetails.filter((_, i) => i !== index));
+                        }
+                      }}
+                      disabled={productDetails.length === 1}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setProductDetails([...productDetails, { title: '', value: '' }])}
+                  className="w-full"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Detail
+                </Button>
+              </div>
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>

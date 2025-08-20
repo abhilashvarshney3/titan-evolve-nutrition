@@ -41,8 +41,8 @@ const ImageModal: React.FC<ImageModalProps> = ({ images, initialIndex, isOpen, o
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[100vw] max-h-[100vh] w-full h-full p-0 bg-black/95 border-0 sm:max-w-[95vw] sm:max-h-[95vh]">
-        <div className="relative w-full h-full flex items-center justify-center">
+      <DialogContent className="max-w-[100vw] max-h-[100vh] w-full h-full p-0 bg-black/95 border-0 md:max-w-[90vw] md:max-h-[90vh] md:w-auto md:h-auto">
+        <div className="relative w-full h-full flex items-center justify-center min-h-[50vh] md:min-h-[60vh]">
           {/* Close button */}
           <button
             onClick={onClose}
@@ -52,11 +52,11 @@ const ImageModal: React.FC<ImageModalProps> = ({ images, initialIndex, isOpen, o
           </button>
 
           {/* Main image */}
-          <div className="relative w-full h-full flex items-center justify-center p-4 sm:p-8">
+          <div className="relative w-full h-full flex items-center justify-center p-4 sm:p-8 md:p-12">
             <img
               src={sortedImages[currentIndex]?.imageUrl}
               alt="Product image"
-              className="max-w-full max-h-full object-contain"
+              className="max-w-full max-h-full object-contain w-auto h-auto md:max-w-[70vw] md:max-h-[70vh]"
             />
           </div>
 

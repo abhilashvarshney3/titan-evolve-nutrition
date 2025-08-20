@@ -407,7 +407,18 @@ const ProductDetail = () => {
                    <div className="space-y-2 text-gray-300">
                      {selectedVariant?.flavor && <p><strong>Flavor:</strong> {selectedVariant.flavor}</p>}
                      {selectedVariant && <p><strong>Size:</strong> {selectedVariant.size}</p>}
-                     {selectedVariant?.product_details && <p><strong>Details:</strong> {selectedVariant.product_details}</p>}
+                     {selectedVariant?.product_details && (() => {
+                       try {
+                         const details = JSON.parse(selectedVariant.product_details);
+                         if (Array.isArray(details) && details.length > 0) {
+                           return details.map((detail, index) => (
+                             <p key={index}><strong>{detail.title}:</strong> {detail.value}</p>
+                           ));
+                         }
+                       } catch {
+                         return <p><strong>Details:</strong> {selectedVariant.product_details}</p>;
+                       }
+                     })()}
                      <p><strong>Stock Status:</strong> {
                        (selectedVariant?.stock_quantity || product.stock_quantity || 0) > 0 
                          ? <span className="text-green-400">In Stock</span>
