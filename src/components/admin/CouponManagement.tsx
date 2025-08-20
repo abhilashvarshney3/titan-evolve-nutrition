@@ -398,15 +398,15 @@ const CouponManagement = () => {
 
       {/* Coupon Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-background text-foreground border-input">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-foreground">
               {selectedCoupon ? 'Edit Coupon' : 'Create New Coupon'}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="code">Coupon Code *</Label>
+              <Label htmlFor="code" className="text-foreground">Coupon Code *</Label>
               <div className="flex gap-2">
                 <Input
                   id="code"
@@ -414,6 +414,7 @@ const CouponManagement = () => {
                   onChange={(e) => setCouponForm({...couponForm, code: e.target.value.toUpperCase()})}
                   placeholder="SAVE20"
                   required
+                  className="bg-background text-foreground border-input"
                 />
                 <Button type="button" variant="outline" onClick={generateCouponCode}>
                   Generate
@@ -422,34 +423,35 @@ const CouponManagement = () => {
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-foreground">Description</Label>
               <Textarea
                 id="description"
                 value={couponForm.description}
                 onChange={(e) => setCouponForm({...couponForm, description: e.target.value})}
                 placeholder="20% off on all orders"
                 rows={2}
+                className="bg-background text-foreground border-input"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="discount_type">Discount Type</Label>
+                <Label htmlFor="discount_type" className="text-foreground">Discount Type</Label>
                 <Select 
                   value={couponForm.discount_type} 
                   onValueChange={(value: 'percentage' | 'fixed') => setCouponForm({...couponForm, discount_type: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background text-foreground border-input">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background text-foreground border-input">
                     <SelectItem value="percentage">Percentage (%)</SelectItem>
                     <SelectItem value="fixed">Fixed Amount (₹)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="discount_value">Discount Value *</Label>
+                <Label htmlFor="discount_value" className="text-foreground">Discount Value *</Label>
                 <Input
                   id="discount_value"
                   type="number"
@@ -457,61 +459,67 @@ const CouponManagement = () => {
                   onChange={(e) => setCouponForm({...couponForm, discount_value: parseFloat(e.target.value)})}
                   placeholder={couponForm.discount_type === 'percentage' ? '20' : '100'}
                   required
+                  className="bg-background text-foreground border-input"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="minimum_order_amount">Minimum Order Amount (₹)</Label>
+              <Label htmlFor="minimum_order_amount" className="text-foreground">Minimum Order Amount (₹)</Label>
               <Input
                 id="minimum_order_amount"
                 type="number"
                 value={couponForm.minimum_order_amount}
                 onChange={(e) => setCouponForm({...couponForm, minimum_order_amount: parseFloat(e.target.value)})}
                 placeholder="0"
+                className="bg-background text-foreground border-input"
               />
             </div>
 
             <div>
-              <Label htmlFor="maximum_discount_amount">Maximum Discount Amount (₹)</Label>
+              <Label htmlFor="maximum_discount_amount" className="text-foreground">Maximum Discount Amount (₹)</Label>
               <Input
                 id="maximum_discount_amount"
                 type="number"
                 value={couponForm.maximum_discount_amount}
                 onChange={(e) => setCouponForm({...couponForm, maximum_discount_amount: e.target.value})}
                 placeholder="Leave empty for no limit"
+                className="bg-background text-foreground border-input"
               />
             </div>
 
             <div>
-              <Label htmlFor="usage_limit">Usage Limit</Label>
+              <Label htmlFor="usage_limit" className="text-foreground">Usage Limit</Label>
               <Input
                 id="usage_limit"
                 type="number"
                 value={couponForm.usage_limit}
                 onChange={(e) => setCouponForm({...couponForm, usage_limit: e.target.value})}
                 placeholder="Leave empty for unlimited"
+                className="bg-background text-foreground border-input"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="valid_from">Valid From</Label>
+                <Label htmlFor="valid_from" className="text-foreground">Valid From</Label>
                 <Input
                   id="valid_from"
                   type="date"
                   value={couponForm.valid_from}
                   onChange={(e) => setCouponForm({...couponForm, valid_from: e.target.value})}
                   required
+                  className="bg-background text-foreground border-input"
                 />
               </div>
               <div>
-                <Label htmlFor="valid_until">Valid Until</Label>
+                <Label htmlFor="valid_until" className="text-foreground">Valid Until</Label>
                 <Input
                   id="valid_until"
                   type="date"
                   value={couponForm.valid_until}
                   onChange={(e) => setCouponForm({...couponForm, valid_until: e.target.value})}
+                  className="bg-background text-foreground border-input"
                 />
               </div>
             </div>
@@ -522,7 +530,7 @@ const CouponManagement = () => {
                 checked={couponForm.is_active}
                 onCheckedChange={(checked) => setCouponForm({...couponForm, is_active: checked})}
               />
-              <Label htmlFor="is_active">Active</Label>
+              <Label htmlFor="is_active" className="text-foreground">Active</Label>
             </div>
 
             <div className="flex justify-end gap-2 pt-4">

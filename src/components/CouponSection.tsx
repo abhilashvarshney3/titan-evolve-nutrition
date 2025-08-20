@@ -112,9 +112,26 @@ const CouponSection: React.FC<CouponSectionProps> = ({ onCouponApplied, cartTota
         discountAmount = coupon.discount_value;
       }
 
-      // Apply coupon
+      // Apply coupon and track usage
       setAppliedCoupon(coupon);
       onCouponApplied(discountAmount);
+      
+      // Track coupon usage in database
+      try {
+        const { error: usageError } = await supabase
+          .from('coupon_usage')
+          .insert([{
+            coupon_id: coupon.id,
+            user_id: (await supabase.auth.getUser()).data.user?.id || null,
+            discount_amount: discountAmount
+          }]);
+        
+        if (usageError) {
+          console.error('Error tracking coupon usage:', usageError);
+        }
+      } catch (error) {
+        console.error('Error tracking coupon usage:', error);
+      }
       
       toast({
         title: "Coupon Applied!",

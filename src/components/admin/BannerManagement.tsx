@@ -201,9 +201,9 @@ const BannerManagement = () => {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div>
-                <Label htmlFor="setting_key" className="text-foreground">Setting Key</Label>
+                <Label htmlFor="title" className="text-foreground">Banner Title</Label>
                 <Input
-                  id="setting_key"
+                  id="title"
                   value={bannerForm.title}
                   onChange={(e) => setBannerForm(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Banner title"
