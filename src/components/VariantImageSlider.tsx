@@ -1,54 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { VariantImage } from '@/data/centralizedProducts';
 
 interface VariantImageSliderProps {
   images: VariantImage[];
   className?: string;
+  autoPlay?: boolean;
+  autoPlayInterval?: number;
 }
 
-const VariantImageSlider: React.FC<VariantImageSliderProps> = ({ images, className = "" }) => {
+const VariantImageSlider: React.FC<VariantImageSliderProps> = ({ 
+  images, 
+  className = "", 
+  autoPlay = true, 
+  autoPlayInterval = 4000 
+}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   if (!images || images.length === 0) {
     return null;
   }
 
+  // Sort images by display order, with primary images first
+  const sortedImages = [...images].sort((a, b) => {
+    if (a.isPrimary && !b.isPrimary) return -1;
+    if (!a.isPrimary && b.isPrimary) return 1;
+    return (a.displayOrder || 0) - (b.displayOrder || 0);
+  });
+
   const nextImage = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
+    setCurrentIndex((prev) => (prev + 1) % sortedImages.length);
   };
 
   const prevImage = () => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    setCurrentIndex((prev) => (prev - 1 + sortedImages.length) % sortedImages.length);
   };
 
   const goToImage = (index: number) => {
     setCurrentIndex(index);
   };
 
+  // Auto-play functionality
+  useEffect(() => {
+    if (autoPlay && sortedImages.length > 1) {
+      const interval = setInterval(nextImage, autoPlayInterval);
+      return () => clearInterval(interval);
+    }
+  }, [autoPlay, autoPlayInterval, sortedImages.length]);
+
   return (
     <div className={`relative group ${className}`}>
       {/* Main Image */}
-      <div className="relative overflow-hidden rounded-lg bg-muted/10">
+      <div className="relative overflow-hidden rounded-lg bg-gray-900/80 aspect-square flex items-center justify-center p-4">
         <img
-          src={images[currentIndex]?.imageUrl}
+          src={sortedImages[currentIndex]?.imageUrl}
           alt="Product variant"
-          className="w-full h-full object-contain transition-all duration-300"
+          className="max-w-full max-h-full object-contain transition-all duration-300"
         />
         
         {/* Navigation Arrows - only show if more than 1 image */}
-        {images.length > 1 && (
+        {sortedImages.length > 1 && (
           <>
             <button
               onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/90 hover:bg-background text-foreground p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg z-10"
               aria-label="Previous image"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/90 hover:bg-background text-foreground p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg z-10"
               aria-label="Next image"
             >
               <ChevronRight className="w-4 h-4" />
@@ -58,16 +80,16 @@ const VariantImageSlider: React.FC<VariantImageSliderProps> = ({ images, classNa
       </div>
 
       {/* Thumbnails - only show if more than 1 image */}
-      {images.length > 1 && (
-        <div className="flex gap-2 mt-3 justify-center">
-          {images.map((image, index) => (
+      {sortedImages.length > 1 && (
+        <div className="flex gap-2 mt-3 justify-center overflow-x-auto scrollbar-hide">
+          {sortedImages.map((image, index) => (
             <button
               key={image.id}
               onClick={() => goToImage(index)}
-              className={`w-16 h-16 rounded-md overflow-hidden border-2 transition-all duration-200 ${
+              className={`w-16 h-16 rounded-md overflow-hidden border-2 transition-all duration-200 flex-shrink-0 ${
                 index === currentIndex
-                  ? 'border-primary shadow-md'
-                  : 'border-border hover:border-primary/50'
+                  ? 'border-purple-500 shadow-md'
+                  : 'border-gray-700 hover:border-purple-400'
               }`}
             >
               <img
@@ -81,16 +103,16 @@ const VariantImageSlider: React.FC<VariantImageSliderProps> = ({ images, classNa
       )}
 
       {/* Dots indicator for mobile */}
-      {images.length > 1 && (
+      {sortedImages.length > 1 && (
         <div className="flex justify-center gap-2 mt-2 md:hidden">
-          {images.map((_, index) => (
+          {sortedImages.map((_, index) => (
             <button
               key={index}
               onClick={() => goToImage(index)}
               className={`w-2 h-2 rounded-full transition-all duration-200 ${
                 index === currentIndex
-                  ? 'bg-primary'
-                  : 'bg-muted-foreground hover:bg-primary/50'
+                  ? 'bg-purple-500'
+                  : 'bg-gray-500 hover:bg-purple-400'
               }`}
               aria-label={`Go to image ${index + 1}`}
             />

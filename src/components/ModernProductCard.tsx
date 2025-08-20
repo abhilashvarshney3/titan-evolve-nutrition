@@ -162,9 +162,9 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
   const discountPercentage = getDiscountPercentage();
 
   return (
-    <div className="group relative bg-card/80 backdrop-blur-sm rounded-xl overflow-hidden hover:bg-card/90 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl border border-border/30 shadow-lg">
+    <div className="group relative bg-gray-800/95 backdrop-blur-sm rounded-xl overflow-hidden hover:bg-gray-700/95 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl border border-purple-500/20 shadow-lg">
       {/* Image Container */}
-      <div className="relative h-64 overflow-hidden bg-muted/5 flex items-center justify-center p-4">
+      <div className="relative h-64 overflow-hidden bg-gray-900/50 flex items-center justify-center p-4">
         <Link to={`/product/${product.id}`} className="h-full w-full flex items-center justify-center">
           <img
             src={getVariantImage()}
@@ -209,7 +209,7 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
       <div className="p-4 space-y-4">
         {/* Product Name */}
         <Link to={`/product/${product.id}`}>
-          <h3 className="text-card-foreground text-lg font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+          <h3 className="text-white text-lg font-bold line-clamp-2 group-hover:text-purple-400 transition-colors leading-tight">
             {product.name}
           </h3>
         </Link>
@@ -231,23 +231,23 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
         {/* Variant Selector */}
         {product.variants.length > 1 && (
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider">Variant</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Variant</p>
             <Select value={selectedVariant.id} onValueChange={handleVariantChange}>
-              <SelectTrigger className="w-full h-9 text-xs bg-muted/20 border-border/30 hover:bg-muted/30 transition-colors">
+              <SelectTrigger className="w-full h-9 text-xs bg-gray-800/80 border-purple-500/30 text-white hover:bg-gray-700/80 transition-colors">
                 <SelectValue>
                   {selectedVariant.flavor ? `${selectedVariant.flavor} - ${selectedVariant.size}` : selectedVariant.size}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-card/95 backdrop-blur-md border-border/30 shadow-xl">
+              <SelectContent className="bg-gray-800/95 backdrop-blur-md border-purple-500/30 shadow-xl">
                 {product.variants.map((variant) => (
                   <SelectItem 
                     key={variant.id} 
                     value={variant.id}
-                    className="text-xs hover:bg-muted/30 focus:bg-muted/30"
+                    className="text-xs text-white hover:bg-gray-700/50 focus:bg-gray-700/50"
                   >
                     <div className="flex justify-between items-center w-full">
                       <span>{variant.flavor ? `${variant.flavor} - ${variant.size}` : variant.size}</span>
-                      <span className="ml-2 text-muted-foreground font-medium">₹{variant.price.toFixed(0)}</span>
+                      <span className="ml-2 text-gray-300 font-medium">₹{variant.price.toFixed(0)}</span>
                     </div>
                   </SelectItem>
                 ))}
@@ -259,11 +259,11 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
         {/* Price */}
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-card-foreground text-xl font-bold">
+            <span className="text-white text-xl font-bold">
               ₹{selectedVariant.price.toFixed(0)}
             </span>
             {selectedVariant?.original_price && selectedVariant.original_price > selectedVariant.price && (
-              <span className="text-muted-foreground/70 text-sm line-through">
+              <span className="text-gray-400 text-sm line-through">
                 ₹{selectedVariant.original_price.toFixed(0)}
               </span>
             )}

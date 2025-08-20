@@ -324,7 +324,7 @@ const ProductDetail = () => {
                 {/* Stock Status */}
                 <div className="text-sm">
                   {selectedVariant && selectedVariant.stock_quantity > 0 ? (
-                    <span className="text-green-400">✓ In Stock ({selectedVariant.stock_quantity} available)</span>
+                    <span className="text-green-400">✓ In Stock</span>
                   ) : (
                     <span className="text-red-400">✗ Out of Stock</span>
                   )}
@@ -415,8 +415,11 @@ const ProductDetail = () => {
                   <div className="space-y-2 text-gray-300">
                     {selectedVariant?.flavor && <p><strong>Flavor:</strong> {selectedVariant.flavor}</p>}
                     {selectedVariant && <p><strong>Size:</strong> {selectedVariant.size}</p>}
-                    {selectedVariant?.sku && <p><strong>SKU:</strong> {selectedVariant.sku}</p>}
-                    <p><strong>Stock:</strong> {selectedVariant?.stock_quantity || product.stock_quantity || 0} available</p>
+                    <p><strong>Stock Status:</strong> {
+                      (selectedVariant?.stock_quantity || product.stock_quantity || 0) > 0 
+                        ? <span className="text-green-400">In Stock</span>
+                        : <span className="text-red-400">Out of Stock</span>
+                    }</p>
                   </div>
                 </div>
                 <div>
