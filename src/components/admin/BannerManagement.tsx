@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, Edit, Trash2, Calendar } from 'lucide-react';
+import ImageUpload from './ImageUpload';
 
 interface Banner {
   id: string;
@@ -223,13 +224,10 @@ const BannerManagement = () => {
               </div>
 
               <div>
-                <Label htmlFor="image_url" className="text-foreground">Image URL</Label>
-                <Input
-                  id="image_url"
-                  value={bannerForm.image_url}
-                  onChange={(e) => setBannerForm(prev => ({ ...prev, image_url: e.target.value }))}
-                  placeholder="https://example.com/image.jpg"
-                  className="bg-background text-foreground border-input"
+                <ImageUpload
+                  onImageUploaded={(url) => setBannerForm(prev => ({ ...prev, image_url: url }))}
+                  currentImage={bannerForm.image_url}
+                  folder="banners"
                 />
               </div>
 

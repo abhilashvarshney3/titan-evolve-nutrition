@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Tag, Edit, Trash2, Plus, Copy, Percent } from 'lucide-react';
+import CouponUsageStats from './CouponUsageStats';
 
 interface Coupon {
   id: string;
@@ -250,6 +251,8 @@ const CouponManagement = () => {
 
   return (
     <div className="space-y-6">
+      <CouponUsageStats />
+      
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Coupon Management</h2>
         <Button onClick={createNewCoupon}>

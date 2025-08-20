@@ -8,17 +8,22 @@ import PromotionBanner from '../components/PromotionBanner';
 import TestimonialsSection from '../components/TestimonialsSection';
 import StatsSection from '../components/StatsSection';
 import Footer from '../components/Footer';
+import BannerDisplay from '../components/BannerDisplay';
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-black">
       <Header />
+      <BannerDisplay position="top" />
       <Hero />
+      <BannerDisplay position="hero" />
       <ProductShowcase />
+      <BannerDisplay position="middle" />
       <NewProductsSection />
       <PromotionBanner />
       <TestimonialsSection />
       <StatsSection />
+      <BannerDisplay position="bottom" />
       <Footer />
     </div>
   );
