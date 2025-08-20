@@ -50,6 +50,7 @@ interface ProductVariant {
   stock_quantity: number;
   sku?: string;
   is_active: boolean;
+  product_details?: string;
 }
 
 interface VariantImage {
@@ -95,6 +96,7 @@ const IntegratedProductManager = () => {
 
   const [productVariants, setProductVariants] = useState<ProductVariant[]>([]);
   const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null);
+  const [customFields, setCustomFields] = useState<Array<{ title: string; value: string }>>([]);
 
   useEffect(() => {
     loadData();
@@ -184,6 +186,7 @@ const IntegratedProductManager = () => {
       sku: '',
       is_active: true
     });
+    setCustomFields([]);
     setEditingVariant(null);
   };
 
@@ -221,7 +224,8 @@ const IntegratedProductManager = () => {
           ...variant,
           product_id: productId,
           price: parseFloat(variant.price.toString()),
-          stock_quantity: parseInt(variant.stock_quantity.toString())
+          stock_quantity: parseInt(variant.stock_quantity.toString()),
+          product_details: variant.product_details || undefined
         };
 
         if (variant.id && variant.id.startsWith('temp-')) {
@@ -299,6 +303,22 @@ const IntegratedProductManager = () => {
       sku: variant.sku || '',
       is_active: variant.is_active
     });
+    
+    // Parse existing product details if they exist
+    if (variant.product_details) {
+      try {
+        const details = JSON.parse(variant.product_details);
+        if (Array.isArray(details)) {
+          setCustomFields(details);
+        } else {
+          setCustomFields([]);
+        }
+      } catch {
+        setCustomFields([]);
+      }
+    } else {
+      setCustomFields([]);
+    }
   };
 
   const updateVariant = () => {
@@ -313,7 +333,8 @@ const IntegratedProductManager = () => {
       original_price: variantForm.original_price ? parseFloat(variantForm.original_price) : undefined,
       stock_quantity: parseInt(variantForm.stock_quantity),
       sku: variantForm.sku,
-      is_active: variantForm.is_active
+      is_active: variantForm.is_active,
+      product_details: customFields.length > 0 ? JSON.stringify(customFields) : undefined
     };
 
     setProductVariants(productVariants.map(v => v.id === editingVariant.id ? updatedVariant : v));
@@ -327,6 +348,7 @@ const IntegratedProductManager = () => {
       sku: '',
       is_active: true
     });
+    setCustomFields([]);
     setEditingVariant(null);
   };
 
@@ -342,6 +364,7 @@ const IntegratedProductManager = () => {
       sku: '',
       is_active: true
     });
+    setCustomFields([]);
   };
 
   const addVariant = () => {
@@ -355,7 +378,8 @@ const IntegratedProductManager = () => {
           original_price: variantForm.original_price ? parseFloat(variantForm.original_price) : undefined,
           stock_quantity: parseInt(variantForm.stock_quantity),
           sku: variantForm.sku,
-          is_active: variantForm.is_active
+          is_active: variantForm.is_active,
+          product_details: customFields.length > 0 ? JSON.stringify(customFields) : undefined
         };
     
     setProductVariants([...productVariants, newVariant]);
@@ -369,6 +393,7 @@ const IntegratedProductManager = () => {
       sku: '',
       is_active: true
     });
+    setCustomFields([]);
   };
 
   const removeVariant = async (variantId: string) => {
@@ -778,6 +803,68 @@ const IntegratedProductManager = () => {
                         Add Variant
                       </Button>
                     )}
+                  </div>
+
+                  {/* Custom Fields Section */}
+                  <div className="space-y-4 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-lg font-semibold">Product Details</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCustomFields([...customFields, { title: '', value: '' }])}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Detail
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Add custom product details that will be displayed on the product page (e.g., Ingredients, Nutritional Info, Usage Instructions).
+                    </p>
+                    
+                    <div className="space-y-3">
+                      {customFields.map((field, index) => (
+                        <div key={index} className="flex gap-2 items-center">
+                          <div className="flex-1 grid grid-cols-2 gap-2">
+                            <Input
+                              placeholder="Detail title (e.g., Ingredients)"
+                              value={field.title}
+                              onChange={(e) => {
+                                const updatedFields = [...customFields];
+                                updatedFields[index].title = e.target.value;
+                                setCustomFields(updatedFields);
+                              }}
+                            />
+                            <Input
+                              placeholder="Detail value (e.g., Whey Protein, Creatine)"
+                              value={field.value}
+                              onChange={(e) => {
+                                const updatedFields = [...customFields];
+                                updatedFields[index].value = e.target.value;
+                                setCustomFields(updatedFields);
+                              }}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const updatedFields = customFields.filter((_, i) => i !== index);
+                              setCustomFields(updatedFields);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      {customFields.length === 0 && (
+                        <div className="text-center py-4 text-muted-foreground border border-dashed rounded-lg">
+                          No custom details added. Click "Add Detail" to start adding product-specific information.
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
