@@ -127,10 +127,16 @@ const Footer = () => {
             <p className="text-gray-400 text-center md:text-left">
               © 2024 Titan Evolve. All rights reserved.
             </p>
-            <div className="flex space-x-6 text-sm">
+            <div className="flex flex-wrap gap-4 md:gap-6 text-sm justify-center md:justify-end">
               <Link to="/faq" className="text-gray-400 hover:text-white transition-colors">
                 FAQ
               </Link>
+              <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
+                Privacy Policy
+              </Link>
+              <a href="/api/legal-documents/terms" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                Terms & Conditions
+              </a>
             </div>
           </div>
         </div>

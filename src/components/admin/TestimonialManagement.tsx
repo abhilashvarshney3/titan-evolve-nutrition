@@ -322,13 +322,13 @@ const TestimonialManagement = () => {
 
       {/* Testimonial Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md bg-background text-foreground">
+        <DialogContent className="max-w-2xl max-h-[90vh] bg-background text-foreground">
           <DialogHeader>
             <DialogTitle className="text-foreground">
               {selectedTestimonial ? 'Edit Testimonial' : 'Create New Testimonial'}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
             <div>
               <Label htmlFor="name" className="text-foreground">Name *</Label>
               <Input
