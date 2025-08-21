@@ -29,6 +29,12 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (product && product.variants.length > 0) {
+      console.log('🎯 ProductDetail: Setting selected variant:', {
+        productId: product.id,
+        productName: product.name,
+        firstVariant: product.variants[0],
+        allVariants: product.variants
+      });
       setSelectedVariant(product.variants[0]);
       // Get related products by category
       const related = products.filter(p => 
@@ -413,9 +419,19 @@ const ProductDetail = () => {
                          : <span className="text-red-400">Out of Stock</span>
                      }</p>
                      {selectedVariant?.product_details && (() => {
+                       console.log('🎯 ProductDetail: Rendering product details for variant:', {
+                         variantId: selectedVariant.id,
+                         variantName: selectedVariant.variant_name,
+                         product_details: selectedVariant.product_details,
+                         product_details_type: typeof selectedVariant.product_details
+                       });
+                       
                        try {
                          const details = JSON.parse(selectedVariant.product_details);
+                         console.log('🎯 ProductDetail: Parsed details:', details);
+                         
                          if (Array.isArray(details) && details.length > 0) {
+                           console.log('🎯 ProductDetail: Rendering array of details:', details);
                            return details.map((detail, index) => (
                              <p key={index} className="mb-2">
                                <strong className="text-purple-400">{detail.title}:</strong>{' '}
@@ -423,14 +439,17 @@ const ProductDetail = () => {
                              </p>
                            ));
                          } else if (typeof details === 'string' && details.trim()) {
+                           console.log('🎯 ProductDetail: Rendering string details:', details);
                            return <p className="mb-2"><strong className="text-purple-400">Details:</strong> <span className="text-gray-300">{details}</span></p>;
                          }
                        } catch (error) {
+                         console.log('🎯 ProductDetail: JSON parse failed, treating as plain text:', error);
                          // If it's not valid JSON, treat as plain text
                          if (selectedVariant.product_details.trim()) {
                            return <p className="mb-2"><strong className="text-purple-400">Details:</strong> <span className="text-gray-300">{selectedVariant.product_details}</span></p>;
                          }
                        }
+                       console.log('🎯 ProductDetail: No valid details to render');
                        return null;
                      })()}
                    </div>
