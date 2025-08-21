@@ -132,7 +132,7 @@ const Footer = () => {
                 FAQ
               </Link>
               <a 
-                href="https://nvsufriurpjcrrnaxlfl.supabase.co/storage/v1/object/public/legal-documents/privacy-policy.pdf" 
+                href="https://nvsufriurpjcrrnaxlfl.supabase.co/storage/v1/object/public/legal-documents/privacy-policy-1755788937437.pdf" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-gray-400 hover:text-white transition-colors"
@@ -140,7 +140,7 @@ const Footer = () => {
                 Privacy Policy
               </a>
               <a 
-                href="https://nvsufriurpjcrrnaxlfl.supabase.co/storage/v1/object/public/legal-documents/terms-and-conditions.pdf" 
+                href="https://nvsufriurpjcrrnaxlfl.supabase.co/storage/v1/object/public/legal-documents/terms-and-conditions-1755788930746.pdf" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-gray-400 hover:text-white transition-colors"
