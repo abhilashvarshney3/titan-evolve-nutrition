@@ -265,8 +265,6 @@ const BannerManagement = () => {
                       <SelectItem value="promotional">Promotional</SelectItem>
                       <SelectItem value="hero">Hero</SelectItem>
                       <SelectItem value="announcement">Announcement</SelectItem>
-                      <SelectItem value="sale">Sale</SelectItem>
-                      <SelectItem value="festival">Festival</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

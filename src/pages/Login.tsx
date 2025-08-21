@@ -2,13 +2,15 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Smartphone } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import OTPLogin from '@/components/OTPLogin';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loginMethod, setLoginMethod] = useState<'email' | 'otp'>('email');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -63,10 +65,12 @@ const Login = () => {
 
         {/* Login Form */}
         <div className="bg-gray-900 p-8 rounded-xl border border-purple-800/30">
-          <h1 className="text-3xl font-black text-center mb-2 text-white">WELCOME BACK</h1>
-          <p className="text-gray-400 text-center mb-8">Sign in to your account</p>
+          {loginMethod === 'email' ? (
+            <>
+              <h1 className="text-3xl font-black text-center mb-2 text-white">WELCOME BACK</h1>
+              <p className="text-gray-400 text-center mb-8">Sign in to your account</p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Input
                 type="email"
@@ -106,23 +110,51 @@ const Login = () => {
               </Link>
             </div>
 
-            <Button 
-              type="submit"
-              disabled={loading}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg"
-            >
-              {loading ? 'SIGNING IN...' : 'SIGN IN'}
-            </Button>
-          </form>
+                <Button 
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg"
+                >
+                  {loading ? 'SIGNING IN...' : 'SIGN IN'}
+                </Button>
+              </form>
 
-          <div className="mt-8 text-center">
-            <p className="text-gray-400">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-purple-400 hover:text-purple-300 font-bold">
-                Sign Up
-              </Link>
-            </p>
-          </div>
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-700"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-gray-900 text-gray-400">OR</span>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setLoginMethod('otp')}
+                  className="w-full mt-4 border-purple-700 text-purple-400 hover:bg-purple-600 hover:text-white"
+                >
+                  <Smartphone className="mr-2 h-4 w-4" />
+                  Login with OTP
+                </Button>
+              </div>
+
+              <div className="mt-8 text-center">
+                <p className="text-gray-400">
+                  Don't have an account?{' '}
+                  <Link to="/signup" className="text-purple-400 hover:text-purple-300 font-bold">
+                    Sign Up
+                  </Link>
+                </p>
+              </div>
+            </>
+          ) : (
+            <OTPLogin
+              onBack={() => setLoginMethod('email')}
+              onSuccess={() => navigate('/')}
+            />
+          )}
         </div>
       </div>
     </div>

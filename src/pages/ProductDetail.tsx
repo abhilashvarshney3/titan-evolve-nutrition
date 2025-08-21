@@ -407,18 +407,22 @@ const ProductDetail = () => {
                    <div className="space-y-2 text-gray-300">
                      {selectedVariant?.flavor && <p><strong>Flavor:</strong> {selectedVariant.flavor}</p>}
                      {selectedVariant && <p><strong>Size:</strong> {selectedVariant.size}</p>}
-                     {selectedVariant?.product_details && (() => {
-                       try {
-                         const details = JSON.parse(selectedVariant.product_details);
-                         if (Array.isArray(details) && details.length > 0) {
-                           return details.map((detail, index) => (
-                             <p key={index}><strong>{detail.title}:</strong> {detail.value}</p>
-                           ));
-                         }
-                       } catch {
-                         return <p><strong>Details:</strong> {selectedVariant.product_details}</p>;
-                       }
-                     })()}
+                {selectedVariant?.product_details && (() => {
+                        try {
+                          const details = JSON.parse(selectedVariant.product_details);
+                          if (Array.isArray(details) && details.length > 0) {
+                            return details.map((detail, index) => (
+                              <p key={index} className="mb-2">
+                                <strong className="text-purple-400">{detail.title}:</strong>{' '}
+                                <span className="text-gray-300">{detail.value}</span>
+                              </p>
+                            ));
+                          }
+                        } catch {
+                          return <p className="mb-2"><strong className="text-purple-400">Details:</strong> <span className="text-gray-300">{selectedVariant.product_details}</span></p>;
+                        }
+                        return null;
+                      })()}
                      <p><strong>Stock Status:</strong> {
                        (selectedVariant?.stock_quantity || product.stock_quantity || 0) > 0 
                          ? <span className="text-green-400">In Stock</span>
