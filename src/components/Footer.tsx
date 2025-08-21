@@ -131,10 +131,20 @@ const Footer = () => {
               <Link to="/faq" className="text-gray-400 hover:text-white transition-colors">
                 FAQ
               </Link>
-              <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
+              <a 
+                href={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/legal-documents/privacy-policy.pdf`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-gray-400 hover:text-white transition-colors"
+              >
                 Privacy Policy
-              </Link>
-              <a href="/api/legal-documents/terms" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+              </a>
+              <a 
+                href={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/legal-documents/terms-and-conditions.pdf`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-gray-400 hover:text-white transition-colors"
+              >
                 Terms & Conditions
               </a>
             </div>

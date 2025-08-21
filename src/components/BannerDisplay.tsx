@@ -158,57 +158,70 @@ const BannerDisplay: React.FC<BannerDisplayProps> = ({ position, className = '' 
                 {/* Flowing Animation Section */}
                 <div className="flex-1 overflow-hidden relative min-h-[2rem] md:min-h-[3rem] order-2 md:order-2 w-full md:w-auto">
                   <div className="absolute inset-0 flex items-center">
-                    {banner.banner_type === 'announcement' ? (
-                      /* Running Text Animation */
-                      <div className="animate-[marquee_20s_linear_infinite] whitespace-nowrap flex items-center gap-8">
-                        <span className="text-xs md:text-sm text-yellow-300 font-semibold flex items-center gap-2">
-                          <Flame className="h-3 w-3 md:h-4 md:w-4 animate-pulse" />
-                          {banner.description || "Special Offer Available"}
-                          <Star className="h-3 w-3 md:h-4 md:w-4 animate-pulse" />
-                        </span>
-                        <span className="text-xs md:text-sm text-yellow-300 font-semibold flex items-center gap-2">
-                          <Zap className="h-3 w-3 md:h-4 md:w-4 animate-pulse" />
-                          Limited Time Only
-                          <Flame className="h-3 w-3 md:h-4 md:w-4 animate-pulse" />
-                        </span>
-                        <span className="text-xs md:text-sm text-yellow-300 font-semibold flex items-center gap-2">
-                          <Star className="h-3 w-3 md:h-4 md:w-4 animate-pulse" />
-                          Don't Miss Out!
-                          <Zap className="h-3 w-3 md:h-4 md:w-4 animate-pulse" />
-                        </span>
-                      </div>
-                    ) : (
-                      /* Flowing Image and Text Animation */
-                      <div className="animate-[flow_25s_linear_infinite] whitespace-nowrap flex items-center gap-4 md:gap-8">
-                        {banner.image_url && (
-                          <img 
-                            src={banner.image_url} 
-                            alt={banner.title}
-                            className="w-6 h-6 md:w-8 md:h-8 object-cover rounded-full shadow-lg ring-1 ring-white/30"
-                          />
-                        )}
+                    {/* Universal Moving Animation - Works for all banner types */}
+                    <div className="animate-[marquee_15s_linear_infinite] whitespace-nowrap flex items-center gap-6 md:gap-8">
+                      {/* Description Text */}
+                      <div className="flex items-center gap-2">
+                        <Flame className="h-3 w-3 md:h-4 md:w-4 animate-pulse text-yellow-400" />
                         <span className="text-xs md:text-sm text-white/90 font-medium">
-                          {banner.description || "Exclusive Offer"}
+                          {banner.description || "Special Offer Available"}
                         </span>
-                        {banner.image_url && (
-                          <img 
-                            src={banner.image_url} 
-                            alt={banner.title}
-                            className="w-6 h-6 md:w-8 md:h-8 object-cover rounded-full shadow-lg ring-1 ring-white/30"
-                          />
-                        )}
+                        <Star className="h-3 w-3 md:h-4 md:w-4 animate-pulse text-yellow-400" />
+                      </div>
+
+                      {/* Image (if available) */}
+                      {banner.image_url && (
+                        <img 
+                          src={banner.image_url} 
+                          alt={banner.title}
+                          className="w-6 h-6 md:w-8 md:h-8 object-cover rounded-full shadow-lg ring-2 ring-white/30"
+                        />
+                      )}
+
+                      {/* Additional Promotional Text */}
+                      <div className="flex items-center gap-2">
+                        <Zap className="h-3 w-3 md:h-4 md:w-4 animate-pulse text-yellow-400" />
                         <span className="text-xs md:text-sm text-purple-300 font-medium">
                           Premium Quality
                         </span>
-                        {banner.image_url && (
-                          <img 
-                            src={banner.image_url} 
-                            alt={banner.title}
-                            className="w-6 h-6 md:w-8 md:h-8 object-cover rounded-full shadow-lg ring-1 ring-white/30"
-                          />
-                        )}
                       </div>
-                    )}
+
+                      {/* Another Image (if available) */}
+                      {banner.image_url && (
+                        <img 
+                          src={banner.image_url} 
+                          alt={banner.title}
+                          className="w-6 h-6 md:w-8 md:h-8 object-cover rounded-full shadow-lg ring-2 ring-white/30"
+                        />
+                      )}
+
+                      {/* Call to Action Text */}
+                      <div className="flex items-center gap-2">
+                        <Star className="h-3 w-3 md:h-4 md:w-4 animate-pulse text-yellow-400" />
+                        <span className="text-xs md:text-sm text-white/90 font-medium">
+                          Limited Time Only!
+                        </span>
+                        <Flame className="h-3 w-3 md:h-4 md:w-4 animate-pulse text-yellow-400" />
+                      </div>
+
+                      {/* Final Image (if available) */}
+                      {banner.image_url && (
+                        <img 
+                          src={banner.image_url} 
+                          alt={banner.title}
+                          className="w-6 h-6 md:w-8 md:h-8 object-cover rounded-full shadow-lg ring-2 ring-white/30"
+                        />
+                      )}
+
+                      {/* End Promotional Text */}
+                      <div className="flex items-center gap-2">
+                        <Zap className="h-3 w-3 md:h-4 md:w-4 animate-pulse text-yellow-400" />
+                        <span className="text-xs md:text-sm text-purple-300 font-medium">
+                          Don't Miss Out!
+                        </span>
+                        <Star className="h-3 w-3 md:h-4 md:w-4 animate-pulse text-yellow-400" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

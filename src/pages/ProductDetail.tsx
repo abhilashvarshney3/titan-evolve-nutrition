@@ -407,7 +407,7 @@ const ProductDetail = () => {
                    <div className="space-y-2 text-gray-300">
                      {selectedVariant?.flavor && <p><strong>Flavor:</strong> {selectedVariant.flavor}</p>}
                      {selectedVariant && <p><strong>Size:</strong> {selectedVariant.size}</p>}
-                {selectedVariant?.product_details && (() => {
+                      {selectedVariant?.product_details && (() => {
                         try {
                           const details = JSON.parse(selectedVariant.product_details);
                           if (Array.isArray(details) && details.length > 0) {
@@ -417,9 +417,14 @@ const ProductDetail = () => {
                                 <span className="text-gray-300">{detail.value}</span>
                               </p>
                             ));
+                          } else if (typeof details === 'string' && details.trim()) {
+                            return <p className="mb-2"><strong className="text-purple-400">Details:</strong> <span className="text-gray-300">{details}</span></p>;
                           }
-                        } catch {
-                          return <p className="mb-2"><strong className="text-purple-400">Details:</strong> <span className="text-gray-300">{selectedVariant.product_details}</span></p>;
+                        } catch (error) {
+                          // If it's not valid JSON, treat as plain text
+                          if (selectedVariant.product_details.trim()) {
+                            return <p className="mb-2"><strong className="text-purple-400">Details:</strong> <span className="text-gray-300">{selectedVariant.product_details}</span></p>;
+                          }
                         }
                         return null;
                       })()}
