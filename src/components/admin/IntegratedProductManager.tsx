@@ -237,21 +237,43 @@ const IntegratedProductManager = () => {
         if (variant.id && variant.id.startsWith('temp-')) {
           // New variant
           const { id, ...newVariantData } = variantData;
+          console.log('💾 Admin: Inserting NEW variant:', newVariantData);
           const { data, error } = await supabase
             .from('product_variants')
             .insert([newVariantData])
             .select();
-          if (error) throw error;
-          console.log('💾 Admin: New variant saved:', data);
+          if (error) {
+            console.error('💾 Admin: INSERT ERROR:', error);
+            throw error;
+          }
+          console.log('💾 Admin: New variant saved successfully:', data);
         } else if (variant.id) {
           // Update existing variant
+          console.log('💾 Admin: Updating EXISTING variant ID:', variant.id);
+          console.log('💾 Admin: Update data:', variantData);
           const { data, error } = await supabase
             .from('product_variants')
             .update(variantData)
             .eq('id', variant.id)
             .select();
-          if (error) throw error;
-          console.log('💾 Admin: Existing variant updated:', data);
+          if (error) {
+            console.error('💾 Admin: UPDATE ERROR:', error);
+            throw error;
+          }
+          console.log('💾 Admin: Existing variant updated successfully:', data);
+          
+          // Verify the update by reading it back
+          const { data: verifyData, error: verifyError } = await supabase
+            .from('product_variants')
+            .select('id, variant_name, product_details')
+            .eq('id', variant.id)
+            .single();
+          
+          if (verifyError) {
+            console.error('💾 Admin: VERIFY ERROR:', verifyError);
+          } else {
+            console.log('💾 Admin: VERIFICATION - Data in DB after update:', verifyData);
+          }
         }
       }
 
@@ -316,17 +338,28 @@ const IntegratedProductManager = () => {
     
     // Parse existing product details if they exist
     if (variant.product_details) {
+      console.log('🔧 Admin: Loading existing product details for edit:', {
+        variantId: variant.id,
+        product_details: variant.product_details,
+        product_details_type: typeof variant.product_details
+      });
+      
       try {
         const details = JSON.parse(variant.product_details);
+        console.log('🔧 Admin: Parsed details:', details);
         if (Array.isArray(details)) {
           setCustomFields(details);
+          console.log('🔧 Admin: Set custom fields to:', details);
         } else {
+          console.log('🔧 Admin: Details not an array, resetting');
           setCustomFields([]);
         }
-      } catch {
+      } catch (error) {
+        console.log('🔧 Admin: JSON parse failed:', error);
         setCustomFields([]);
       }
     } else {
+      console.log('🔧 Admin: No product details found for variant');
       setCustomFields([]);
     }
   };
