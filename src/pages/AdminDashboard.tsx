@@ -495,6 +495,11 @@ const AdminDashboard = () => {
             <LegalDocumentManagement />
           </TabsContent>
 
+          {/* Coupons Management */}
+          <TabsContent value="coupons">
+            <CouponManagement />
+          </TabsContent>
+
           {/* Banner Management */}
           <TabsContent value="banners">
             <BannerManagement />
