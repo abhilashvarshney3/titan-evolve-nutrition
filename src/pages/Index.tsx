@@ -4,7 +4,6 @@ import Header from '../components/Header';
 import Hero from '../components/Hero';
 import ProductShowcase from '../components/ProductShowcase';
 import NewProductsSection from '../components/NewProductsSection';
-import PromotionBanner from '../components/PromotionBanner';
 import TestimonialsSection from '../components/TestimonialsSection';
 import StatsSection from '../components/StatsSection';
 import Footer from '../components/Footer';
@@ -20,7 +19,7 @@ const Index = () => {
       <ProductShowcase />
       <BannerDisplay position="middle" />
       <NewProductsSection />
-      <PromotionBanner />
+      <BannerDisplay position="middle" />
       <TestimonialsSection />
       <StatsSection />
       <BannerDisplay position="bottom" />

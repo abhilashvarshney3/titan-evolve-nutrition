@@ -39,6 +39,7 @@ import ContentManagement from '@/components/admin/ContentManagement';
 import TestimonialManagement from '@/components/admin/TestimonialManagement';
 import CouponManagement from '@/components/admin/CouponManagement';
 import AffiliateManagement from '@/components/admin/AffiliateManagement';
+import LegalDocumentManagement from '@/components/admin/LegalDocumentManagement';
 import BannerManagement from '@/components/admin/BannerManagement';
 
 interface Product {
@@ -449,16 +450,14 @@ const AdminDashboard = () => {
 
         {/* Management Tabs */}
         <Tabs defaultValue="products" className="w-full">
-          <TabsList className="grid w-full grid-cols-9 bg-muted/20">
+          <TabsList className="grid w-full grid-cols-8 bg-muted/20">
             <TabsTrigger value="products" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Products</TabsTrigger>
             <TabsTrigger value="orders" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Orders</TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Users</TabsTrigger>
             <TabsTrigger value="reviews" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Reviews</TabsTrigger>
-            <TabsTrigger value="content" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Content</TabsTrigger>
             <TabsTrigger value="testimonials" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Testimonials</TabsTrigger>
-            <TabsTrigger value="coupons" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Coupons</TabsTrigger>
-            <TabsTrigger value="affiliate" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Affiliate</TabsTrigger>
             <TabsTrigger value="banners" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Banners</TabsTrigger>
+            <TabsTrigger value="legal" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Legal</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products" className="space-y-6">
@@ -490,14 +489,9 @@ const AdminDashboard = () => {
             <TestimonialManagement />
           </TabsContent>
 
-          {/* Coupons Management */}
-          <TabsContent value="coupons">
-            <CouponManagement />
-          </TabsContent>
-
-          {/* Affiliate Management */}
-          <TabsContent value="affiliate">
-            <AffiliateManagement />
+          {/* Legal Documents Management */}
+          <TabsContent value="legal">
+            <LegalDocumentManagement />
           </TabsContent>
 
           {/* Banner Management */}
