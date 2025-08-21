@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -126,14 +127,6 @@ export default {
 				'slide-out-right': {
 					'0%': { transform: 'translateX(0)' },
 					'100%': { transform: 'translateX(100%)' }
-				},
-				'marquee': {
-					'0%': { transform: 'translateX(100%)' },
-					'100%': { transform: 'translateX(-100%)' }
-				},
-				'flow': {
-					'0%': { transform: 'translateX(100%)' },
-					'100%': { transform: 'translateX(-100%)' }
 				}
 			},
 			animation: {

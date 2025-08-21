@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { MessageSquare, Edit, Trash2, Plus, Star } from 'lucide-react';
-import ImageUpload from './ImageUpload';
 
 interface Testimonial {
   id: string;
@@ -322,13 +321,13 @@ const TestimonialManagement = () => {
 
       {/* Testimonial Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] bg-background text-foreground">
+        <DialogContent className="max-w-md bg-background text-foreground">
           <DialogHeader>
             <DialogTitle className="text-foreground">
               {selectedTestimonial ? 'Edit Testimonial' : 'Create New Testimonial'}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
+          <div className="space-y-4">
             <div>
               <Label htmlFor="name" className="text-foreground">Name *</Label>
               <Input
@@ -392,11 +391,13 @@ const TestimonialManagement = () => {
             </div>
 
             <div>
-              <Label htmlFor="image_url" className="text-foreground">Profile Image</Label>
-              <ImageUpload
-                onImageUploaded={(url) => setTestimonialForm({...testimonialForm, image_url: url})}
-                currentImage={testimonialForm.image_url}
-                folder="testimonials"
+              <Label htmlFor="image_url" className="text-foreground">Image URL</Label>
+              <Input
+                id="image_url"
+                value={testimonialForm.image_url}
+                onChange={(e) => setTestimonialForm({...testimonialForm, image_url: e.target.value})}
+                placeholder="https://example.com/image.jpg"
+                className="bg-background text-foreground border-input"
               />
             </div>
 

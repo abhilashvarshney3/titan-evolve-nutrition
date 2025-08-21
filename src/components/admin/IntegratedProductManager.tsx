@@ -192,34 +192,6 @@ const IntegratedProductManager = () => {
 
   const handleSaveProduct = async () => {
     try {
-      // Check if user is admin first
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to save products",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile || profile.role !== 'admin') {
-        toast({
-          title: "Error",
-          description: "Admin access required to save products",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      console.log('🔐 Admin: User authenticated as admin, proceeding with save');
-
       const productData = {
         ...productForm,
         price: parseFloat(productForm.price),
@@ -246,86 +218,30 @@ const IntegratedProductManager = () => {
         toast({ title: "Success", description: "Product created successfully" });
       }
 
-      // Save variants with enhanced debugging
-      console.log('💾 Admin: Starting to save variants:', productVariants.length);
-      
-      for (let i = 0; i < productVariants.length; i++) {
-        const variant = productVariants[i];
-        console.log(`💾 Admin: Processing variant ${i + 1}/${productVariants.length}:`, {
-          variantId: variant.id,
-          variantName: variant.variant_name,
-          hasProductDetails: !!variant.product_details,
-          productDetails: variant.product_details
-        });
-
-        // Prepare variant data - ensure product_details is properly handled
+      // Save variants
+      for (const variant of productVariants) {
         const variantData = {
+          ...variant,
           product_id: productId,
-          variant_name: variant.variant_name,
-          flavor: variant.flavor || null,
-          size: variant.size,
           price: parseFloat(variant.price.toString()),
-          original_price: variant.original_price ? parseFloat(variant.original_price.toString()) : null,
           stock_quantity: parseInt(variant.stock_quantity.toString()),
-          sku: variant.sku || null,
-          is_active: variant.is_active,
-          product_details: variant.product_details
+          product_details: variant.product_details || undefined
         };
 
-        console.log('💾 Admin: Prepared variant data for DB save:', {
-          variantId: variant.id,
-          variantName: variant.variant_name,
-          product_details: variantData.product_details,
-          product_details_type: typeof variantData.product_details,
-          product_details_length: variantData.product_details?.length || 0,
-          isValidJSON: (() => {
-            try {
-              if (variantData.product_details) {
-                JSON.parse(variantData.product_details);
-                return true;
-              }
-              return false;
-            } catch {
-              return false;
-            }
-          })()
-        });
-
         if (variant.id && variant.id.startsWith('temp-')) {
-          // New variant - variantData already excludes the temp ID
-          console.log('💾 Admin: Inserting NEW variant');
-          const { data, error } = await supabase
+          // New variant
+          const { id, ...newVariantData } = variantData;
+          const { error } = await supabase
             .from('product_variants')
-            .insert([variantData])
-            .select();
-          
-          if (error) {
-            console.error('💾 Admin: INSERT ERROR:', error);
-            throw error;
-          }
-          console.log('💾 Admin: New variant inserted successfully:', data);
+            .insert([newVariantData]);
+          if (error) throw error;
         } else if (variant.id) {
           // Update existing variant
-          console.log('💾 Admin: Updating EXISTING variant ID:', variant.id);
-          const { data, error } = await supabase
+          const { error } = await supabase
             .from('product_variants')
             .update(variantData)
-            .eq('id', variant.id)
-            .select();
-          
-          if (error) {
-            console.error('💾 Admin: UPDATE ERROR:', error);
-            throw error;
-          }
-          console.log('💾 Admin: Existing variant updated successfully:', data);
-          
-          // Double-check the update worked
-          const { data: checkData } = await supabase
-            .from('product_variants')
-            .select('id, variant_name, product_details')
-            .eq('id', variant.id)
-            .single();
-          console.log('💾 Admin: Verification check:', checkData);
+            .eq('id', variant.id);
+          if (error) throw error;
         }
       }
 
@@ -333,17 +249,11 @@ const IntegratedProductManager = () => {
       loadData();
       // Trigger global refresh for frontend components
       window.dispatchEvent(new CustomEvent('productsUpdated'));
-      
-      toast({ 
-        title: "Success", 
-        description: `Product and ${productVariants.length} variant(s) saved successfully` 
-      });
-      
     } catch (error) {
-      console.error('💾 Admin: Save error:', error);
+      console.error('Error saving product:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to save product",
+        description: "Failed to save product",
         variant: "destructive"
       });
     }
@@ -396,43 +306,23 @@ const IntegratedProductManager = () => {
     
     // Parse existing product details if they exist
     if (variant.product_details) {
-      console.log('🔧 Admin: Loading existing product details for edit:', {
-        variantId: variant.id,
-        product_details: variant.product_details,
-        product_details_type: typeof variant.product_details
-      });
-      
       try {
         const details = JSON.parse(variant.product_details);
-        console.log('🔧 Admin: Parsed details:', details);
         if (Array.isArray(details)) {
           setCustomFields(details);
-          console.log('🔧 Admin: Set custom fields to:', details);
         } else {
-          console.log('🔧 Admin: Details not an array, resetting');
           setCustomFields([]);
         }
-      } catch (error) {
-        console.log('🔧 Admin: JSON parse failed:', error);
+      } catch {
         setCustomFields([]);
       }
     } else {
-      console.log('🔧 Admin: No product details found for variant');
       setCustomFields([]);
     }
   };
 
   const updateVariant = () => {
     if (!editingVariant) return;
-
-    const productDetailsString = customFields.length > 0 ? JSON.stringify(customFields) : null;
-    console.log('🔧 Admin: Updating variant with product details:', {
-      variantId: editingVariant.id,
-      customFields,
-      customFieldsLength: customFields.length,
-      productDetailsString,
-      stringifiedLength: productDetailsString?.length
-    });
 
     const updatedVariant: ProductVariant = {
       ...editingVariant,
@@ -444,15 +334,9 @@ const IntegratedProductManager = () => {
       stock_quantity: parseInt(variantForm.stock_quantity),
       sku: variantForm.sku,
       is_active: variantForm.is_active,
-      product_details: productDetailsString
+      product_details: customFields.length > 0 ? JSON.stringify(customFields) : undefined
     };
 
-    console.log('🔧 Admin: Updated variant object:', {
-      variantId: updatedVariant.id,
-      product_details: updatedVariant.product_details,
-      product_details_type: typeof updatedVariant.product_details
-    });
-    
     setProductVariants(productVariants.map(v => v.id === editingVariant.id ? updatedVariant : v));
     setVariantForm({
       variant_name: '',
@@ -924,7 +808,7 @@ const IntegratedProductManager = () => {
                   {/* Custom Fields Section */}
                   <div className="space-y-4 pt-4 border-t">
                     <div className="flex items-center justify-between">
-                      <Label className="text-lg font-semibold">Variant-Specific Product Details</Label>
+                      <Label className="text-lg font-semibold">Product Details</Label>
                       <Button
                         type="button"
                         variant="outline"
@@ -936,7 +820,7 @@ const IntegratedProductManager = () => {
                       </Button>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Add variant-specific details that will be displayed on the product page under "Product Information" (e.g., Ingredients, Nutritional Info, Usage Instructions). These details are unique to each variant.
+                      Add custom product details that will be displayed on the product page (e.g., Ingredients, Nutritional Info, Usage Instructions).
                     </p>
                     
                     <div className="space-y-3">
@@ -1002,27 +886,6 @@ const IntegratedProductManager = () => {
                           {variant.sku && (
                             <div className="text-xs text-muted-foreground">SKU: {variant.sku}</div>
                           )}
-                          {variant.product_details && (() => {
-                            try {
-                              const details = JSON.parse(variant.product_details);
-                              if (Array.isArray(details) && details.length > 0) {
-                                return (
-                                  <div className="text-xs text-muted-foreground">
-                                    <span className="font-medium">Details:</span> {details.length} item(s) added
-                                  </div>
-                                );
-                              }
-                            } catch (error) {
-                              if (variant.product_details.trim()) {
-                                return (
-                                  <div className="text-xs text-muted-foreground">
-                                    <span className="font-medium">Details:</span> Custom details added
-                                  </div>
-                                );
-                              }
-                            }
-                            return null;
-                          })()}
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant={variant.is_active ? "default" : "secondary"}>

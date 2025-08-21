@@ -84,38 +84,29 @@ export const useProducts = () => {
         sku: product.sku,
         created_at: product.created_at,
         updated_at: product.updated_at,
-          variants: (product.product_variants || []).map((variant: any) => {
-            console.log('📦 useProducts: Processing variant from DB:', {
-              id: variant.id,
-              variant_name: variant.variant_name,
-              product_details: variant.product_details,
-              product_details_type: typeof variant.product_details
-            });
-            
-            return {
-              id: variant.id,
-              product_id: variant.product_id,
-              variant_name: variant.variant_name,
-              flavor: variant.flavor,
-              size: variant.size,
-              price: variant.price,
-              stock_quantity: variant.stock_quantity,
-              sku: variant.sku,
-              is_active: variant.is_active,
-              created_at: variant.created_at,
-              updated_at: variant.updated_at,
-              product_details: variant.product_details,
-              images: (variant.variant_images || []).map((img: any) => ({
-                id: img.id,
-                variant_id: img.variant_id,
-                image_url: img.image_url,
-                is_primary: img.is_primary,
-                display_order: img.display_order,
-                created_at: img.created_at
-              })),
-              original_price: variant.original_price
-            };
-          })
+        variants: (product.product_variants || []).map((variant: any) => ({
+          id: variant.id,
+          product_id: variant.product_id,
+          variant_name: variant.variant_name,
+          flavor: variant.flavor,
+          size: variant.size,
+          price: variant.price,
+          stock_quantity: variant.stock_quantity,
+          sku: variant.sku,
+          is_active: variant.is_active,
+          created_at: variant.created_at,
+          updated_at: variant.updated_at,
+          product_details: variant.product_details,
+          images: (variant.variant_images || []).map((img: any) => ({
+            id: img.id,
+            variant_id: img.variant_id,
+            image_url: img.image_url,
+            is_primary: img.is_primary,
+            display_order: img.display_order,
+            created_at: img.created_at
+          })),
+          original_price: variant.original_price
+        }))
       }));
 
       console.log('Products fetched successfully:', transformedProducts.length);

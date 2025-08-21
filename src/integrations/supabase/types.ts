@@ -863,36 +863,6 @@ export type Database = {
         }
         Relationships: []
       }
-      sms_otp: {
-        Row: {
-          attempts: number | null
-          created_at: string | null
-          expires_at: string
-          id: string
-          is_verified: boolean | null
-          otp_code: string
-          phone_number: string
-        }
-        Insert: {
-          attempts?: number | null
-          created_at?: string | null
-          expires_at: string
-          id?: string
-          is_verified?: boolean | null
-          otp_code: string
-          phone_number: string
-        }
-        Update: {
-          attempts?: number | null
-          created_at?: string | null
-          expires_at?: string
-          id?: string
-          is_verified?: boolean | null
-          otp_code?: string
-          phone_number?: string
-        }
-        Relationships: []
-      }
       testimonials: {
         Row: {
           company: string | null
@@ -1052,10 +1022,6 @@ export type Database = {
       admin_update_review_status: {
         Args: { is_approved_param: boolean; review_id: string }
         Returns: boolean
-      }
-      cleanup_expired_otps: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       create_review: {
         Args: {
