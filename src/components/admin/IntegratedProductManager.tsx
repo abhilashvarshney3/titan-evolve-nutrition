@@ -808,7 +808,7 @@ const IntegratedProductManager = () => {
                   {/* Custom Fields Section */}
                   <div className="space-y-4 pt-4 border-t">
                     <div className="flex items-center justify-between">
-                      <Label className="text-lg font-semibold">Product Details</Label>
+                      <Label className="text-lg font-semibold">Variant-Specific Product Details</Label>
                       <Button
                         type="button"
                         variant="outline"
@@ -820,7 +820,7 @@ const IntegratedProductManager = () => {
                       </Button>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Add custom product details that will be displayed on the product page (e.g., Ingredients, Nutritional Info, Usage Instructions).
+                      Add variant-specific details that will be displayed on the product page under "Product Information" (e.g., Ingredients, Nutritional Info, Usage Instructions). These details are unique to each variant.
                     </p>
                     
                     <div className="space-y-3">
@@ -886,6 +886,27 @@ const IntegratedProductManager = () => {
                           {variant.sku && (
                             <div className="text-xs text-muted-foreground">SKU: {variant.sku}</div>
                           )}
+                          {variant.product_details && (() => {
+                            try {
+                              const details = JSON.parse(variant.product_details);
+                              if (Array.isArray(details) && details.length > 0) {
+                                return (
+                                  <div className="text-xs text-muted-foreground">
+                                    <span className="font-medium">Details:</span> {details.length} item(s) added
+                                  </div>
+                                );
+                              }
+                            } catch (error) {
+                              if (variant.product_details.trim()) {
+                                return (
+                                  <div className="text-xs text-muted-foreground">
+                                    <span className="font-medium">Details:</span> Custom details added
+                                  </div>
+                                );
+                              }
+                            }
+                            return null;
+                          })()}
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant={variant.is_active ? "default" : "secondary"}>
