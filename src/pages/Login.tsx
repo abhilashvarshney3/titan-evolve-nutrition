@@ -133,29 +133,7 @@ const Login = () => {
           </CardContent>
         </Card>
 
-        {/* OTP Setup Instructions */}
-        <Card className="w-full max-w-md bg-yellow-900/20 backdrop-blur-sm border border-yellow-600/50">
-          <CardHeader>
-            <CardTitle className="text-lg font-bold text-yellow-400 flex items-center gap-2">
-              <Phone className="h-5 w-5" />
-              OTP Login Setup Required
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-yellow-200 text-sm">
-              To enable OTP login, you need to set up a real SMS service provider:
-            </p>
-            <div className="space-y-2 text-xs text-yellow-100">
-              <p><strong>1. Choose a provider:</strong> Twilio, AWS SNS, or MSG91</p>
-              <p><strong>2. Get API credentials</strong> from your chosen provider</p>
-              <p><strong>3. Add credentials</strong> to your environment variables</p>
-              <p><strong>4. Update the OTP service</strong> to use real SMS delivery</p>
-            </div>
-            <p className="text-yellow-300 text-xs mt-3">
-              <strong>Note:</strong> OTP functionality is temporarily disabled as it requires a real SMS service for production use.
-            </p>
-          </CardContent>
-        </Card>
+       
       </div>
     </div>
   );
