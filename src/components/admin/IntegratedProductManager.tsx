@@ -269,10 +269,27 @@ const IntegratedProductManager = () => {
           stock_quantity: parseInt(variant.stock_quantity.toString()),
           sku: variant.sku || null,
           is_active: variant.is_active,
-          product_details: variant.product_details || null
+          product_details: variant.product_details
         };
 
-        console.log('💾 Admin: Prepared variant data:', variantData);
+        console.log('💾 Admin: Prepared variant data for DB save:', {
+          variantId: variant.id,
+          variantName: variant.variant_name,
+          product_details: variantData.product_details,
+          product_details_type: typeof variantData.product_details,
+          product_details_length: variantData.product_details?.length || 0,
+          isValidJSON: (() => {
+            try {
+              if (variantData.product_details) {
+                JSON.parse(variantData.product_details);
+                return true;
+              }
+              return false;
+            } catch {
+              return false;
+            }
+          })()
+        });
 
         if (variant.id && variant.id.startsWith('temp-')) {
           // New variant - variantData already excludes the temp ID
@@ -408,11 +425,13 @@ const IntegratedProductManager = () => {
   const updateVariant = () => {
     if (!editingVariant) return;
 
-    const productDetailsString = customFields.length > 0 ? JSON.stringify(customFields) : undefined;
+    const productDetailsString = customFields.length > 0 ? JSON.stringify(customFields) : null;
     console.log('🔧 Admin: Updating variant with product details:', {
       variantId: editingVariant.id,
       customFields,
-      productDetailsString
+      customFieldsLength: customFields.length,
+      productDetailsString,
+      stringifiedLength: productDetailsString?.length
     });
 
     const updatedVariant: ProductVariant = {
@@ -428,7 +447,12 @@ const IntegratedProductManager = () => {
       product_details: productDetailsString
     };
 
-    console.log('🔧 Admin: Updated variant object:', updatedVariant);
+    console.log('🔧 Admin: Updated variant object:', {
+      variantId: updatedVariant.id,
+      product_details: updatedVariant.product_details,
+      product_details_type: typeof updatedVariant.product_details
+    });
+    
     setProductVariants(productVariants.map(v => v.id === editingVariant.id ? updatedVariant : v));
     setVariantForm({
       variant_name: '',
