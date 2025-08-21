@@ -192,6 +192,34 @@ const IntegratedProductManager = () => {
 
   const handleSaveProduct = async () => {
     try {
+      // Check if user is admin first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to save products",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile || profile.role !== 'admin') {
+        toast({
+          title: "Error",
+          description: "Admin access required to save products",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('🔐 Admin: User authenticated as admin, proceeding with save');
+
       const productData = {
         ...productForm,
         price: parseFloat(productForm.price),
@@ -218,62 +246,69 @@ const IntegratedProductManager = () => {
         toast({ title: "Success", description: "Product created successfully" });
       }
 
-      // Save variants
-      for (const variant of productVariants) {
-        const variantData = {
-          ...variant,
-          product_id: productId,
-          price: parseFloat(variant.price.toString()),
-          stock_quantity: parseInt(variant.stock_quantity.toString()),
-          product_details: variant.product_details || undefined
-        };
-
-        console.log('💾 Admin: Saving variant to database:', {
+      // Save variants with enhanced debugging
+      console.log('💾 Admin: Starting to save variants:', productVariants.length);
+      
+      for (let i = 0; i < productVariants.length; i++) {
+        const variant = productVariants[i];
+        console.log(`💾 Admin: Processing variant ${i + 1}/${productVariants.length}:`, {
           variantId: variant.id,
-          variantData,
-          product_details: variantData.product_details
+          variantName: variant.variant_name,
+          hasProductDetails: !!variant.product_details,
+          productDetails: variant.product_details
         });
 
+        // Prepare variant data - ensure product_details is properly handled
+        const variantData = {
+          product_id: productId,
+          variant_name: variant.variant_name,
+          flavor: variant.flavor || null,
+          size: variant.size,
+          price: parseFloat(variant.price.toString()),
+          original_price: variant.original_price ? parseFloat(variant.original_price.toString()) : null,
+          stock_quantity: parseInt(variant.stock_quantity.toString()),
+          sku: variant.sku || null,
+          is_active: variant.is_active,
+          product_details: variant.product_details || null
+        };
+
+        console.log('💾 Admin: Prepared variant data:', variantData);
+
         if (variant.id && variant.id.startsWith('temp-')) {
-          // New variant
-          const { id, ...newVariantData } = variantData;
-          console.log('💾 Admin: Inserting NEW variant:', newVariantData);
+          // New variant - variantData already excludes the temp ID
+          console.log('💾 Admin: Inserting NEW variant');
           const { data, error } = await supabase
             .from('product_variants')
-            .insert([newVariantData])
+            .insert([variantData])
             .select();
+          
           if (error) {
             console.error('💾 Admin: INSERT ERROR:', error);
             throw error;
           }
-          console.log('💾 Admin: New variant saved successfully:', data);
+          console.log('💾 Admin: New variant inserted successfully:', data);
         } else if (variant.id) {
           // Update existing variant
           console.log('💾 Admin: Updating EXISTING variant ID:', variant.id);
-          console.log('💾 Admin: Update data:', variantData);
           const { data, error } = await supabase
             .from('product_variants')
             .update(variantData)
             .eq('id', variant.id)
             .select();
+          
           if (error) {
             console.error('💾 Admin: UPDATE ERROR:', error);
             throw error;
           }
           console.log('💾 Admin: Existing variant updated successfully:', data);
           
-          // Verify the update by reading it back
-          const { data: verifyData, error: verifyError } = await supabase
+          // Double-check the update worked
+          const { data: checkData } = await supabase
             .from('product_variants')
             .select('id, variant_name, product_details')
             .eq('id', variant.id)
             .single();
-          
-          if (verifyError) {
-            console.error('💾 Admin: VERIFY ERROR:', verifyError);
-          } else {
-            console.log('💾 Admin: VERIFICATION - Data in DB after update:', verifyData);
-          }
+          console.log('💾 Admin: Verification check:', checkData);
         }
       }
 
@@ -281,11 +316,17 @@ const IntegratedProductManager = () => {
       loadData();
       // Trigger global refresh for frontend components
       window.dispatchEvent(new CustomEvent('productsUpdated'));
+      
+      toast({ 
+        title: "Success", 
+        description: `Product and ${productVariants.length} variant(s) saved successfully` 
+      });
+      
     } catch (error) {
-      console.error('Error saving product:', error);
+      console.error('💾 Admin: Save error:', error);
       toast({
         title: "Error",
-        description: "Failed to save product",
+        description: error.message || "Failed to save product",
         variant: "destructive"
       });
     }
