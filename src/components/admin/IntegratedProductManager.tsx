@@ -127,9 +127,25 @@ const IntegratedProductManager = () => {
       if (variantsRes.error) throw variantsRes.error;
       if (imagesRes.error) throw imagesRes.error;
 
+      console.log('🔄 Admin: Loaded data:', {
+        productsCount: productsRes.data?.length || 0,
+        variantsCount: variantsRes.data?.length || 0,
+        imagesCount: imagesRes.data?.length || 0
+      });
+
       setProducts(productsRes.data || []);
       setVariants(variantsRes.data || []);
       setVariantImages(imagesRes.data || []);
+      
+      // Reset current editing state to ensure fresh state after data reload
+      if (editingVariant && !editingVariant.id.startsWith('temp-')) {
+        // If we were editing an existing variant, refresh the variant list
+        const updatedVariant = variantsRes.data?.find(v => v.id === editingVariant.id);
+        if (updatedVariant) {
+          console.log('🔄 Admin: Refreshed editing variant with latest data:', updatedVariant);
+        }
+      }
+      
     } catch (error) {
       console.error('Error loading data:', error);
       toast({
@@ -422,7 +438,7 @@ const IntegratedProductManager = () => {
     }
   };
 
-  const updateVariant = () => {
+  const updateVariant = async () => {
     if (!editingVariant) return;
 
     const productDetailsString = customFields.length > 0 ? JSON.stringify(customFields) : null;
@@ -453,6 +469,56 @@ const IntegratedProductManager = () => {
       product_details_type: typeof updatedVariant.product_details
     });
     
+    // If this is an existing variant (not a temp one), save to database immediately
+    if (editingVariant.id && !editingVariant.id.startsWith('temp-')) {
+      try {
+        const variantData = {
+          variant_name: updatedVariant.variant_name,
+          flavor: updatedVariant.flavor || null,
+          size: updatedVariant.size,
+          price: updatedVariant.price,
+          original_price: updatedVariant.original_price || null,
+          stock_quantity: updatedVariant.stock_quantity,
+          sku: updatedVariant.sku || null,
+          is_active: updatedVariant.is_active,
+          product_details: updatedVariant.product_details
+        };
+
+        console.log('💾 Admin: Saving variant to database:', {
+          variantId: editingVariant.id,
+          variantData
+        });
+
+        const { data, error } = await supabase
+          .from('product_variants')
+          .update(variantData)
+          .eq('id', editingVariant.id)
+          .select();
+
+        if (error) throw error;
+
+        console.log('💾 Admin: Variant saved successfully:', data);
+        
+        toast({ 
+          title: "Success", 
+          description: "Variant updated successfully" 
+        });
+
+        // Trigger global refresh for frontend components
+        window.dispatchEvent(new CustomEvent('productsUpdated'));
+        
+      } catch (error) {
+        console.error('💾 Admin: Error saving variant:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save variant",
+          variant: "destructive"
+        });
+        return; // Don't proceed with local state update if DB save failed
+      }
+    }
+    
+    // Update local state
     setProductVariants(productVariants.map(v => v.id === editingVariant.id ? updatedVariant : v));
     setVariantForm({
       variant_name: '',
