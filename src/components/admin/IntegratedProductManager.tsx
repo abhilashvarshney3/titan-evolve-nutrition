@@ -96,7 +96,7 @@ const IntegratedProductManager = () => {
 
   const [productVariants, setProductVariants] = useState<ProductVariant[]>([]);
   const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null);
-  const [productDetailsText, setProductDetailsText] = useState('');
+  const [customFields, setCustomFields] = useState<Array<{ title: string; value: string }>>([]);
 
   useEffect(() => {
     loadData();
@@ -202,7 +202,7 @@ const IntegratedProductManager = () => {
       sku: '',
       is_active: true
     });
-    setProductDetailsText('');
+    setCustomFields([]);
     setEditingVariant(null);
   };
 
@@ -410,48 +410,128 @@ const IntegratedProductManager = () => {
       is_active: variant.is_active
     });
     
-    // Load existing product details
-    setProductDetailsText(variant.product_details || '');
+    // Parse existing product details if they exist
+    if (variant.product_details) {
+      console.log('🔧 Admin: Loading existing product details for edit:', {
+        variantId: variant.id,
+        product_details: variant.product_details,
+        product_details_type: typeof variant.product_details
+      });
+      
+      try {
+        const details = JSON.parse(variant.product_details);
+        console.log('🔧 Admin: Parsed details:', details);
+        if (Array.isArray(details)) {
+          setCustomFields(details);
+          console.log('🔧 Admin: Set custom fields to:', details);
+        } else {
+          console.log('🔧 Admin: Details not an array, resetting');
+          setCustomFields([]);
+        }
+      } catch (error) {
+        console.log('🔧 Admin: JSON parse failed:', error);
+        setCustomFields([]);
+      }
+    } else {
+      console.log('🔧 Admin: No product details found for variant');
+      setCustomFields([]);
+    }
   };
 
   const updateVariant = async () => {
     if (!editingVariant) return;
 
-    try {
-      const { error } = await supabase
-        .from('product_variants')
-        .update({
-          variant_name: variantForm.variant_name,
-          flavor: variantForm.flavor || null,
-          size: variantForm.size,
-          price: parseFloat(variantForm.price),
-          original_price: variantForm.original_price ? parseFloat(variantForm.original_price) : null,
-          stock_quantity: parseInt(variantForm.stock_quantity),
-          sku: variantForm.sku || null,
-          is_active: variantForm.is_active,
-          product_details: productDetailsText.trim() || null
-        })
-        .eq('id', editingVariant.id);
+    const productDetailsString = customFields.length > 0 ? JSON.stringify(customFields) : null;
+    console.log('🔧 Admin: Updating variant with product details:', {
+      variantId: editingVariant.id,
+      customFields,
+      customFieldsLength: customFields.length,
+      productDetailsString,
+      stringifiedLength: productDetailsString?.length
+    });
 
-      if (error) throw error;
+    const updatedVariant: ProductVariant = {
+      ...editingVariant,
+      variant_name: variantForm.variant_name,
+      flavor: variantForm.flavor,
+      size: variantForm.size,
+      price: parseFloat(variantForm.price),
+      original_price: variantForm.original_price ? parseFloat(variantForm.original_price) : undefined,
+      stock_quantity: parseInt(variantForm.stock_quantity),
+      sku: variantForm.sku,
+      is_active: variantForm.is_active,
+      product_details: productDetailsString
+    };
 
-      toast({ title: "Success", description: "Variant updated successfully" });
-      
-      // Refresh data
-      loadData();
-      setEditingVariant(null);
-      
-      // Trigger global refresh for frontend components
-      window.dispatchEvent(new CustomEvent('productsUpdated'));
-      
-    } catch (error) {
-      console.error('Error updating variant:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update variant. Please try again.",
-        variant: "destructive"
-      });
+    console.log('🔧 Admin: Updated variant object:', {
+      variantId: updatedVariant.id,
+      product_details: updatedVariant.product_details,
+      product_details_type: typeof updatedVariant.product_details
+    });
+    
+    // If this is an existing variant (not a temp one), save to database immediately
+    if (editingVariant.id && !editingVariant.id.startsWith('temp-')) {
+      try {
+        const variantData = {
+          variant_name: updatedVariant.variant_name,
+          flavor: updatedVariant.flavor || null,
+          size: updatedVariant.size,
+          price: updatedVariant.price,
+          original_price: updatedVariant.original_price || null,
+          stock_quantity: updatedVariant.stock_quantity,
+          sku: updatedVariant.sku || null,
+          is_active: updatedVariant.is_active,
+          product_details: updatedVariant.product_details
+        };
+
+        console.log('💾 Admin: Saving variant to database:', {
+          variantId: editingVariant.id,
+          variantData
+        });
+
+        const { data, error } = await supabase
+          .from('product_variants')
+          .update(variantData)
+          .eq('id', editingVariant.id)
+          .select();
+
+        if (error) throw error;
+
+        console.log('💾 Admin: Variant saved successfully:', data);
+        
+        toast({ 
+          title: "Success", 
+          description: "Variant updated successfully" 
+        });
+
+        // Trigger global refresh for frontend components
+        window.dispatchEvent(new CustomEvent('productsUpdated'));
+        
+      } catch (error) {
+        console.error('💾 Admin: Error saving variant:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save variant",
+          variant: "destructive"
+        });
+        return; // Don't proceed with local state update if DB save failed
+      }
     }
+    
+    // Update local state
+    setProductVariants(productVariants.map(v => v.id === editingVariant.id ? updatedVariant : v));
+    setVariantForm({
+      variant_name: '',
+      flavor: '',
+      size: '',
+      price: '',
+      original_price: '',
+      stock_quantity: '',
+      sku: '',
+      is_active: true
+    });
+    setCustomFields([]);
+    setEditingVariant(null);
   };
 
   const cancelEditVariant = () => {
@@ -466,24 +546,24 @@ const IntegratedProductManager = () => {
       sku: '',
       is_active: true
     });
-    setProductDetailsText('');
+    setCustomFields([]);
   };
 
   const addVariant = () => {
-    const newVariant: ProductVariant = {
-      id: `temp-${Date.now()}`,
-      product_id: selectedProduct?.id || '',
-      variant_name: variantForm.variant_name,
-      flavor: variantForm.flavor,
-      size: variantForm.size,
-      price: parseFloat(variantForm.price),
-      original_price: variantForm.original_price ? parseFloat(variantForm.original_price) : undefined,
-      stock_quantity: parseInt(variantForm.stock_quantity),
-      sku: variantForm.sku,
-      is_active: variantForm.is_active,
-      product_details: productDetailsText.trim() || null
-    };
-
+        const newVariant: ProductVariant = {
+          id: `temp-${Date.now()}`,
+          product_id: selectedProduct?.id || '',
+          variant_name: variantForm.variant_name,
+          flavor: variantForm.flavor,
+          size: variantForm.size,
+          price: parseFloat(variantForm.price),
+          original_price: variantForm.original_price ? parseFloat(variantForm.original_price) : undefined,
+          stock_quantity: parseInt(variantForm.stock_quantity),
+          sku: variantForm.sku,
+          is_active: variantForm.is_active,
+          product_details: customFields.length > 0 ? JSON.stringify(customFields) : undefined
+        };
+    
     setProductVariants([...productVariants, newVariant]);
     setVariantForm({
       variant_name: '',
@@ -495,7 +575,7 @@ const IntegratedProductManager = () => {
       sku: '',
       is_active: true
     });
-    setProductDetailsText('');
+    setCustomFields([]);
   };
 
   const removeVariant = async (variantId: string) => {
@@ -907,17 +987,67 @@ const IntegratedProductManager = () => {
                     )}
                   </div>
 
-                    {/* Product Details Section */}
-                    <div className="space-y-4">
-                      <Label className="text-white">Product Details</Label>
-                      <textarea
-                        placeholder="Enter product details..."
-                        value={productDetailsText}
-                        onChange={(e) => setProductDetailsText(e.target.value)}
-                        className="w-full min-h-[120px] bg-gray-800 border border-gray-600 text-white rounded-md p-3 resize-vertical"
-                        rows={4}
-                      />
+                  {/* Custom Fields Section */}
+                  <div className="space-y-4 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-lg font-semibold">Variant-Specific Product Details</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCustomFields([...customFields, { title: '', value: '' }])}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Detail
+                      </Button>
                     </div>
+                    <p className="text-sm text-muted-foreground">
+                      Add variant-specific details that will be displayed on the product page under "Product Information" (e.g., Ingredients, Nutritional Info, Usage Instructions). These details are unique to each variant.
+                    </p>
+                    
+                    <div className="space-y-3">
+                      {customFields.map((field, index) => (
+                        <div key={index} className="flex gap-2 items-center">
+                          <div className="flex-1 grid grid-cols-2 gap-2">
+                            <Input
+                              placeholder="Detail title (e.g., Ingredients)"
+                              value={field.title}
+                              onChange={(e) => {
+                                const updatedFields = [...customFields];
+                                updatedFields[index].title = e.target.value;
+                                setCustomFields(updatedFields);
+                              }}
+                            />
+                            <Input
+                              placeholder="Detail value (e.g., Whey Protein, Creatine)"
+                              value={field.value}
+                              onChange={(e) => {
+                                const updatedFields = [...customFields];
+                                updatedFields[index].value = e.target.value;
+                                setCustomFields(updatedFields);
+                              }}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const updatedFields = customFields.filter((_, i) => i !== index);
+                              setCustomFields(updatedFields);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      {customFields.length === 0 && (
+                        <div className="text-center py-4 text-muted-foreground border border-dashed rounded-lg">
+                          No custom details added. Click "Add Detail" to start adding product-specific information.
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -938,13 +1068,27 @@ const IntegratedProductManager = () => {
                           {variant.sku && (
                             <div className="text-xs text-muted-foreground">SKU: {variant.sku}</div>
                           )}
-                          {variant.product_details && (
-                            <div className="text-xs text-muted-foreground">
-                              <span className="font-medium">Details:</span> {variant.product_details.length > 50 
-                                ? variant.product_details.substring(0, 50) + '...' 
-                                : variant.product_details}
-                            </div>
-                          )}
+                          {variant.product_details && (() => {
+                            try {
+                              const details = JSON.parse(variant.product_details);
+                              if (Array.isArray(details) && details.length > 0) {
+                                return (
+                                  <div className="text-xs text-muted-foreground">
+                                    <span className="font-medium">Details:</span> {details.length} item(s) added
+                                  </div>
+                                );
+                              }
+                            } catch (error) {
+                              if (variant.product_details.trim()) {
+                                return (
+                                  <div className="text-xs text-muted-foreground">
+                                    <span className="font-medium">Details:</span> Custom details added
+                                  </div>
+                                );
+                              }
+                            }
+                            return null;
+                          })()}
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant={variant.is_active ? "default" : "secondary"}>
