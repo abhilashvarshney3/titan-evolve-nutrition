@@ -418,47 +418,16 @@ const ProductDetail = () => {
                          ? <span className="text-green-400">In Stock</span>
                          : <span className="text-red-400">Out of Stock</span>
                      }</p>
-                      {selectedVariant?.product_details && (() => {
-                        console.log('🎯 ProductDetail: Rendering product details for variant:', {
-                          variantId: selectedVariant.id,
-                          variantName: selectedVariant.variant_name,
-                          product_details: selectedVariant.product_details,
-                          product_details_type: typeof selectedVariant.product_details
-                        });
-                        
-                        try {
-                          const details = JSON.parse(selectedVariant.product_details);
-                          console.log('🎯 ProductDetail: Parsed details:', details);
-                          
-                          if (Array.isArray(details) && details.length > 0) {
-                            console.log('🎯 ProductDetail: Rendering array of details:', details);
-                            return (
-                              <div className="space-y-2">
-                                <h5 className="text-md font-semibold text-purple-400 mb-3">Additional Details</h5>
-                                {details.map((detail, index) => (
-                                  <p key={index} className="mb-2">
-                                    <strong className="text-purple-400">{detail.title}:</strong>{' '}
-                                    <span className="text-gray-300">{detail.value}</span>
-                                  </p>
-                                ))}
-                              </div>
-                            );
-                          } else if (typeof details === 'string' && details.trim()) {
-                            console.log('🎯 ProductDetail: Rendering string details:', details);
-                            return <p className="mb-2"><strong className="text-purple-400">Details:</strong> <span className="text-gray-300">{details}</span></p>;
-                          }
-                        } catch (error) {
-                          console.log('🎯 ProductDetail: JSON parse failed, treating as plain text:', error);
-                          // If it's not valid JSON, treat as plain text
-                          if (selectedVariant.product_details.trim()) {
-                            return <p className="mb-2"><strong className="text-purple-400">Details:</strong> <span className="text-gray-300">{selectedVariant.product_details}</span></p>;
-                          }
-                        }
-                        console.log('🎯 ProductDetail: No valid details to render');
-                        return null;
-                      })()}
-                   </div>
-                 </div>
+                      {selectedVariant?.product_details && (
+                        <div className="mt-6">
+                          <h4 className="text-lg font-semibold text-purple-400 mb-3">Product Details</h4>
+                          <div className="text-gray-300 whitespace-pre-wrap">
+                            {selectedVariant.product_details}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 <div>
                   <h4 className="text-lg font-bold text-purple-400 mb-4">Quality Assurance</h4>
                   <ul className="space-y-2 text-gray-300">
