@@ -270,11 +270,15 @@ const Checkout = () => {
 
       // Redirect to PayU
       if (paymentData.paymentUrl) {
-        console.log("🔄 Redirecting to PayU...", paymentData.paymentUrl);
+        console.log("🔄 Redirecting to payment success...", paymentData.paymentUrl);
+        
+        // Clear cart after successful order creation
+        await supabase.from('cart').delete().eq('user_id', user?.id);
+        
         window.location.href = paymentData.paymentUrl;
       } else {
         console.error("❌ No payment URL received:", paymentData);
-        throw new Error("No payment URL received from PayU");
+        throw new Error("No payment URL received from payment gateway");
       }
 
     } catch (error) {
