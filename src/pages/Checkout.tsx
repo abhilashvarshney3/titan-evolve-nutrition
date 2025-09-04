@@ -268,7 +268,8 @@ const Checkout = () => {
           orderId: orderData.id,
           userId: user?.id,
           cartItemsCount: cartItems.length,
-          totalAmount: orderData.total_amount
+          totalAmount: orderData.total_amount,
+          selectedAddress: selectedAddr
         });
         
         try {
@@ -294,80 +295,53 @@ const Checkout = () => {
             });
             
             if (shipmentError) {
-              console.warn("⚠️ Shipment creation error:", shipmentError);
+              console.warn("⚠️ Shipment creation error (non-fatal):", shipmentError);
             } else {
               console.log("✅ Shipment created successfully:", shipmentResult);
             }
           } catch (shipmentError) {
-            console.warn("⚠️ Shipment creation failed, but continuing with order:", shipmentError);
+            console.warn("⚠️ Shipment creation failed (non-fatal), continuing with order:", shipmentError);
             // Don't fail the entire order if shipment creation fails
           }
 
-          console.log("✅ COD order completed successfully");
+          console.log("✅ COD order completed successfully, redirecting to success page");
           
           toast({
-            title: "Order Placed!",
-            description: "Your COD order has been placed successfully. You can pay on delivery."
+            title: "Order Placed Successfully!",
+            description: "Your COD order has been placed. You can pay on delivery."
           });
 
-          navigate(`/payment-success?orderId=${orderData.id}&method=cod`);
+          // Redirect to success page with proper parameters
+          navigate(`/payment-success?orderId=${orderData.id}&method=cod&status=success`);
           
         } catch (codError) {
           console.error("❌ COD processing error:", codError);
+          
+          // Show specific error message
+          const errorMessage = codError instanceof Error ? codError.message : 'Unknown error occurred';
+          
           toast({
-            title: "Order Failed",
-            description: codError.message || "Failed to process COD order. Please try again.",
+            title: "COD Order Failed",
+            description: `Error: ${errorMessage}. Please try again or contact support.`,
             variant: "destructive"
           });
+          
           throw codError; // Re-throw to be caught by outer try-catch
         }
       } else {
-        // Handle online payment, redirect to PayU
-        console.log("💳 Calling PayU payment function...", {
-          orderId: orderData.id,
-          amount: total,
-          firstName: selectedAddr?.first_name,
-          email: user?.email
-        });
+        // Handle online payment - use PayU direct button
+        console.log("💳 Processing PayU payment...");
         
-        // Open PayU payment in same window
-        const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-payu-payment', {
-          body: {
-            orderId: orderData.id,
-            amount: total,
-            productInfo: `Order #${orderData.id.slice(0, 8)}`,
-            firstName: selectedAddr?.first_name || 'Customer',
-            email: user?.email || 'customer@example.com',
-            phone: selectedAddr?.phone || '9999999999'
-          }
+        // Clear cart before payment
+        await supabase.from('cart').delete().eq('user_id', user?.id);
+        
+        // Store order info in session for payment success/failure pages
+        sessionStorage.setItem('pendingOrderId', orderData.id);
+        
+        toast({
+          title: "Redirecting to PayU",
+          description: "Click the Pay Now button below to complete payment"
         });
-
-        console.log("💳 PayU response:", { paymentData, paymentError });
-
-        if (paymentError) throw paymentError;
-
-        // The PayU function returns HTML form, open in new window/redirect
-        if (paymentData) {
-          console.log("🔄 Opening PayU payment page...");
-          
-          // Clear cart before payment
-          await supabase.from('cart').delete().eq('user_id', user?.id);
-          
-          // Open PayU form in new window
-          const paymentWindow = window.open('', '_blank', 'width=800,height=600');
-          if (paymentWindow) {
-            paymentWindow.document.write(paymentData);
-            paymentWindow.document.close();
-          } else {
-            // Fallback: create blob URL if popup blocked
-            const blob = new Blob([paymentData], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            window.location.href = url;
-          }
-        } else {
-          console.error("❌ No payment data received:", paymentData);
-          throw new Error("No payment data received from payment gateway");
-        }
       }
 
     } catch (error) {
@@ -658,29 +632,81 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                <Button 
-                  onClick={handleCheckout} 
-                  className="w-full" 
-                  size="lg"
-                  disabled={processing || !selectedAddress || !selectedPaymentMethod}
-                >
-                  {processing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : selectedPaymentMethod === 'cod' ? (
-                    <>
-                      <Package className="h-4 w-4 mr-2" />
-                      Place Order (COD)
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Pay ₹{total.toFixed(0)}
-                    </>
-                  )}
-                </Button>
+                {selectedPaymentMethod === 'cod' ? (
+                  <Button 
+                    onClick={handleCheckout} 
+                    className="w-full" 
+                    size="lg"
+                    disabled={processing || !selectedAddress}
+                  >
+                    {processing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Package className="h-4 w-4 mr-2" />
+                        Place Order (COD)
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <div className="space-y-3">
+                    <Button 
+                      onClick={handleCheckout} 
+                      className="w-full" 
+                      size="lg"
+                      disabled={processing || !selectedAddress}
+                    >
+                      {processing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          Prepare Order for Payment
+                        </>
+                      )}
+                    </Button>
+                    
+                    {/* PayU Payment Button */}
+                    <div className="flex justify-center">
+                      <a 
+                        href="https://u.payu.in/LIQMYbHK8n20"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          width: '200px',
+                          backgroundColor: '#1065b7',
+                          textAlign: 'center',
+                          fontWeight: '800',
+                          padding: '12px 0px',
+                          color: 'white',
+                          fontSize: '14px',
+                          display: 'inline-block',
+                          textDecoration: 'none',
+                          borderRadius: '6px',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#0d5aa7';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#1065b7';
+                        }}
+                      >
+                        Pay ₹{total.toFixed(0)} Now
+                      </a>
+                    </div>
+                    
+                    <p className="text-xs text-muted-foreground text-center">
+                      First click "Prepare Order" above, then use the PayU button to pay
+                    </p>
+                  </div>
+                )}
 
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Truck className="h-4 w-4" />
