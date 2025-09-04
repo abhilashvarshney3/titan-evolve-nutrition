@@ -229,9 +229,9 @@ const Checkout = () => {
       const selectedAddr = addresses.find(addr => addr.id === selectedAddress);
       const { subtotal, shipping, total } = calculateTotal();
 
-      // Create order first
-      const orderStatus = selectedPaymentMethod === 'cod' ? 'confirmed' : 'pending';
-      const paymentStatus = selectedPaymentMethod === 'cod' ? 'pending' : 'pending';
+      // Create order first - using valid enum values
+      const orderStatus = selectedPaymentMethod === 'cod' ? 'processing' : 'pending';
+      const paymentStatus = 'pending'; // Always pending initially
 
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
