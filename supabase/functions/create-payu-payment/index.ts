@@ -40,31 +40,34 @@ serve(async (req) => {
 
     const { orderId, amount, productInfo, firstName, email, phone }: PaymentRequest = await req.json();
 
-    // PayU credentials
-    const MERCHANT_ID = "13258773";
-    const MERCHANT_KEY = Deno.env.get("PAYU_MERCHANT_KEY") || "gY6n6Z";
-    const MERCHANT_SALT = MERCHANT_KEY; // Using same key as salt for simplicity
+    // PayU Test Credentials (For production, use production credentials)
+    const MERCHANT_KEY = Deno.env.get("PAYU_MERCHANT_KEY") || "gtKFFx"; // Test key
+    const MERCHANT_SALT = "eCwWELxi"; // Test salt - NEVER expose in production
     
-    // Generate transaction ID
+    // Generate unique transaction ID
     const txnid = `TXN_${orderId}_${Date.now()}`;
     
     // Success and failure URLs
-    const surl = `${req.headers.get("origin")}/payment-success`;
-    const furl = `${req.headers.get("origin")}/payment-failure`;
+    const baseUrl = req.headers.get("origin") || "https://titanevolvenutrition.com";
+    const surl = `${baseUrl}/payment-success`;
+    const furl = `${baseUrl}/payment-failure`;
     
-    // Generate hash
-    const hashString = `${MERCHANT_ID}|${txnid}|${amount}|${productInfo}|${firstName}|${email}|||||||||||${MERCHANT_KEY}`;
+    // PayU requires specific parameters in exact order for hash generation
+    const hashString = `${MERCHANT_KEY}|${txnid}|${amount}|${productInfo}|${firstName}|${email}|||||||||||${MERCHANT_SALT}`;
     
-    // Simple hash generation (for production, use proper crypto)
+    // Generate SHA-512 hash
     const encoder = new TextEncoder();
     const data_to_hash = encoder.encode(hashString);
     const hashBuffer = await crypto.subtle.digest('SHA-512', data_to_hash);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
+    console.log('PayU Hash String:', hashString);
+    console.log('Generated Hash:', hash);
+
     // PayU form parameters
     const payuParams = {
-      key: MERCHANT_ID,
+      key: MERCHANT_KEY,
       txnid: txnid,
       amount: amount.toString(),
       productinfo: productInfo,
@@ -77,7 +80,7 @@ serve(async (req) => {
       service_provider: 'payu_paisa'
     };
 
-    // Store payment details in database first
+    // Store payment details in database
     const supabaseService = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -93,55 +96,80 @@ serve(async (req) => {
       payment_data: payuParams
     });
 
-    // Create actual PayU payment form (for production)
-    const payuUrl = 'https://test.payu.in/_payment'; // Test URL - change to secure.payu.in for production
+    // PayU Test URL (Use https://secure.payu.in/_payment for production)
+    const payuUrl = 'https://test.payu.in/_payment';
     
-    // Create form HTML for auto-submission
+    // Create HTML form that auto-submits to PayU
     const formHtml = `
+      <!DOCTYPE html>
       <html>
-        <head><title>Processing Payment...</title></head>
-        <body onload="document.forms[0].submit();">
-          <div style="text-align: center; padding: 50px;">
-            <p>Redirecting to PayU...</p>
+        <head>
+          <title>Redirecting to PayU...</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              margin: 0;
+              padding: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              min-height: 100vh;
+            }
+            .container {
+              background: white;
+              padding: 3rem;
+              border-radius: 15px;
+              box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+              text-align: center;
+              max-width: 400px;
+              width: 90%;
+            }
+            .spinner {
+              border: 4px solid #f3f3f3;
+              border-radius: 50%;
+              border-top: 4px solid #667eea;
+              width: 40px;
+              height: 40px;
+              animation: spin 1s linear infinite;
+              margin: 20px auto;
+            }
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            h2 { color: #333; margin-bottom: 20px; }
+            p { color: #666; margin-bottom: 30px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h2>Processing Payment</h2>
+            <div class="spinner"></div>
+            <p>Please wait while we redirect you to PayU secure payment gateway...</p>
           </div>
-          <form method="post" action="${payuUrl}">
+          <form id="payuForm" method="post" action="${payuUrl}">
             ${Object.entries(payuParams).map(([key, value]) => 
               `<input type="hidden" name="${key}" value="${value}" />`
             ).join('')}
           </form>
+          
+          <script>
+            // Auto-submit form after 2 seconds
+            setTimeout(function() {
+              document.getElementById('payuForm').submit();
+            }, 2000);
+          </script>
         </body>
       </html>
     `;
 
-    // For demo purposes, simulate successful payment after 2 seconds
-    setTimeout(async () => {
-      try {
-        // Update payment status to completed
-        await supabaseService.from("order_payments")
-          .update({ 
-            status: 'completed',
-            gateway_response: { demo: 'success' }
-          })
-          .eq('payment_id', txnid);
-
-        // Update order status
-        await supabaseService.from("orders")
-          .update({ 
-            status: 'confirmed',
-            payment_status: 'completed'
-          })
-          .eq('id', orderId);
-      } catch (error) {
-        console.error('Error updating payment status:', error);
-      }
-    }, 2000);
-
-    // Return payment form URL for redirect
-    return new Response(JSON.stringify({ 
-      paymentUrl: `data:text/html;charset=utf-8,${encodeURIComponent(formHtml)}`,
-      transactionId: txnid
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // Return HTML response that redirects to PayU
+    return new Response(formHtml, {
+      headers: { 
+        ...corsHeaders, 
+        "Content-Type": "text/html; charset=utf-8",
+      },
       status: 200,
     });
 

@@ -282,7 +282,7 @@ const Checkout = () => {
 
         navigate(`/payment-success?orderId=${orderData.id}&method=cod`);
       } else {
-        // For online payment, call PayU function
+        // Handle online payment, redirect to PayU
         console.log("💳 Calling PayU payment function...", {
           orderId: orderData.id,
           amount: total,
@@ -290,6 +290,7 @@ const Checkout = () => {
           email: user?.email
         });
         
+        // Open PayU payment in same window
         const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-payu-payment', {
           body: {
             orderId: orderData.id,
@@ -305,13 +306,20 @@ const Checkout = () => {
 
         if (paymentError) throw paymentError;
 
-        // Redirect to PayU
-        if (paymentData.paymentUrl) {
-          console.log("🔄 Redirecting to payment...", paymentData.paymentUrl);
-          window.location.href = paymentData.paymentUrl;
+        // The PayU function returns HTML form, create blob URL and redirect
+        if (paymentData) {
+          console.log("🔄 Redirecting to PayU payment page...");
+          
+          // Clear cart before redirect
+          await supabase.from('cart').delete().eq('user_id', user?.id);
+          
+          // Create blob URL for PayU form and redirect
+          const blob = new Blob([paymentData], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          window.location.href = url;
         } else {
-          console.error("❌ No payment URL received:", paymentData);
-          throw new Error("No payment URL received from payment gateway");
+          console.error("❌ No payment data received:", paymentData);
+          throw new Error("No payment data received from payment gateway");
         }
       }
 
