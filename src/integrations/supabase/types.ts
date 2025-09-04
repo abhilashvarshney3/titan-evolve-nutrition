@@ -426,6 +426,53 @@ export type Database = {
           },
         ]
       }
+      order_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          gateway_response: Json | null
+          id: string
+          order_id: string
+          payment_data: Json | null
+          payment_id: string
+          payment_method: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          gateway_response?: Json | null
+          id?: string
+          order_id: string
+          payment_data?: Json | null
+          payment_id: string
+          payment_method?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          gateway_response?: Json | null
+          id?: string
+          order_id?: string
+          payment_data?: Json | null
+          payment_id?: string
+          payment_method?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_tracking: {
         Row: {
           carrier: string | null
@@ -823,6 +870,71 @@ export type Database = {
             columns: ["variant_id"]
             isOneToOne: false
             referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipments: {
+        Row: {
+          actual_delivery: string | null
+          carrier: string | null
+          created_at: string
+          delivery_address: Json | null
+          dimensions: Json | null
+          estimated_delivery: string | null
+          id: string
+          order_id: string
+          pickup_address: Json | null
+          shipment_data: Json | null
+          shipment_id: string | null
+          shipping_cost: number | null
+          status: string
+          tracking_number: string | null
+          updated_at: string
+          weight: number | null
+        }
+        Insert: {
+          actual_delivery?: string | null
+          carrier?: string | null
+          created_at?: string
+          delivery_address?: Json | null
+          dimensions?: Json | null
+          estimated_delivery?: string | null
+          id?: string
+          order_id: string
+          pickup_address?: Json | null
+          shipment_data?: Json | null
+          shipment_id?: string | null
+          shipping_cost?: number | null
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string
+          weight?: number | null
+        }
+        Update: {
+          actual_delivery?: string | null
+          carrier?: string | null
+          created_at?: string
+          delivery_address?: Json | null
+          dimensions?: Json | null
+          estimated_delivery?: string | null
+          id?: string
+          order_id?: string
+          pickup_address?: Json | null
+          shipment_data?: Json | null
+          shipment_id?: string | null
+          shipping_cost?: number | null
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]

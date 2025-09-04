@@ -20,7 +20,7 @@ import {
   Truck,
   Check
 } from 'lucide-react';
-import { CouponSection } from '@/components/CouponSection';
+import CouponSection from '@/components/CouponSection';
 
 interface CartItem {
   id: string;
@@ -215,13 +215,13 @@ const Checkout = () => {
       // Create order first
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
-        .insert([{
+        .insert({
           user_id: user?.id,
           total_amount: total,
-          status: 'pending',
-          payment_status: 'pending',
-          shipping_address: selectedAddr
-        }])
+          status: 'pending' as any,
+          payment_status: 'pending' as any,
+          shipping_address: selectedAddr as any
+        })
         .select()
         .single();
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, MessageCircle } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, MessageCircle, CreditCard } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -449,9 +449,19 @@ const Cart = () => {
                       </div>
                     </div>
 
+                    <Link to="/checkout">
+                      <Button 
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 text-lg flex items-center justify-center gap-2"
+                      >
+                        <CreditCard className="h-5 w-5" />
+                        PROCEED TO CHECKOUT
+                      </Button>
+                    </Link>
+
                     <Button 
                       onClick={handleWhatsAppCheckout}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 text-lg flex items-center justify-center gap-2"
+                      variant="outline"
+                      className="w-full border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-bold py-4 text-lg flex items-center justify-center gap-2"
                     >
                       <MessageCircle className="h-5 w-5" />
                       CHECKOUT VIA WHATSAPP
