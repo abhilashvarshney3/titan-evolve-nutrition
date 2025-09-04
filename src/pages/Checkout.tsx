@@ -188,6 +188,8 @@ const Checkout = () => {
   };
 
   const handleCheckout = async () => {
+    console.log("🚀 Checkout started", { selectedAddress, cartItemsCount: cartItems.length });
+    
     if (!selectedAddress) {
       toast({
         title: "Error",
@@ -208,6 +210,7 @@ const Checkout = () => {
 
     try {
       setProcessing(true);
+      console.log("💳 Starting payment process...");
       
       const selectedAddr = addresses.find(addr => addr.id === selectedAddress);
       const { subtotal, shipping, total } = calculateTotal();
@@ -243,6 +246,13 @@ const Checkout = () => {
       if (itemsError) throw itemsError;
 
       // Call PayU payment function
+      console.log("💳 Calling PayU payment function...", {
+        orderId: orderData.id,
+        amount: total,
+        firstName: selectedAddr?.first_name,
+        email: user?.email
+      });
+      
       const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-payu-payment', {
         body: {
           orderId: orderData.id,
@@ -254,11 +264,17 @@ const Checkout = () => {
         }
       });
 
+      console.log("💳 PayU response:", { paymentData, paymentError });
+
       if (paymentError) throw paymentError;
 
       // Redirect to PayU
       if (paymentData.paymentUrl) {
+        console.log("🔄 Redirecting to PayU...", paymentData.paymentUrl);
         window.location.href = paymentData.paymentUrl;
+      } else {
+        console.error("❌ No payment URL received:", paymentData);
+        throw new Error("No payment URL received from PayU");
       }
 
     } catch (error) {
