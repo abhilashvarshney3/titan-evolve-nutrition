@@ -72,6 +72,9 @@ verify_jwt = false
 [functions.create-payu-payment]
 verify_jwt = true
 
+[functions.payu-callback]
+verify_jwt = false
+
 [functions.create-shipment]
 verify_jwt = false
 

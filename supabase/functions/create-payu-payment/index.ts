@@ -47,14 +47,18 @@ serve(async (req) => {
     if (!MERCHANT_KEY || !MERCHANT_SALT) {
       throw new Error("PayU credentials not configured");
     }
+
+    console.log('PayU Merchant Key length:', MERCHANT_KEY.length);
+    console.log('PayU Salt length:', MERCHANT_SALT.length);
     
     // Generate unique transaction ID
     const txnid = `TXN_${orderId}_${Date.now()}`;
     
-    // Success and failure URLs
+    // Success and failure URLs - Use webhook endpoint
     const baseUrl = req.headers.get("origin") || "https://titanevolvenutrition.com";
-    const surl = `${baseUrl}/payment-success`;
-    const furl = `${baseUrl}/payment-failure`;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const surl = `${supabaseUrl}/functions/v1/payu-callback`;
+    const furl = `${supabaseUrl}/functions/v1/payu-callback`;
     
     // PayU requires specific parameters in exact order for hash generation
     const hashString = `${MERCHANT_KEY}|${txnid}|${amount}|${productInfo}|${firstName}|${email}|||||||||||${MERCHANT_SALT}`;
@@ -66,8 +70,9 @@ serve(async (req) => {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-    console.log('PayU Hash String:', hashString);
-    console.log('Generated Hash:', hash);
+    console.log('PayU Hash String (without salt):', hashString.replace(MERCHANT_SALT, 'SALT_HIDDEN'));
+    console.log('Generated Hash Length:', hash.length);
+    console.log('Hash starts with:', hash.substring(0, 10));
 
     // PayU form parameters
     const payuParams = {
