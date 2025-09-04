@@ -20,6 +20,14 @@ interface PayUCallback {
   bankcode?: string;
   error?: string;
   error_Message?: string;
+  unmappedstatus?: string;
+  field9?: string;
+  mihpayid?: string;
+  udf1?: string;
+  udf2?: string;
+  udf3?: string;
+  udf4?: string;
+  udf5?: string;
 }
 
 serve(async (req) => {
@@ -51,7 +59,42 @@ serve(async (req) => {
 
     console.log('PayU Response Data:', payuData);
 
-    const { status, txnid, amount, error, error_Message } = payuData;
+    const { 
+      status, 
+      txnid, 
+      amount, 
+      error, 
+      error_Message, 
+      unmappedstatus, 
+      field9, 
+      mihpayid, 
+      hash 
+    } = payuData;
+
+    // Verify hash for security (reverse hash verification)
+    const MERCHANT_SALT = Deno.env.get("PAYU_SALT");
+    const MERCHANT_KEY = Deno.env.get("PAYU_MERCHANT_KEY");
+    
+    if (MERCHANT_SALT && MERCHANT_KEY && hash) {
+      // PayU reverse hash: SALT|status||||||udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key
+      const reverseHashString = `${MERCHANT_SALT}|${status}||||||${payuData.udf5 || ''}|${payuData.udf4 || ''}|${payuData.udf3 || ''}|${payuData.udf2 || ''}|${payuData.udf1 || ''}|${payuData.email}|${payuData.firstname}|${payuData.productinfo}|${amount}|${txnid}|${MERCHANT_KEY}`;
+      
+      const encoder = new TextEncoder();
+      const data_to_hash = encoder.encode(reverseHashString);
+      const hashBuffer = await crypto.subtle.digest('SHA-512', data_to_hash);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const calculatedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      
+      console.log('Hash verification:', {
+        received: hash,
+        calculated: calculatedHash.substring(0, 20) + '...',
+        matches: hash === calculatedHash
+      });
+      
+      if (hash !== calculatedHash) {
+        console.warn('⚠️ Hash verification failed - potential security issue');
+      }
+    }
 
     if (!txnid) {
       throw new Error('Transaction ID not found in callback');
@@ -111,8 +154,32 @@ serve(async (req) => {
         }
       });
     } else {
-      const errorMsg = error_Message || error || 'Payment failed';
-      const redirectUrl = `${baseUrl}/payment-failure?txnid=${txnid}&status=failed&error=${encodeURIComponent(errorMsg)}&orderId=${paymentData.order_id}`;
+      // Extract comprehensive error information as per PayU guide
+      const primaryError = error_Message || field9 || 'Payment failed';
+      const errorCode = error || 'UNKNOWN';
+      const payuStatus = unmappedstatus || status;
+      const bankReason = field9 || 'No additional details';
+      
+      console.log('Payment failed with details:', {
+        error_Message,
+        error_code: error,
+        unmappedstatus,
+        field9,
+        mihpayid,
+        bank_ref_num: payuData.bank_ref_num
+      });
+      
+      // Create detailed error message for frontend
+      const errorDetails = {
+        message: primaryError,
+        code: errorCode,
+        status: payuStatus,
+        bankReason: bankReason,
+        mihpayid: mihpayid || '',
+        txnid: txnid
+      };
+      
+      const redirectUrl = `${baseUrl}/payment-failure?txnid=${txnid}&status=failed&error=${encodeURIComponent(JSON.stringify(errorDetails))}&orderId=${paymentData.order_id}`;
       return new Response(null, {
         status: 302,
         headers: {

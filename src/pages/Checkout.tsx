@@ -267,12 +267,13 @@ const Checkout = () => {
         console.log("📦 Processing COD order...", {
           orderId: orderData.id,
           userId: user?.id,
-          cartItemsCount: cartItems.length
+          cartItemsCount: cartItems.length,
+          totalAmount: orderData.total_amount
         });
         
         try {
           // Clear cart first
-          console.log("🛒 Clearing cart...");
+          console.log("🛒 Clearing cart for user:", user?.id);
           const { error: cartError } = await supabase
             .from('cart')
             .delete()
@@ -287,11 +288,16 @@ const Checkout = () => {
           
           // Try to create shipment, but don't fail if it errors
           try {
-            console.log("🚚 Creating shipment...");
-            await supabase.functions.invoke('create-shipment', {
+            console.log("🚚 Creating shipment for order:", orderData.id);
+            const { data: shipmentResult, error: shipmentError } = await supabase.functions.invoke('create-shipment', {
               body: { orderId: orderData.id }
             });
-            console.log("✅ Shipment created successfully");
+            
+            if (shipmentError) {
+              console.warn("⚠️ Shipment creation error:", shipmentError);
+            } else {
+              console.log("✅ Shipment created successfully:", shipmentResult);
+            }
           } catch (shipmentError) {
             console.warn("⚠️ Shipment creation failed, but continuing with order:", shipmentError);
             // Don't fail the entire order if shipment creation fails
@@ -308,6 +314,11 @@ const Checkout = () => {
           
         } catch (codError) {
           console.error("❌ COD processing error:", codError);
+          toast({
+            title: "Order Failed",
+            description: codError.message || "Failed to process COD order. Please try again.",
+            variant: "destructive"
+          });
           throw codError; // Re-throw to be caught by outer try-catch
         }
       } else {

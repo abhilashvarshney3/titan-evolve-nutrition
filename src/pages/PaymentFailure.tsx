@@ -23,7 +23,15 @@ const PaymentFailure = () => {
   
   const txnid = searchParams.get('txnid');
   const orderId = searchParams.get('orderId');
-  const errorMessage = searchParams.get('error') || 'Payment was unsuccessful';
+  const errorParam = searchParams.get('error') || 'Payment was unsuccessful';
+  
+  // Parse error details if it's JSON, otherwise use as string
+  let errorDetails: any = {};
+  try {
+    errorDetails = JSON.parse(errorParam);
+  } catch {
+    errorDetails = { message: errorParam };
+  }
 
   useEffect(() => {
     if (user && (txnid || orderId)) {
@@ -107,11 +115,26 @@ const PaymentFailure = () => {
             <CardContent className="space-y-6">
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-sm text-red-800">
-                  <strong>Error:</strong> {errorMessage}
+                  <strong>Error:</strong> {errorDetails.message || errorParam}
                 </p>
+                {errorDetails.code && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Error Code: {errorDetails.code}
+                  </p>
+                )}
+                {errorDetails.bankReason && errorDetails.bankReason !== 'No additional details' && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Bank Reason: {errorDetails.bankReason}
+                  </p>
+                )}
                 {txnid && (
                   <p className="text-xs text-red-600 mt-1">
                     Transaction ID: {txnid}
+                  </p>
+                )}
+                {errorDetails.mihpayid && (
+                  <p className="text-xs text-red-600 mt-1">
+                    PayU Transaction ID: {errorDetails.mihpayid}
                   </p>
                 )}
                 {orderId && orderUpdated && (
