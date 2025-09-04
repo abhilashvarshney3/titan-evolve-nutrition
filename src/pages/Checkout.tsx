@@ -330,9 +330,21 @@ const Checkout = () => {
         }
       } else {
         // Handle online payment, redirect to PayU
+        
+        // Validate amount before sending to PayU
+        const paymentAmount = Math.round(total * 100) / 100; // Round to 2 decimal places
+        
+        if (!paymentAmount || paymentAmount <= 0) {
+          throw new Error(`Invalid payment amount: ${paymentAmount}. Total: ${total}, Subtotal: ${subtotal}, Shipping: ${shipping}, Coupon Discount: ${couponDiscount}`);
+        }
+        
         console.log("💳 Calling PayU payment function...", {
           orderId: orderData.id,
-          amount: total,
+          amount: paymentAmount,
+          total,
+          subtotal,
+          shipping,
+          couponDiscount,
           firstName: selectedAddr?.first_name,
           email: user?.email
         });
@@ -341,7 +353,7 @@ const Checkout = () => {
         const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-payu-payment', {
           body: {
             orderId: orderData.id,
-            amount: total,
+            amount: paymentAmount,
             productInfo: `Order #${orderData.id.slice(0, 8)}`,
             firstName: selectedAddr?.first_name || 'Customer',
             email: user?.email || 'customer@example.com',
