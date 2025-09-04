@@ -42,7 +42,7 @@ serve(async (req) => {
 
     // PayU Test Credentials (For production, use production credentials)
     const MERCHANT_KEY = Deno.env.get("PAYU_MERCHANT_KEY") || "gtKFFx"; // Test key
-    const MERCHANT_SALT = "eCwWELxi"; // Test salt - NEVER expose in production
+    const MERCHANT_SALT = Deno.env.get("PAYU_SALT") || "eCwWELxi"; // Test salt - get from environment
     
     // Generate unique transaction ID
     const txnid = `TXN_${orderId}_${Date.now()}`;

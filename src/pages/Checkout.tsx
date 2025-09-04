@@ -306,17 +306,24 @@ const Checkout = () => {
 
         if (paymentError) throw paymentError;
 
-        // The PayU function returns HTML form, create blob URL and redirect
+        // The PayU function returns HTML form, open in new window/redirect
         if (paymentData) {
-          console.log("🔄 Redirecting to PayU payment page...");
+          console.log("🔄 Opening PayU payment page...");
           
-          // Clear cart before redirect
+          // Clear cart before payment
           await supabase.from('cart').delete().eq('user_id', user?.id);
           
-          // Create blob URL for PayU form and redirect
-          const blob = new Blob([paymentData], { type: 'text/html' });
-          const url = URL.createObjectURL(blob);
-          window.location.href = url;
+          // Open PayU form in new window
+          const paymentWindow = window.open('', '_blank', 'width=800,height=600');
+          if (paymentWindow) {
+            paymentWindow.document.write(paymentData);
+            paymentWindow.document.close();
+          } else {
+            // Fallback: create blob URL if popup blocked
+            const blob = new Blob([paymentData], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.location.href = url;
+          }
         } else {
           console.error("❌ No payment data received:", paymentData);
           throw new Error("No payment data received from payment gateway");
