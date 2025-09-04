@@ -40,9 +40,13 @@ serve(async (req) => {
 
     const { orderId, amount, productInfo, firstName, email, phone }: PaymentRequest = await req.json();
 
-    // PayU Test Credentials (For production, use production credentials)
-    const MERCHANT_KEY = Deno.env.get("PAYU_MERCHANT_KEY") || "gtKFFx"; // Test key
-    const MERCHANT_SALT = Deno.env.get("PAYU_SALT") || "eCwWELxi"; // Test salt - get from environment
+    // PayU Production Credentials
+    const MERCHANT_KEY = Deno.env.get("PAYU_MERCHANT_KEY");
+    const MERCHANT_SALT = Deno.env.get("PAYU_SALT");
+    
+    if (!MERCHANT_KEY || !MERCHANT_SALT) {
+      throw new Error("PayU credentials not configured");
+    }
     
     // Generate unique transaction ID
     const txnid = `TXN_${orderId}_${Date.now()}`;
@@ -96,8 +100,8 @@ serve(async (req) => {
       payment_data: payuParams
     });
 
-    // PayU Test URL (Use https://secure.payu.in/_payment for production)
-    const payuUrl = 'https://test.payu.in/_payment';
+    // PayU Production URL
+    const payuUrl = 'https://secure.payu.in/_payment';
     
     // Create HTML form that auto-submits to PayU
     const formHtml = `
