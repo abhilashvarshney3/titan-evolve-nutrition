@@ -254,7 +254,14 @@ const OrderManagement = () => {
                 <div>
                   <CardTitle className="text-base">Order #{order.id.slice(0, 8)}</CardTitle>
                   <p className="text-sm text-gray-500">
-                    {new Date(order.created_at).toLocaleDateString()}
+                    Placed: {new Date(order.created_at).toLocaleDateString('en-IN', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })}
                   </p>
                 </div>
                 <div className="flex gap-2 items-center">

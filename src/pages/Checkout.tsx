@@ -264,29 +264,52 @@ const Checkout = () => {
 
       // Handle payment based on method
       if (selectedPaymentMethod === 'cod') {
-        // For COD, just complete the order
-        console.log("📦 Processing COD order...");
-        
-        // Clear cart
-        await supabase.from('cart').delete().eq('user_id', user?.id);
-        
-        // Try to create shipment, but don't fail if it errors
-        try {
-          await supabase.functions.invoke('create-shipment', {
-            body: { orderId: orderData.id }
-          });
-          console.log("✅ Shipment created successfully");
-        } catch (shipmentError) {
-          console.warn("⚠️ Shipment creation failed, but continuing with order:", shipmentError);
-          // Don't fail the entire order if shipment creation fails
-        }
-
-        toast({
-          title: "Order Placed!",
-          description: "Your order has been placed successfully. You can pay on delivery."
+        console.log("📦 Processing COD order...", {
+          orderId: orderData.id,
+          userId: user?.id,
+          cartItemsCount: cartItems.length
         });
+        
+        try {
+          // Clear cart first
+          console.log("🛒 Clearing cart...");
+          const { error: cartError } = await supabase
+            .from('cart')
+            .delete()
+            .eq('user_id', user?.id);
+          
+          if (cartError) {
+            console.error("❌ Cart clear error:", cartError);
+            throw new Error(`Failed to clear cart: ${cartError.message}`);
+          }
+          
+          console.log("✅ Cart cleared successfully");
+          
+          // Try to create shipment, but don't fail if it errors
+          try {
+            console.log("🚚 Creating shipment...");
+            await supabase.functions.invoke('create-shipment', {
+              body: { orderId: orderData.id }
+            });
+            console.log("✅ Shipment created successfully");
+          } catch (shipmentError) {
+            console.warn("⚠️ Shipment creation failed, but continuing with order:", shipmentError);
+            // Don't fail the entire order if shipment creation fails
+          }
 
-        navigate(`/payment-success?orderId=${orderData.id}&method=cod`);
+          console.log("✅ COD order completed successfully");
+          
+          toast({
+            title: "Order Placed!",
+            description: "Your COD order has been placed successfully. You can pay on delivery."
+          });
+
+          navigate(`/payment-success?orderId=${orderData.id}&method=cod`);
+          
+        } catch (codError) {
+          console.error("❌ COD processing error:", codError);
+          throw codError; // Re-throw to be caught by outer try-catch
+        }
       } else {
         // Handle online payment, redirect to PayU
         console.log("💳 Calling PayU payment function...", {
