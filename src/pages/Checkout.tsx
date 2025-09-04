@@ -270,10 +270,16 @@ const Checkout = () => {
         // Clear cart
         await supabase.from('cart').delete().eq('user_id', user?.id);
         
-        // Create shipment
-        await supabase.functions.invoke('create-shipment', {
-          body: { orderId: orderData.id }
-        });
+        // Try to create shipment, but don't fail if it errors
+        try {
+          await supabase.functions.invoke('create-shipment', {
+            body: { orderId: orderData.id }
+          });
+          console.log("✅ Shipment created successfully");
+        } catch (shipmentError) {
+          console.warn("⚠️ Shipment creation failed, but continuing with order:", shipmentError);
+          // Don't fail the entire order if shipment creation fails
+        }
 
         toast({
           title: "Order Placed!",
