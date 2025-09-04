@@ -44,9 +44,36 @@ const PaymentSuccess = () => {
   const verifyPayment = async () => {
     try {
       const txnid = searchParams.get('txnid');
+      const orderId = searchParams.get('orderId');
+      const method = searchParams.get('method');
       const status = searchParams.get('status');
       const payuMoneyId = searchParams.get('payuMoneyId');
       
+      console.log("🔍 Verifying payment:", { txnid, orderId, method, status });
+
+      // Handle COD orders differently
+      if (method === 'cod' && orderId) {
+        // For COD, just fetch and display order details
+        const { data: orderData, error: orderError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', orderId)
+          .single();
+
+        if (orderError) throw orderError;
+        setOrder(orderData);
+        setPaymentVerified(true);
+        
+        toast({
+          title: "Order Placed Successfully!",
+          description: "Your order has been confirmed. You can pay on delivery."
+        });
+        
+        setLoading(false);
+        return;
+      }
+
+      // Handle online payment verification
       if (!txnid) {
         throw new Error('Transaction ID not found');
       }

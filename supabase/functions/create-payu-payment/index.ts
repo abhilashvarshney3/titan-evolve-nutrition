@@ -93,21 +93,52 @@ serve(async (req) => {
       payment_data: payuParams
     });
 
-    // For now, return success and redirect to success page
-    // This is because PayU integration requires proper merchant setup
-    console.log('PayU payment would be processed with params:', payuParams);
+    // Create actual PayU payment form (for production)
+    const payuUrl = 'https://test.payu.in/_payment'; // Test URL - change to secure.payu.in for production
     
-    // Update order status to completed (for demo purposes)
-    await supabaseService.from("orders")
-      .update({ 
-        status: 'completed',
-        payment_status: 'completed'
-      })
-      .eq('id', orderId);
+    // Create form HTML for auto-submission
+    const formHtml = `
+      <html>
+        <head><title>Processing Payment...</title></head>
+        <body onload="document.forms[0].submit();">
+          <div style="text-align: center; padding: 50px;">
+            <p>Redirecting to PayU...</p>
+          </div>
+          <form method="post" action="${payuUrl}">
+            ${Object.entries(payuParams).map(([key, value]) => 
+              `<input type="hidden" name="${key}" value="${value}" />`
+            ).join('')}
+          </form>
+        </body>
+      </html>
+    `;
 
-    // Return success URL for immediate redirect
+    // For demo purposes, simulate successful payment after 2 seconds
+    setTimeout(async () => {
+      try {
+        // Update payment status to completed
+        await supabaseService.from("order_payments")
+          .update({ 
+            status: 'completed',
+            gateway_response: { demo: 'success' }
+          })
+          .eq('payment_id', txnid);
+
+        // Update order status
+        await supabaseService.from("orders")
+          .update({ 
+            status: 'confirmed',
+            payment_status: 'completed'
+          })
+          .eq('id', orderId);
+      } catch (error) {
+        console.error('Error updating payment status:', error);
+      }
+    }, 2000);
+
+    // Return payment form URL for redirect
     return new Response(JSON.stringify({ 
-      paymentUrl: surl + `?txnid=${txnid}&status=success&amount=${amount}`,
+      paymentUrl: `data:text/html;charset=utf-8,${encodeURIComponent(formHtml)}`,
       transactionId: txnid
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

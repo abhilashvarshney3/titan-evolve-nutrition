@@ -62,6 +62,7 @@ const Checkout = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string>('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('online');
   const [showNewAddress, setShowNewAddress] = useState(false);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -188,12 +189,25 @@ const Checkout = () => {
   };
 
   const handleCheckout = async () => {
-    console.log("🚀 Checkout started", { selectedAddress, cartItemsCount: cartItems.length });
+    console.log("🚀 Checkout started", { 
+      selectedAddress, 
+      selectedPaymentMethod,
+      cartItemsCount: cartItems.length 
+    });
     
     if (!selectedAddress) {
       toast({
         title: "Error",
         description: "Please select a delivery address",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!selectedPaymentMethod) {
+      toast({
+        title: "Error", 
+        description: "Please select a payment method",
         variant: "destructive"
       });
       return;
@@ -216,13 +230,16 @@ const Checkout = () => {
       const { subtotal, shipping, total } = calculateTotal();
 
       // Create order first
+      const orderStatus = selectedPaymentMethod === 'cod' ? 'confirmed' : 'pending';
+      const paymentStatus = selectedPaymentMethod === 'cod' ? 'pending' : 'pending';
+
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert({
           user_id: user?.id,
           total_amount: total,
-          status: 'pending' as any,
-          payment_status: 'pending' as any,
+          status: orderStatus as any,
+          payment_status: paymentStatus as any,
           shipping_address: selectedAddr as any
         })
         .select()
@@ -245,40 +262,57 @@ const Checkout = () => {
 
       if (itemsError) throw itemsError;
 
-      // Call PayU payment function
-      console.log("💳 Calling PayU payment function...", {
-        orderId: orderData.id,
-        amount: total,
-        firstName: selectedAddr?.first_name,
-        email: user?.email
-      });
-      
-      const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-payu-payment', {
-        body: {
-          orderId: orderData.id,
-          amount: total,
-          productInfo: `Order #${orderData.id.slice(0, 8)}`,
-          firstName: selectedAddr?.first_name || 'Customer',
-          email: user?.email || 'customer@example.com',
-          phone: selectedAddr?.phone || '9999999999'
-        }
-      });
-
-      console.log("💳 PayU response:", { paymentData, paymentError });
-
-      if (paymentError) throw paymentError;
-
-      // Redirect to PayU
-      if (paymentData.paymentUrl) {
-        console.log("🔄 Redirecting to payment success...", paymentData.paymentUrl);
+      // Handle payment based on method
+      if (selectedPaymentMethod === 'cod') {
+        // For COD, just complete the order
+        console.log("📦 Processing COD order...");
         
-        // Clear cart after successful order creation
+        // Clear cart
         await supabase.from('cart').delete().eq('user_id', user?.id);
         
-        window.location.href = paymentData.paymentUrl;
+        // Create shipment
+        await supabase.functions.invoke('create-shipment', {
+          body: { orderId: orderData.id }
+        });
+
+        toast({
+          title: "Order Placed!",
+          description: "Your order has been placed successfully. You can pay on delivery."
+        });
+
+        navigate(`/payment-success?orderId=${orderData.id}&method=cod`);
       } else {
-        console.error("❌ No payment URL received:", paymentData);
-        throw new Error("No payment URL received from payment gateway");
+        // For online payment, call PayU function
+        console.log("💳 Calling PayU payment function...", {
+          orderId: orderData.id,
+          amount: total,
+          firstName: selectedAddr?.first_name,
+          email: user?.email
+        });
+        
+        const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-payu-payment', {
+          body: {
+            orderId: orderData.id,
+            amount: total,
+            productInfo: `Order #${orderData.id.slice(0, 8)}`,
+            firstName: selectedAddr?.first_name || 'Customer',
+            email: user?.email || 'customer@example.com',
+            phone: selectedAddr?.phone || '9999999999'
+          }
+        });
+
+        console.log("💳 PayU response:", { paymentData, paymentError });
+
+        if (paymentError) throw paymentError;
+
+        // Redirect to PayU
+        if (paymentData.paymentUrl) {
+          console.log("🔄 Redirecting to payment...", paymentData.paymentUrl);
+          window.location.href = paymentData.paymentUrl;
+        } else {
+          console.error("❌ No payment URL received:", paymentData);
+          throw new Error("No payment URL received from payment gateway");
+        }
       }
 
     } catch (error) {
@@ -462,16 +496,38 @@ const Checkout = () => {
                   Payment Method
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500" />
-                    <span className="font-medium">PayU Secure Payment</span>
+              <CardContent className="space-y-4">
+                <RadioGroup value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
+                  <div className="flex items-start space-x-2 p-4 border rounded-lg">
+                    <RadioGroupItem value="online" id="online" className="mt-1" />
+                    <div className="flex-1">
+                      <Label htmlFor="online" className="cursor-pointer">
+                        <div className="flex items-center gap-2 mb-1">
+                          <CreditCard className="h-4 w-4" />
+                          <span className="font-medium">Online Payment</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Credit Card, Debit Card, UPI, Net Banking & More
+                        </p>
+                      </Label>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Credit Card, Debit Card, UPI, Net Banking & More
-                  </p>
-                </div>
+
+                  <div className="flex items-start space-x-2 p-4 border rounded-lg">
+                    <RadioGroupItem value="cod" id="cod" className="mt-1" />
+                    <div className="flex-1">
+                      <Label htmlFor="cod" className="cursor-pointer">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Package className="h-4 w-4" />
+                          <span className="font-medium">Cash on Delivery</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Pay when your order is delivered
+                        </p>
+                      </Label>
+                    </div>
+                  </div>
+                </RadioGroup>
               </CardContent>
             </Card>
           </div>
@@ -551,12 +607,17 @@ const Checkout = () => {
                   onClick={handleCheckout} 
                   className="w-full" 
                   size="lg"
-                  disabled={processing || !selectedAddress}
+                  disabled={processing || !selectedAddress || !selectedPaymentMethod}
                 >
                   {processing ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Processing...
+                    </>
+                  ) : selectedPaymentMethod === 'cod' ? (
+                    <>
+                      <Package className="h-4 w-4 mr-2" />
+                      Place Order (COD)
                     </>
                   ) : (
                     <>

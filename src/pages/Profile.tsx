@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Mail, Phone, MapPin, Package, Settings, Heart, Plus, Edit, Trash2, Home, Building2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { User, Mail, Phone, MapPin, Package, Settings, Heart, Plus, Edit, Trash2, Home, Building2, Calendar, Truck } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,6 +46,162 @@ interface WishlistItem {
     description: string;
   };
 }
+
+interface Order {
+  id: string;
+  total_amount: number;
+  status: string;
+  payment_status: string;
+  created_at: string;
+  shipping_address: any;
+}
+
+const OrdersSection = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      fetchOrders();
+    }
+  }, [user]);
+
+  const fetchOrders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'confirmed':
+      case 'completed':
+        return 'bg-green-500';
+      case 'pending':
+        return 'bg-yellow-500';
+      case 'cancelled':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card className="bg-gray-900 border-purple-800/30">
+        <CardContent className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-700 rounded w-1/4"></div>
+            <div className="space-y-3">
+              <div className="h-20 bg-gray-700 rounded"></div>
+              <div className="h-20 bg-gray-700 rounded"></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <h2 className="text-2xl font-bold text-purple-400 flex items-center">
+        <Package className="h-6 w-6 mr-2" />
+        Order History ({orders.length})
+      </h2>
+
+      {orders.length === 0 ? (
+        <Card className="bg-gray-900 border-purple-800/30">
+          <CardContent>
+            <div className="text-center py-12">
+              <Package className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">No Orders Yet</h3>
+              <p className="text-gray-400 mb-4">You haven't placed any orders yet.</p>
+              <Link to="/shop">
+                <Button className="bg-purple-600 hover:bg-purple-700">
+                  Start Shopping
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {orders.map((order) => (
+            <Card key={order.id} className="bg-gray-900 border-purple-800/30">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-bold text-white">
+                      Order #{order.id.slice(0, 8)}
+                    </h3>
+                    <p className="text-sm text-gray-400 flex items-center mt-1">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-purple-400 text-lg">
+                      ₹{order.total_amount}
+                    </p>
+                    <div className="flex gap-2 mt-1">
+                      <Badge className={getStatusColor(order.status)}>
+                        {order.status}
+                      </Badge>
+                      <Badge variant="outline">
+                        {order.payment_status === 'completed' ? 'Paid' : 
+                         order.payment_status === 'pending' ? 'COD' : 'Failed'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                {order.shipping_address && (
+                  <div className="bg-gray-800 p-4 rounded-lg mb-4">
+                    <h4 className="font-medium text-white mb-2 flex items-center">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      Delivery Address
+                    </h4>
+                    <p className="text-sm text-gray-300">
+                      {order.shipping_address.first_name} {order.shipping_address.last_name}
+                    </p>
+                    <p className="text-sm text-gray-300">
+                      {order.shipping_address.address_line_1}
+                      {order.shipping_address.address_line_2 && `, ${order.shipping_address.address_line_2}`}
+                    </p>
+                    <p className="text-sm text-gray-300">
+                      {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Link to={`/track-order?orderId=${order.id}`}>
+                    <Button size="sm" variant="outline" className="border-purple-700 text-purple-400">
+                      <Truck className="h-4 w-4 mr-1" />
+                      Track Order
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
 
 
 const Profile = () => {
@@ -763,23 +920,7 @@ const Profile = () => {
 
               {/* Orders Tab */}
               <TabsContent value="orders" className="space-y-6">
-                <Card className="bg-gray-900 border-purple-800/30">
-                  <CardHeader>
-                    <CardTitle className="text-purple-400">Order History</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <Package className="h-16 w-16 text-purple-400 mx-auto mb-4" />
-                      <h3 className="text-xl font-bold mb-2">No Orders Yet</h3>
-                      <p className="text-gray-400 mb-4">You haven't placed any orders yet.</p>
-                      <Link to="/shop">
-                        <Button className="bg-purple-600 hover:bg-purple-700">
-                          Start Shopping
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
+                <OrdersSection />
               </TabsContent>
             </Tabs>
           </div>
