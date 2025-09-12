@@ -85,8 +85,7 @@ serve(async (req) => {
       phone: phone,
       surl: surl,
       furl: furl,
-      hash: hash,
-      service_provider: 'payu_paisa'
+      hash: hash
     };
 
     // Store payment details in database
