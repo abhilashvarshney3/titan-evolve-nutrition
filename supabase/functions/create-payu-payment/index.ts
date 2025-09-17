@@ -54,11 +54,13 @@ serve(async (req) => {
     // Generate unique transaction ID
     const txnid = `TXN_${orderId}_${Date.now()}`;
     
-    // Success and failure URLs - Use webhook endpoint
+    // Success and failure URLs - Use main website domain
     const baseUrl = req.headers.get("origin") || "https://titanevolvenutrition.com";
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const surl = `${supabaseUrl}/functions/v1/payu-callback`;
-    const furl = `${supabaseUrl}/functions/v1/payu-callback`;
+    
+    // PayU callbacks should go to your main domain, not Supabase domain
+    const surl = `${baseUrl}/api/payu-callback`;
+    const furl = `${baseUrl}/api/payu-callback`;
     
     // PayU requires specific parameters in exact order for hash generation
     const hashString = `${MERCHANT_KEY}|${txnid}|${amount}|${productInfo}|${firstName}|${email}|||||||||||${MERCHANT_SALT}`;

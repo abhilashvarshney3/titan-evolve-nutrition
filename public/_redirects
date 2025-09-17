@@ -1,0 +1,5 @@
+# Redirect PayU callbacks to Supabase edge function
+/api/payu-callback https://nvsufriurpjcrrnaxlfl.supabase.co/functions/v1/payu-callback 200
+
+# SPA fallback
+/*    /index.html   200
