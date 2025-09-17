@@ -51,8 +51,8 @@ serve(async (req) => {
     console.log('PayU Merchant Key length:', MERCHANT_KEY.length);
     console.log('PayU Salt length:', MERCHANT_SALT.length);
     
-    // Generate unique transaction ID
-    const txnid = `TXN_${orderId}_${Date.now()}`;
+    // Generate unique but shorter transaction ID
+    const txnid = `TXN_${Date.now()}`;
     
     // Success and failure URLs - Use main website domain
     const baseUrl = req.headers.get("origin") || "https://titanevolvenutrition.com";
@@ -62,8 +62,15 @@ serve(async (req) => {
     const surl = `${baseUrl}/api/payu-callback`;
     const furl = `${baseUrl}/api/payu-callback`;
     
+    // Ensure all parameters are properly formatted as strings
+    const amountStr = amount.toString();
+    const productInfoClean = productInfo.replace(/[#]/g, ''); // Remove special characters
+    const firstNameClean = firstName.trim();
+    const emailClean = email.toLowerCase().trim();
+    const phoneClean = phone.replace(/[^\d]/g, ''); // Keep only digits
+    
     // PayU requires specific parameters in exact order for hash generation
-    const hashString = `${MERCHANT_KEY}|${txnid}|${amount}|${productInfo}|${firstName}|${email}|||||||||||${MERCHANT_SALT}`;
+    const hashString = `${MERCHANT_KEY}|${txnid}|${amountStr}|${productInfoClean}|${firstNameClean}|${emailClean}|||||||||||${MERCHANT_SALT}`;
     
     // Generate SHA-512 hash
     const encoder = new TextEncoder();
@@ -75,16 +82,25 @@ serve(async (req) => {
     console.log('PayU Hash String (without salt):', hashString.replace(MERCHANT_SALT, 'SALT_HIDDEN'));
     console.log('Generated Hash Length:', hash.length);
     console.log('Hash starts with:', hash.substring(0, 10));
+    console.log('Cleaned parameters:', {
+      key: MERCHANT_KEY,
+      txnid,
+      amount: amountStr,
+      productinfo: productInfoClean,
+      firstname: firstNameClean,
+      email: emailClean,
+      phone: phoneClean
+    });
 
-    // PayU form parameters
+    // PayU form parameters - exactly matching working format
     const payuParams = {
       key: MERCHANT_KEY,
       txnid: txnid,
-      amount: amount.toString(),
-      productinfo: productInfo,
-      firstname: firstName,
-      email: email,
-      phone: phone,
+      amount: amountStr,
+      productinfo: productInfoClean,
+      firstname: firstNameClean,
+      email: emailClean,
+      phone: phoneClean,
       surl: surl,
       furl: furl,
       hash: hash
