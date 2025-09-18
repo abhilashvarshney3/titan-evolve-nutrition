@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ShoppingCart, Heart, MessageCircle, Plus, Minus } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ShoppingCart, Heart, Plus, Minus } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
@@ -35,6 +35,7 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
 
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { getQuantity, updateQuantity, loading } = useCartQuantityWithVariants();
   
@@ -139,9 +140,19 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
   const handleQuickBuy = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const message = `Hi! I want to buy ${selectedVariant.variant_name} - ${product.name} for ₹${selectedVariant.price}`;
-    const whatsappUrl = `https://wa.me/919211991181?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    
+    // Navigate to checkout with product data for quick buy
+    navigate('/checkout', {
+      state: {
+        product: {
+          id: product.id,
+          name: product.name,
+          price: selectedVariant.price,
+          image_url: getVariantImage(),
+        },
+        variant: selectedVariant,
+      },
+    });
   };
 
   const handleVariantChange = (variantId: string) => {
@@ -312,8 +323,7 @@ const ModernProductCard = ({ product }: ModernProductCardProps) => {
             variant="outline"
             className="border-green-500/70 text-green-500 hover:bg-green-500 hover:text-white px-3 py-2 text-sm font-bold hover:border-green-500 transition-all shadow-md hover:shadow-lg"
           >
-            <MessageCircle className="h-3 w-3 mr-1" />
-            BUY
+            QUICK BUY
           </Button>
         </div>
       </div>

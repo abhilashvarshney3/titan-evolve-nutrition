@@ -2,8 +2,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Star, Heart, MessageCircle, Plus, Minus } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ShoppingCart, Star, Heart, Plus, Minus } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/hooks/useWishlist';
@@ -39,6 +39,7 @@ const ProductCard = ({
 }: ProductCardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { quantity, loading, incrementQuantity, decrementQuantity, addToCart } = useCartQuantity(id);
   const { stats: reviewStats } = useProductReviews(id);
@@ -106,9 +107,18 @@ const ProductCard = ({
   const handleQuickBuy = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const message = `Hi! I'm interested in purchasing ${name} (₹${price}). Can you help me with the order?`;
-    const whatsappUrl = `https://wa.me/919211991181?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    
+    // Navigate to checkout with product data for quick buy
+    navigate('/checkout', {
+      state: {
+        product: {
+          id: id,
+          name: name,
+          price: price,
+          image_url: correctImage,
+        },
+      },
+    });
   };
 
   const weightDisplay = getWeightDisplay();
@@ -254,8 +264,7 @@ const ProductCard = ({
             variant="outline"
             className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-3 py-1 text-sm font-bold"
           >
-            <MessageCircle className="h-3 w-3 mr-1" />
-            BUY
+            QUICK BUY
           </Button>
         </div>
       </div>

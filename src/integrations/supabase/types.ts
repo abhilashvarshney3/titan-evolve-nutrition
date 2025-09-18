@@ -517,7 +517,12 @@ export type Database = {
       orders: {
         Row: {
           created_at: string | null
+          guest_email: string | null
+          guest_first_name: string | null
+          guest_last_name: string | null
+          guest_phone: string | null
           id: string
+          is_guest_order: boolean | null
           payment_status: Database["public"]["Enums"]["payment_status"] | null
           shipping_address: Json | null
           status: Database["public"]["Enums"]["order_status"] | null
@@ -527,7 +532,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          guest_email?: string | null
+          guest_first_name?: string | null
+          guest_last_name?: string | null
+          guest_phone?: string | null
           id?: string
+          is_guest_order?: boolean | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
           shipping_address?: Json | null
           status?: Database["public"]["Enums"]["order_status"] | null
@@ -537,7 +547,12 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          guest_email?: string | null
+          guest_first_name?: string | null
+          guest_last_name?: string | null
+          guest_phone?: string | null
           id?: string
+          is_guest_order?: boolean | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
           shipping_address?: Json | null
           status?: Database["public"]["Enums"]["order_status"] | null
