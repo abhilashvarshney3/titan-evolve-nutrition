@@ -28,15 +28,20 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    // Get authenticated user
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader.replace("Bearer ", "");
-    const { data } = await supabaseClient.auth.getUser(token);
-    const user = data.user;
-
-    if (!user) {
-      throw new Error("User not authenticated");
+    // Get authenticated user (optional for guest checkout)
+    let user = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      try {
+        const token = authHeader.replace("Bearer ", "");
+        const { data } = await supabaseClient.auth.getUser(token);
+        user = data.user;
+      } catch (error) {
+        console.log('No valid auth token provided, processing as guest checkout');
+      }
     }
+
+    console.log('Processing payment for:', user ? 'authenticated user' : 'guest checkout');
 
     const { orderId, amount, productInfo, firstName, email, phone }: PaymentRequest = await req.json();
 

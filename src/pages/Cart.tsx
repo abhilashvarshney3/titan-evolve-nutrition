@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, MessageCircle, CreditCard } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -185,37 +185,6 @@ const Cart = () => {
     } finally {
       setUpdating(null);
     }
-  };
-
-  const handleWhatsAppCheckout = () => {
-    if (cartItems.length === 0) return;
-
-    const phoneNumber = "919211991181";
-    let message = "Hi! I want to place an order for the following items:\n\n";
-    
-    cartItems.forEach((item, index) => {
-      const price = item.variant?.price || item.product.price;
-      const variantName = item.variant?.variant_name || 'Default';
-      message += `${index + 1}. ${item.product.name} (${variantName})\n`;
-      message += `   Quantity: ${item.quantity}\n`;
-      message += `   Price: ₹${price.toFixed(0)} each\n`;
-      message += `   Subtotal: ₹${(price * item.quantity).toFixed(0)}\n\n`;
-    });
-
-    const subtotal = cartItems.reduce((sum, item) => {
-      const price = item.variant?.price || item.product.price;
-      return sum + (price * item.quantity);
-    }, 0);
-    
-    message += `Subtotal: ₹${subtotal.toFixed(0)}\n`;
-    message += `Total Amount: ₹${subtotal.toFixed(0)} (+ shipping)\n\n`;
-    message += "Payment Method: [ ] Prepaid [ ] Cash on Delivery (+₹199)\n\n";
-    message += "Please confirm the order and provide delivery details.";
-
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-    
-    window.open(whatsappUrl, '_blank');
   };
 
   const total = cartItems.reduce((sum, item) => {
@@ -457,19 +426,6 @@ const Cart = () => {
                         PROCEED TO CHECKOUT
                       </Button>
                     </Link>
-
-                    <Button 
-                      onClick={handleWhatsAppCheckout}
-                      variant="outline"
-                      className="w-full border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-bold py-4 text-lg flex items-center justify-center gap-2"
-                    >
-                      <MessageCircle className="h-5 w-5" />
-                      CHECKOUT VIA WHATSAPP
-                    </Button>
-
-                    <p>
-                      
-                    </p>
 
                     <Link to="/shop">
                       <Button variant="outline" className="w-full border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white">
