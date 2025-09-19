@@ -13,13 +13,18 @@ import { Package, Search, Edit, Eye, Truck } from 'lucide-react';
 
 interface Order {
   id: string;
-  user_id: string;
+  user_id?: string;
   total_amount: number;
   status: string;
   payment_status: string;
   shipping_address: any;
   created_at: string;
   updated_at: string;
+  is_guest_order?: boolean;
+  guest_email?: string;
+  guest_phone?: string;
+  guest_first_name?: string;
+  guest_last_name?: string;
 }
 
 interface OrderItem {
@@ -29,6 +34,19 @@ interface OrderItem {
   variant_id?: string;
   quantity: number;
   price: number;
+  products?: {
+    id: string;
+    name: string;
+    price: number;
+    image_url?: string;
+  };
+  product_variants?: {
+    id: string;
+    variant_name: string;
+    price: number;
+    size: string;
+    flavor?: string;
+  };
 }
 
 interface OrderTracking {
@@ -42,10 +60,19 @@ interface OrderTracking {
   created_at: string;
 }
 
+interface Profile {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+}
+
 const OrderManagement = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderItems, setOrderItems] = useState<Record<string, OrderItem[]>>({});
   const [orderTracking, setOrderTracking] = useState<Record<string, OrderTracking[]>>({});
+  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -77,13 +104,17 @@ const OrderManagement = () => {
       if (ordersError) throw ordersError;
       setOrders(ordersData || []);
 
-      // Fetch order items for all orders
+      // Fetch order items for all orders with product and variant details
       if (ordersData && ordersData.length > 0) {
         const orderIds = ordersData.map(o => o.id);
         
         const { data: itemsData, error: itemsError } = await supabase
           .from('order_items')
-          .select('*')
+          .select(`
+            *,
+            products(id, name, price, image_url),
+            product_variants(id, variant_name, price, size, flavor)
+          `)
           .in('order_id', orderIds);
 
         if (itemsError) throw itemsError;
@@ -97,6 +128,23 @@ const OrderManagement = () => {
           itemsByOrder[item.order_id].push(item);
         });
         setOrderItems(itemsByOrder);
+
+        // Fetch user profiles for non-guest orders
+        const userIds = ordersData.filter(o => o.user_id && !o.is_guest_order).map(o => o.user_id);
+        if (userIds.length > 0) {
+          const { data: profilesData, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, first_name, last_name, email, phone')
+            .in('id', userIds);
+
+          if (profilesError) throw profilesError;
+
+          const profilesMap: Record<string, Profile> = {};
+          profilesData?.forEach(profile => {
+            profilesMap[profile.id] = profile;
+          });
+          setProfiles(profilesMap);
+        }
 
         // Fetch order tracking
         const { data: trackingData, error: trackingError } = await supabase
@@ -263,6 +311,15 @@ const OrderManagement = () => {
                       hour12: true
                     })}
                   </p>
+                  {order.is_guest_order ? (
+                    <p className="text-sm text-blue-600">
+                      Guest: {order.guest_first_name} {order.guest_last_name} ({order.guest_email})
+                    </p>
+                  ) : order.user_id && profiles[order.user_id] ? (
+                    <p className="text-sm text-green-600">
+                      User: {profiles[order.user_id].first_name} {profiles[order.user_id].last_name} ({profiles[order.user_id].email})
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex gap-2 items-center">
                   <Badge className={`${getStatusColor(order.status)} text-white`}>
@@ -284,50 +341,91 @@ const OrderManagement = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="font-medium">Total:</span> ₹{order.total_amount}
+              <div className="space-y-4">
+                {/* Order Items */}
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Order Items:</h4>
+                  {orderItems[order.id]?.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">
+                          {item.products?.name || 'Product Name Not Available'}
+                        </p>
+                        {item.product_variants && (
+                          <p className="text-xs text-gray-600">
+                            {item.product_variants.variant_name} - {item.product_variants.size}
+                            {item.product_variants.flavor && ` • ${item.product_variants.flavor}`}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-600">Quantity: {item.quantity}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <span className="font-medium">Payment:</span> {order.payment_status}
-                </div>
-                <div>
-                  <span className="font-medium">Items:</span> {orderItems[order.id]?.length || 0}
-                </div>
-                <div>
-                  <span className="font-medium">Status:</span>
-                  <Select 
-                    value={order.status} 
-                    onValueChange={(value) => updateOrderStatus(order.id, value)}
-                  >
-                    <SelectTrigger className="w-full mt-1 bg-background text-foreground border-input">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background text-foreground border-input z-50">
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="confirmed">Confirmed</SelectItem>
-                      <SelectItem value="shipped">Shipped</SelectItem>
-                      <SelectItem value="delivered">Delivered</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
 
-              {/* Show tracking info if available */}
-              {orderTracking[order.id] && orderTracking[order.id].length > 0 && (
-                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                  <div className="text-sm font-medium mb-2">Latest Tracking Update:</div>
-                  <div className="text-sm text-gray-600">
-                    {orderTracking[order.id][0].message}
-                    {orderTracking[order.id][0].tracking_number && (
-                      <span className="ml-2">
-                        Tracking: {orderTracking[order.id][0].tracking_number}
-                      </span>
-                    )}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium">Total:</span> ₹{order.total_amount}
+                  </div>
+                  <div>
+                    <span className="font-medium">Payment:</span> {order.payment_status}
+                  </div>
+                  <div>
+                    <span className="font-medium">Items:</span> {orderItems[order.id]?.length || 0}
+                  </div>
+                  <div>
+                    <span className="font-medium">Status:</span>
+                    <Select 
+                      value={order.status} 
+                      onValueChange={(value) => updateOrderStatus(order.id, value)}
+                    >
+                      <SelectTrigger className="w-full mt-1 bg-background text-foreground border-input">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background text-foreground border-input z-50">
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="shipped">Shipped</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-              )}
+
+                {/* Shipping Address */}
+                {order.shipping_address && (
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <h4 className="font-medium text-sm mb-2">Shipping Address:</h4>
+                    <div className="text-sm text-gray-600">
+                      <p>{order.shipping_address.first_name} {order.shipping_address.last_name}</p>
+                      <p>{order.shipping_address.address_line_1}</p>
+                      {order.shipping_address.address_line_2 && <p>{order.shipping_address.address_line_2}</p>}
+                      <p>{order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}</p>
+                      <p>{order.shipping_address.country}</p>
+                      {order.shipping_address.phone && <p>Phone: {order.shipping_address.phone}</p>}
+                    </div>
+                  </div>
+                )}
+
+                {/* Show tracking info if available */}
+                {orderTracking[order.id] && orderTracking[order.id].length > 0 && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="text-sm font-medium mb-2">Latest Tracking Update:</div>
+                    <div className="text-sm text-gray-600">
+                      {orderTracking[order.id][0].message}
+                      {orderTracking[order.id][0].tracking_number && (
+                        <span className="ml-2">
+                          Tracking: {orderTracking[order.id][0].tracking_number}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         ))}

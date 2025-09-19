@@ -354,23 +354,42 @@ const Checkout = () => {
 
       // Handle online payment (COD removed)
       const customerEmail = user ? user.email : guestDetails.email;
-      const { data, error } = await supabase.functions.invoke('create-payu-payment', {
-        body: {
-          orderId: order.id,
-          amount: calculateTotal().finalTotal,
-          productInfo: `Order #${order.id}`,
-          firstName: shippingAddress.first_name,
-          email: customerEmail,
-          phone: shippingAddress.phone,
-        },
-      });
+      
+      try {
+        const response = await fetch(`https://nvsufriurpjcrrnaxlfl.supabase.co/functions/v1/create-payu-payment`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52c3Vmcml1cnBqY3JybmF4bGZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE1NzkyMzIsImV4cCI6MjA2NzE1NTIzMn0.R3ppGADNFin7FEOQDSk0QBN-qOI09o_jksMzI2T-mdw`,
+          },
+          body: JSON.stringify({
+            orderId: order.id,
+            amount: calculateTotal().finalTotal,
+            productInfo: `Order ${order.id}`,
+            firstName: shippingAddress.first_name,
+            email: customerEmail,
+            phone: shippingAddress.phone || guestDetails.phone || '9999999999',
+          }),
+        });
 
-      if (error) throw error;
+        if (!response.ok) {
+          throw new Error('Payment request failed');
+        }
 
-      if (data?.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        throw new Error('Payment URL not received');
+        // The edge function returns HTML that auto-redirects to PayU
+        const paymentHtml = await response.text();
+        
+        // Create a new window/tab with the PayU form
+        const paymentWindow = window.open('', '_self');
+        if (paymentWindow) {
+          paymentWindow.document.write(paymentHtml);
+          paymentWindow.document.close();
+        } else {
+          throw new Error('Failed to open payment window');
+        }
+      } catch (paymentError) {
+        console.error('Payment error:', paymentError);
+        throw new Error('Payment processing failed');
       }
 
     } catch (error) {
@@ -483,8 +502,12 @@ const Checkout = () => {
                 {user && (
                   <RadioGroup value={selectedAddress} onValueChange={setSelectedAddress}>
                     {addresses.map((address) => (
-                      <div key={address.id} className="flex items-start space-x-2">
-                        <RadioGroupItem value={address.id} id={address.id} className="mt-1" />
+                      <div key={address.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted/50">
+                        <RadioGroupItem 
+                          value={address.id} 
+                          id={address.id} 
+                          className="mt-1 h-4 w-4 flex-shrink-0" 
+                        />
                         <Label htmlFor={address.id} className="flex-1 cursor-pointer">
                           <div className="space-y-1">
                             <p className="font-medium text-sm md:text-base">
@@ -615,8 +638,12 @@ const Checkout = () => {
               </CardHeader>
               <CardContent>
                 <RadioGroup value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="online" id="online" />
+                  <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50">
+                    <RadioGroupItem 
+                      value="online" 
+                      id="online" 
+                      className="h-4 w-4 flex-shrink-0" 
+                    />
                     <Label htmlFor="online" className="flex items-center gap-2 cursor-pointer text-sm md:text-base">
                       <CreditCard className="h-4 w-4" />
                       Online Payment
