@@ -30,7 +30,7 @@ const Footer = () => {
               <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors">
+              <a href="https://www.instagram.com/titanevolve?igsh=MTR5bnU0bzl3MWJzcg==" className="text-gray-400 hover:text-purple-400 transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
               <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors">
@@ -121,7 +121,7 @@ const Footer = () => {
         <div className="border-t border-purple-800/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-400 text-center md:text-left">
-              © 2024 Titan Evolve. All rights reserved.
+              © 2025 Titan Evolve Nutrition. All rights reserved.
             </p>
             <div className="flex flex-wrap gap-4 md:gap-6 text-sm justify-center md:justify-end">
               <Link to="/faq" className="text-gray-400 hover:text-white transition-colors">
