@@ -427,6 +427,10 @@ const Cart = () => {
                       </Button>
                     </Link>
 
+                    <div>
+                    
+                    </div>
+
                     <Link to="/shop">
                       <Button variant="outline" className="w-full border-purple-600 text-purple-400 hover:bg-purple-600 hover:text-white">
                         Continue Shopping
