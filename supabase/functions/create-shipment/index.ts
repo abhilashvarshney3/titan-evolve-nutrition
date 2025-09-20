@@ -6,11 +6,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// I Carry API Configuration (Dummy - Replace with actual values)
+// I Carry API Configuration
 const ICARRY_CONFIG = {
-  apiUrl: 'https://www.icarry.in/api_login', // Replace with actual I Carry API URL
-  apiKey: 'ela31436', // Add this to Supabase secrets
-  apiSecret: 'Ds7JGqX1U1jnSqBX7LH28tMfjSOBjhdxDi7uK5bPqAqZMo6KW6F5HEf4MYQQj8GwTvODL2brinXOHCfJNrhonXhdDb5ZgRcb26CV6USiODVOEu0YUZJ4s8A6eZWR9fI1rpg27FstJmT7dQLpCpLPlpTvaHqEVf3NhdJSWRtxLzYLs1GCBPg2IHtod8lNwS7J1XmhGysgNYO9ib7qS37oh1Q6FfV6Bd0M6aUbmDfy6Gg1jcQ30gsc8vx9Y8YMKiAT' // Add this to Supabase secrets
+  apiUrl: 'https://www.icarry.in/api_login', // I Carry API URL
+  username: Deno.env.get('ICARRY_USERNAME') || 'ela31436', // I Carry username
+  key: Deno.env.get('ICARRY_API_KEY') || 'Ds7JGqX1U1jnSqBX7LH28tMfjSOBjhdxDi7uK5bPqAqZMo6KW6F5HEf4MYQQj8GwTvODL2brinXOHCfJNrhonXhdDb5ZgRcb26CV6USiODVOEu0YUZJ4s8A6eZWR9fI1rpg27FstJmT7dQLpCpLPlpTvaHqEVf3NhdJSWRtxLzYLs1GCBPg2IHtod8lNwS7J1XmhGysgNYO9ib7qS37oh1Q6FfV6Bd0M6aUbmDfy6Gg1jcQ30gsc8vx9Y8YMKiAT' // I Carry API key
 };
 
 interface ShipmentRequest {

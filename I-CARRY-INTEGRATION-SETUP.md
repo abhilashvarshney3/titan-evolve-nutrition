@@ -5,9 +5,9 @@
 To complete the I Carry shipment integration, you need to provide the following details:
 
 ### 1. API Credentials
-- **API Base URL**: The I Carry API endpoint (e.g., `https://api.icarry.com/v1`)
+- **API Base URL**: The I Carry API endpoint (e.g., `https://www.icarry.in/api_login`)
+- **Username**: Your I Carry username for authentication
 - **API Key**: Your I Carry API key for authentication
-- **API Secret**: Your I Carry API secret (if required)
 
 ### 2. Account Details
 - **Account ID**: Your I Carry account identifier
@@ -27,9 +27,9 @@ Once you have the above information, update the following file:
 **Section to Update** (Lines 10-14):
 ```typescript
 const ICARRY_CONFIG = {
-  apiUrl: 'YOUR_ICARRY_API_URL', // Replace with actual API URL
-  apiKey: 'YOUR_ICARRY_API_KEY', // Add this to Supabase secrets
-  apiSecret: 'YOUR_ICARRY_API_SECRET' // Add this to Supabase secrets
+  apiUrl: 'https://www.icarry.in/api_login', // I Carry API URL
+  username: 'YOUR_ICARRY_USERNAME', // Add this to Supabase secrets
+  key: 'YOUR_ICARRY_API_KEY' // Add this to Supabase secrets
 };
 ```
 
@@ -37,8 +37,8 @@ const ICARRY_CONFIG = {
 
 After getting your I Carry credentials, add these secrets to your Supabase project:
 
-1. `ICARRY_API_KEY` - Your I Carry API key
-2. `ICARRY_API_SECRET` - Your I Carry API secret (if required)
+1. `ICARRY_USERNAME` - Your I Carry username
+2. `ICARRY_API_KEY` - Your I Carry API key
 
 ## API Integration Points
 
