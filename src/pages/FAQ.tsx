@@ -19,7 +19,7 @@ const FAQ = () => {
     },
     {
       question: "What is your return policy?",
-      answer: "We offer a 30-day return policy for unopened products. Products must be in original condition with all packaging."
+      answer: "We offer a 7-day return policy for unopened products. Products must be in original condition with all packaging."
     },
     {
       question: "Do you offer bulk discounts?",
