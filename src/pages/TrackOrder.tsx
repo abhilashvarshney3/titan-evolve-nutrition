@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,27 +7,77 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Package, Truck, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { useSearchParams } from 'react-router-dom';
 
 const TrackOrder = () => {
   const [orderNumber, setOrderNumber] = useState('');
   const [trackingResult, setTrackingResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
-  const handleTrack = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!orderNumber.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Please enter an order number',
-        variant: 'destructive',
-      });
-      return;
+  // Initialize order number from URL params
+  useEffect(() => {
+    const orderId = searchParams.get('orderId');
+    if (orderId) {
+      // Extract first 8 characters for display
+      setOrderNumber(orderId.slice(0, 8));
+      // Auto-trigger tracking
+      handleTrackWithId(orderId);
     }
+  }, [searchParams]);
 
+  // Set up real-time subscription for order updates
+  useEffect(() => {
+    if (!trackingResult) return;
+
+    const channel = supabase
+      .channel('order-tracking-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders',
+          filter: `id=eq.${trackingResult.fullOrderId}`
+        },
+        (payload) => {
+          console.log('Order update received:', payload);
+          if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) {
+            setTrackingResult(prev => prev ? ({
+              ...prev,
+              status: (payload.new as any).status
+            }) : null);
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'order_tracking',
+          filter: `order_id=eq.${trackingResult.fullOrderId}`
+        },
+        (payload) => {
+          console.log('Tracking update received:', payload);
+          // Refresh tracking data when tracking updates
+          if (trackingResult.fullOrderId) {
+            handleTrackWithId(trackingResult.fullOrderId);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [trackingResult]);
+
+  const handleTrackWithId = async (fullOrderId: string) => {
     setLoading(true);
     try {
-      // Fetch order details from database
+      // Fetch order details from database using full order ID
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .select(`
@@ -55,7 +105,7 @@ const TrackOrder = () => {
             )
           )
         `)
-        .eq('id', orderNumber)
+        .eq('id', fullOrderId)
         .single();
 
       if (orderError) {
@@ -68,30 +118,113 @@ const TrackOrder = () => {
         return;
       }
 
-      // Fetch profile data separately if it's not a guest order
-      let profileData = null;
-      if (!order.is_guest_order && order.user_id) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, email, phone')
-          .eq('id', order.user_id)
-          .single();
-        profileData = profile;
+      await processOrderData(order);
+    } catch (error) {
+      console.error('Error tracking order:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch order details. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTrack = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!orderNumber.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter an order number',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Search for order by partial ID (first 8 characters)
+      const { data: orders, error: orderError } = await supabase
+        .from('orders')
+        .select(`
+          id,
+          created_at,
+          status,
+          total_amount,
+          shipping_address,
+          is_guest_order,
+          guest_first_name,
+          guest_last_name,
+          guest_email,
+          guest_phone,
+          user_id,
+          order_items (
+            id,
+            quantity,
+            price,
+            product:products (
+              name,
+              image_url
+            ),
+            variant:product_variants (
+              variant_name
+            )
+          )
+        `)
+        .ilike('id', `${orderNumber}%`);
+
+      if (orderError || !orders || orders.length === 0) {
+        toast({
+          title: 'Order Not Found',
+          description: 'No order found with this order number. Please check and try again.',
+          variant: 'destructive',
+        });
+        setTrackingResult(null);
+        return;
       }
 
-      // Fetch order tracking information
-      const { data: tracking } = await supabase
-        .from('order_tracking')
-        .select('*')
-        .eq('order_id', orderNumber)
-        .order('created_at', { ascending: true });
+      // Use the first matching order
+      const order = orders[0];
+      await processOrderData(order);
+    } catch (error) {
+      console.error('Error tracking order:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch order details. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      // Fetch shipment information if available
-      const { data: shipment } = await supabase
-        .from('shipments')
-        .select('*')
-        .eq('order_id', orderNumber)
+  const processOrderData = async (order: any) => {
+
+    // Fetch profile data separately if it's not a guest order
+    let profileData = null;
+    if (!order.is_guest_order && order.user_id) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, email, phone')
+        .eq('id', order.user_id)
         .single();
+      profileData = profile;
+    }
+
+    // Fetch order tracking information using full order ID
+    const { data: tracking } = await supabase
+      .from('order_tracking')
+      .select('*')
+      .eq('order_id', order.id)
+      .order('created_at', { ascending: true });
+
+    // Fetch shipment information if available
+    const { data: shipment } = await supabase
+      .from('shipments')
+      .select('*')
+      .eq('order_id', order.id)
+      .single();
 
       // Generate tracking steps based on order status and tracking data
       const generateTrackingSteps = () => {
@@ -144,31 +277,21 @@ const TrackOrder = () => {
           ? `${profileData.first_name} ${profileData.last_name}`
           : 'Unknown Customer';
 
-      setTrackingResult({
-        orderNumber: order.id,
-        status: order.status,
-        estimatedDelivery: shipment?.estimated_delivery 
-          ? new Date(shipment.estimated_delivery).toLocaleDateString()
-          : 'TBD',
-        trackingNumber: shipment?.tracking_number || 'Not yet assigned',
-        carrier: shipment?.carrier || 'I Carry',
-        customerName: customerInfo,
-        orderDate: new Date(order.created_at).toLocaleDateString(),
-        totalAmount: order.total_amount,
-        items: order.order_items,
-        steps: generateTrackingSteps()
-      });
-
-    } catch (error) {
-      console.error('Error tracking order:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch order details. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
+    setTrackingResult({
+      orderNumber: order.id.slice(0, 8), // Display short version
+      fullOrderId: order.id, // Keep full ID for subscriptions
+      status: order.status,
+      estimatedDelivery: shipment?.estimated_delivery 
+        ? new Date(shipment.estimated_delivery).toLocaleDateString()
+        : 'TBD',
+      trackingNumber: shipment?.tracking_number || 'Not yet assigned',
+      carrier: shipment?.carrier || 'I Carry',
+      customerName: customerInfo,
+      orderDate: new Date(order.created_at).toLocaleDateString(),
+      totalAmount: order.total_amount,
+      items: order.order_items,
+      steps: generateTrackingSteps()
+    });
   };
 
   return (
