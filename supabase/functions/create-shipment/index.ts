@@ -8,7 +8,7 @@ const corsHeaders = {
 
 // I Carry API Configuration (Dummy - Replace with actual values)
 const ICARRY_CONFIG = {
-  apiUrl: 'https://api.icarry.com/v1', // Replace with actual I Carry API URL
+  apiUrl: 'https://www.icarry.in/api_login', // Replace with actual I Carry API URL
   apiKey: 'your-icarry-api-key', // Add this to Supabase secrets
   apiSecret: 'your-icarry-api-secret' // Add this to Supabase secrets
 };
